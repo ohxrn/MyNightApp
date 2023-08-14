@@ -2,6 +2,7 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getDatabase } from "firebase/database";
+import { getAuth } from "firebase/auth";
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -11,6 +12,7 @@ import { getDatabase } from "firebase/database";
 const firebaseConfig = {
   apiKey: "AIzaSyCQKqs2S6JRAjiPGb-9CDH1lapU-eIMmTM",
   authDomain: "mynightapp-c9c7c.firebaseapp.com",
+  databaseURL: "https://mynightapp-c9c7c-default-rtdb.firebaseio.com",
   projectId: "mynightapp-c9c7c",
   storageBucket: "mynightapp-c9c7c.appspot.com",
   messagingSenderId: "1025308955866",
@@ -18,8 +20,7 @@ const firebaseConfig = {
   measurementId: "G-GH3PSMEY8X",
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-// const analytics = getAnalytics(app);
-
+const auth = getAuth(app); // Initialize Firebase authentication
 export const db = getDatabase(app);
+export { auth };
