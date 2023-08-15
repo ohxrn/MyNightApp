@@ -7,6 +7,7 @@ import {
   TextInput,
   TouchableOpacity,
 } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import { Picker } from "@react-native-picker/picker";
 import { Label } from "react-native-paper";
 import { push, set, ref } from "firebase/database";
@@ -19,11 +20,10 @@ function CompanyForm() {
   const [compName, setCompName] = useState("");
   const [compDescription, setCompDescription] = useState("");
   const [address, setAddress] = useState("");
-  const [latitude, setLatitude] = useState();
-  const [longitude, setLongitude] = useState();
   const [error, setError] = useState("");
-
   const [selectedValue, setSelectedValue] = useState("option1");
+  //
+  const navigation = useNavigation();
 
   const handleGeocode = async () => {
     try {
@@ -51,34 +51,7 @@ function CompanyForm() {
     }
   };
 
-  const handleAddressChange = (value) => {
-    setAddress(value);
-  };
-
-  const handleCompany = async () => {
-    //
-    try {
-      const response = await axios.get(
-        `https://maps.googleapis.com/maps/api/geocode/json`,
-        {
-          params: {
-            address: address,
-            key: "AIzaSyBpkeReT5KZNMo5_WxaRNJepGtDAu8nrG4",
-          },
-        }
-      );
-
-      if (response.data.results.length > 0) {
-        const location = response.data.results[0].geometry.location;
-        setLatitude(location.lat);
-        setLongitude(location.lng);
-      }
-    } catch (error) {
-      console.error("Error converting address:", error);
-    }
-
-    //
-
+  const handleCompany = () => {
     const companiesRef = ref(db, "company"); // Reference to the "company" location
     const newCompanyRef = push(companiesRef); // Generate a new child location with a unique key
     const newCompanyId = newCompanyRef.key;
@@ -86,11 +59,10 @@ function CompanyForm() {
       companyName: compName,
       description: compDescription,
       businessType: selectedValue,
-      longitude: longitude,
-      latitude: latitude,
+      address: location,
     })
       .then(() => {
-        alert("data has been sent");
+        navigation.replace("CompanySubmit");
       })
       .catch((error) => {
         alert(error);

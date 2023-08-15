@@ -8,6 +8,7 @@ import LoginScreen from "./screens/LoginScreen";
 
 import HomeScreen from "./screens/HomeScreen";
 import CompanyForm from "./screens/CompanyForm";
+import CompanySubmit from "./screens/CompanySubmit";
 
 function App(props) {
   const Stack = createNativeStackNavigator();
@@ -19,6 +20,11 @@ function App(props) {
           name="CompanyForm"
           options={{ headerShown: false }}
           component={CompanyForm}
+        />
+        <Stack.Screen
+          name="CompanySubmit"
+          options={{ headerShown: false }}
+          component={CompanySubmit}
         />
         <Stack.Screen
           name="welcome"
