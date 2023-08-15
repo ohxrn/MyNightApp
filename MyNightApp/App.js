@@ -5,7 +5,9 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import LoginScreen from "./screens/LoginScreen";
+
 import HomeScreen from "./screens/HomeScreen";
+import CompanyForm from "./screens/CompanyForm";
 
 function App(props) {
   const Stack = createNativeStackNavigator();
@@ -13,7 +15,16 @@ function App(props) {
     <NavigationContainer>
       <Stack.Navigator>
         <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="welcome" component={HomeScreen} />
+        <Stack.Screen
+          name="CompanyForm"
+          options={{ headerShown: false }}
+          component={CompanyForm}
+        />
+        <Stack.Screen
+          name="welcome"
+          options={{ headerShown: false }}
+          component={HomeScreen}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

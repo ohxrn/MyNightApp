@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, Button } from "react-native";
+import { StyleSheet, Text, View, Button, SafeAreaView } from "react-native";
 import { auth } from "../Components/Config";
 import { useNavigation } from "@react-navigation/native";
 import * as Location from "expo-location";
@@ -60,10 +60,10 @@ const HomeScreen = () => {
     return () => clearInterval(intervalId);
   }, []); // Empty dependency array to run the effect only once
   return (
-    <View>
+    <SafeAreaView>
       <Text>Welcome, {auth.currentUser?.email}</Text>
       <Button title="Sign out" onPress={signOut} />
-    </View>
+    </SafeAreaView>
   );
 };
 
