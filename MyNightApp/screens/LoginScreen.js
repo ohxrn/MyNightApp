@@ -21,7 +21,7 @@ function UserForm(props) {
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
-        navigation.navigate("welcome");
+        navigation.replace("welcome");
       }
     });
     return unsubscribe;
