@@ -25,7 +25,7 @@ function CompanyForm(props) {
       companyName: compName,
     })
       .then(() => {
-        alert("data updated");
+        alert("data has been sent");
       })
       .catch((error) => {
         alert(error);
