@@ -8,6 +8,7 @@ import {
   TextInput,
   TouchableOpacity,
 } from "react-native";
+import { Picker } from "@react-native-picker/picker";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -18,6 +19,8 @@ import { db } from "../Components/Config";
 
 function CompanyForm(props) {
   const [compName, setCompName] = useState("");
+  const [compDescription, setCompDescription] = useState("");
+  const [selectedValue, setSelectedValue] = useState("option1");
 
   const handleCompany = () => {
     const companiesRef = ref(db, "company"); // Reference to the "company" location
@@ -36,7 +39,7 @@ function CompanyForm(props) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View>
+      <View style={styles.container}>
         <TextInput
           value={compName}
           onChangeText={(e) => {
@@ -44,9 +47,29 @@ function CompanyForm(props) {
           }}
           placeholder="Company Name"
         />
+        <TextInput
+          value={compDescription}
+          onChangeText={(e) => {
+            setCompDescription(e);
+          }}
+          placeholder="Description"
+        />
         <TouchableOpacity onPress={handleCompany}>
           <Text>Create Company</Text>
         </TouchableOpacity>
+        <View style={{ width: 375 }}>
+          <Picker
+            selectedValue={selectedValue}
+            onValueChange={(itemValue, itemIndex) =>
+              setSelectedValue(itemValue)
+            }
+          >
+            <Picker.Item label="Bar" value="option1" />
+            <Picker.Item label="Club" value="option2" />
+            <Picker.Item label="Concert Venue" value="option3" />
+            <Picker.Item label="Special Event" value="option4" />
+          </Picker>
+        </View>
       </View>
     </SafeAreaView>
   );
