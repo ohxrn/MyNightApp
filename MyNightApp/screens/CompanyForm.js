@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { FirebaseApp } from "firebase/app";
 import {
   View,
   StyleSheet,
@@ -9,11 +8,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  onAuthStateChanged,
-} from "firebase/auth";
+import { Label } from "react-native-paper";
 import { push, set, ref } from "firebase/database";
 import { db } from "../Components/Config";
 
@@ -54,10 +49,8 @@ function CompanyForm(props) {
           }}
           placeholder="Description"
         />
-        <TouchableOpacity onPress={handleCompany}>
-          <Text>Create Company</Text>
-        </TouchableOpacity>
-        <View style={{ width: 375 }}>
+
+        <View style={{ width: 375, alignContent: "center" }}>
           <Picker
             selectedValue={selectedValue}
             onValueChange={(itemValue, itemIndex) =>
@@ -70,6 +63,9 @@ function CompanyForm(props) {
             <Picker.Item label="Special Event" value="option4" />
           </Picker>
         </View>
+        <TouchableOpacity onPress={handleCompany}>
+          <Text>Create Company</Text>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
