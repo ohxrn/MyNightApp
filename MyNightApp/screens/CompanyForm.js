@@ -21,6 +21,7 @@ function CompanyForm() {
   const [address, setAddress] = useState("");
   const [latitude, setLatitude] = useState();
   const [longitude, setLongitude] = useState();
+  const [error, setError] = useState("");
 
   const [selectedValue, setSelectedValue] = useState("option1");
 
@@ -40,11 +41,13 @@ function CompanyForm() {
         const result = response.data.results[0];
         const { lat, lng } = result.geometry.location;
         setLocation({ latitude: lat, longitude: lng });
+        setError("");
       } else {
         setLocation(null);
       }
     } catch (error) {
       console.error("Error converting address:", error);
+      setError("could not convert");
     }
   };
 
@@ -121,6 +124,7 @@ function CompanyForm() {
           />
           <TouchableOpacity onPress={handleGeocode}>
             <Text>Find Location</Text>
+            <Text>{error}</Text>
           </TouchableOpacity>
           <MapView
             style={styles.map}
