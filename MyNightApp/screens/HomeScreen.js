@@ -3,8 +3,33 @@ import { StyleSheet, Text, View, Button, SafeAreaView } from "react-native";
 import { auth } from "../Components/Config";
 import { useNavigation } from "@react-navigation/native";
 import * as Location from "expo-location";
+import { getDatabase, ref, onValue } from "firebase/database";
+import { db } from "../Components/Config";
 
 const HomeScreen = () => {
+  const [dataArr, setDataArr] = useState([]);
+  useEffect(() => {
+    const db = getDatabase();
+    const postsRef = ref(db, "company");
+
+    const unsubscribe = onValue(postsRef, (snapshot) => {
+      const postsData = snapshot.val();
+      const newDataArray = [];
+
+      for (const postId in postsData) {
+        const post = postsData[postId];
+        newDataArray.push(post);
+      }
+
+      setDataArr(newDataArray); // Update the state with the retrieved data
+    });
+
+    return () => {
+      // Unsubscribe the listener when the component unmounts
+      unsubscribe();
+    };
+  }, []);
+
   const navigation = useNavigation();
   const signOut = () => {
     auth
@@ -61,6 +86,9 @@ const HomeScreen = () => {
   }, []); // Empty dependency array to run the effect only once
   return (
     <SafeAreaView>
+      {dataArr.map((data, index) => (
+        <Text key={index}>{JSON.stringify(data)}</Text>
+      ))}
       <Text>Welcome, {auth.currentUser?.email}</Text>
       <Button title="Sign out" onPress={signOut} />
     </SafeAreaView>
