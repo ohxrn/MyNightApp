@@ -60,6 +60,7 @@ function CompanyForm() {
       description: compDescription,
       businessType: selectedValue,
       address: location,
+      people: 0,
     })
       .then(() => {
         navigation.replace("CompanySubmit");
