@@ -6,6 +6,7 @@ import * as Location from "expo-location";
 import { ref, onValue, update, runTransaction } from "firebase/database";
 import "firebase/database"; // Import the database module explicitly
 import { getDatabase, ServerValue } from "firebase/database";
+import { FirebaseApp } from "firebase/app";
 
 const HomeScreen = () => {
   const [updateTriggered, setUpdateTriggered] = useState(false); // Add this state
