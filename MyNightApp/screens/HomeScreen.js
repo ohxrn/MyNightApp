@@ -109,7 +109,7 @@ const HomeScreen = () => {
   useEffect(() => {
     if (latestLocation) {
       console.log(
-        "MY LOCATION is",
+        "MY LOCATION:",
         `Latitude: ${latestLocation.latitude.toFixed(
           8
         )}, Longitude: ${latestLocation.longitude.toFixed(8)}`
