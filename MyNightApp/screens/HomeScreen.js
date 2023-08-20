@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, Button, SafeAreaView } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  Button,
+  SafeAreaView,
+  ActivityIndicator,
+} from "react-native";
 import { auth } from "../Components/Config";
 import { useNavigation } from "@react-navigation/native";
 import * as Location from "expo-location";
@@ -9,28 +16,23 @@ import { getDatabase, ServerValue } from "firebase/database";
 import { FirebaseApp } from "firebase/app";
 
 const HomeScreen = () => {
-  const [updateTriggered, setUpdateTriggered] = useState(false); // Add this state
-  const [amount, setAmount] = useState(null);
+  const [showAnimate, setShowAnimate] = useState(true);
   const [dataArr, setDataArr] = useState([]);
   const [latestLocation, setLatestLocation] = useState(null);
   const [finalRender, setFinalRender] = useState([]);
   const db = getDatabase();
   useEffect(() => {
     const postsRef = ref(db, "company");
-
     const unsubscribe = onValue(postsRef, (snapshot) => {
       const postsData = snapshot.val();
       const newDataArray = [];
-
       snapshot.forEach((childSnapshot) => {
         const companyId = childSnapshot.key; // Get the unique key (companyId)
         const companyData = childSnapshot.val();
         newDataArray.push({ companyId, ...companyData }); // Include the key along with the data
       });
-
       setDataArr(newDataArray); // Update state after processing all posts
     });
-
     return () => {
       unsubscribe();
     };
@@ -55,6 +57,7 @@ const HomeScreen = () => {
       }
 
       setFinalRender(calculatedObject);
+      setShowAnimate(false);
     }
   }, [latestLocation, dataArr]);
 
@@ -161,9 +164,15 @@ const HomeScreen = () => {
   };
 
   return (
-    <SafeAreaView>
+    <SafeAreaView style={styles.container}>
       <Text>Welcome, {auth.currentUser?.email}</Text>
       <Button title="Sign out" onPress={signOut} />
+      <ActivityIndicator
+        style={styles.animate}
+        animating={showAnimate}
+        size={"large"}
+        color={"blue"}
+      />
       {finalRender.map((data) => (
         <View key={data.companyId}>
           <Text>{data.companyName}</Text>
@@ -178,4 +187,15 @@ const HomeScreen = () => {
 
 export default HomeScreen;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center", // Center content vertically
+    alignItems: "center", // Center content horizontally
+  },
+  animate: {
+    flex: 1,
+    margin: 50,
+    width: "100%",
+  },
+});
