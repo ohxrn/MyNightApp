@@ -15,6 +15,7 @@ import { ref, onValue, update, runTransaction } from "firebase/database";
 import "firebase/database"; // Import the database module explicitly
 import { getDatabase, ServerValue } from "firebase/database";
 import { FirebaseApp } from "firebase/app";
+import MapView from "react-native-maps";
 
 const HomeScreen = () => {
   const [mapUpdate, setMapUpdate] = useState("");
@@ -182,6 +183,21 @@ const HomeScreen = () => {
         color={"blue"}
       />
       <Text>{mapUpdate}</Text>
+      <MapView
+        style={{
+          flex: 1,
+          width: "100%",
+          height: "500vh",
+          backgroundColor: "red",
+        }}
+        provider="google"
+        initialRegion={{
+          latitude: 37.78825,
+          longitude: -122.4324,
+          latitudeDelta: 0.0922,
+          longitudeDelta: 0.0421,
+        }}
+      ></MapView>
 
       {finalRender.map((data) => (
         <View key={data.companyId}>
