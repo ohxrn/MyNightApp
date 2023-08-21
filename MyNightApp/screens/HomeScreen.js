@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+
 import {
   StyleSheet,
   Text,
@@ -16,11 +17,13 @@ import { getDatabase, ServerValue } from "firebase/database";
 import { FirebaseApp } from "firebase/app";
 
 const HomeScreen = () => {
+  const [mapUpdate, setMapUpdate] = useState("");
   const [showAnimate, setShowAnimate] = useState(true);
   const [dataArr, setDataArr] = useState([]);
   const [latestLocation, setLatestLocation] = useState(null);
   const [finalRender, setFinalRender] = useState([]);
   const db = getDatabase();
+
   useEffect(() => {
     const postsRef = ref(db, "company");
     const unsubscribe = onValue(postsRef, (snapshot) => {
@@ -74,6 +77,11 @@ const HomeScreen = () => {
       Math.cos(lat1Rad) * Math.cos(lat2Rad) * Math.sin(lonDiff / 2) ** 2;
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     const total = earthRadius * c;
+    // if (total > 2000) {
+    //   setMapUpdate(
+    //     alert("You are out of range. Version 1 only released to Boston area.")
+    //   );
+    // }
     return total;
   };
 
@@ -173,6 +181,8 @@ const HomeScreen = () => {
         size={"large"}
         color={"blue"}
       />
+      <Text>{mapUpdate}</Text>
+
       {finalRender.map((data) => (
         <View key={data.companyId}>
           <Text>{data.companyName}</Text>
