@@ -7,7 +7,9 @@ import {
   Button,
   SafeAreaView,
   ActivityIndicator,
+  Image,
 } from "react-native";
+import * as Animatable from "react-native-animatable";
 import { auth } from "../Components/Config";
 import { useNavigation } from "@react-navigation/native";
 import * as Location from "expo-location";
@@ -15,9 +17,18 @@ import { ref, onValue, update, runTransaction } from "firebase/database";
 import "firebase/database"; // Import the database module explicitly
 import { getDatabase, ServerValue } from "firebase/database";
 import { FirebaseApp } from "firebase/app";
-import MapView, { Marker } from "react-native-maps";
+import mapboxgl from "mapbox-gl";
+
+import Mapbox, { MarkerView } from "@rnmapbox/maps";
+import { Marker } from "react-native-maps";
+import { MapView } from "@rnmapbox/maps";
+import { SymbolLayer } from "@rnmapbox/maps";
 
 const HomeScreen = () => {
+  Mapbox.setAccessToken(
+    "pk.eyJ1Ijoib2h4cm4iLCJhIjoiY2xsbDB6Yzd5MjFxajNmcGoxMTdmeGlobSJ9.ltqRaN4YdVsVZmm5mdHr8g"
+  );
+  const styleURL = "mapbox://styles/ohxrn/cllmlwayv02jj01p88z3a6nv4";
   const [theLoader, setTheLoader] = useState("");
   const [mapUpdate, setMapUpdate] = useState("");
   const [showAnimate, setShowAnimate] = useState(true);
@@ -25,7 +36,13 @@ const HomeScreen = () => {
   const [latestLocation, setLatestLocation] = useState(null);
   const [finalRender, setFinalRender] = useState([]);
   const db = getDatabase();
+  const { StyleURL } = Mapbox;
 
+  //
+  const initialRegion = {
+    latitude: 42.3601,
+    longitude: -71.0589,
+  }; //
   useEffect(() => {
     const postsRef = ref(db, "company");
     const unsubscribe = onValue(postsRef, (snapshot) => {
@@ -148,7 +165,7 @@ const HomeScreen = () => {
       const companyRef = ref(db, "company/" + companyId);
       runTransaction(companyRef, (currentData) => {
         if (currentData !== null) {
-          const isWithinRange = distance < 0.01;
+          const isWithinRange = distance < 0.2;
           const shouldUpdate = isWithinRange && !currentData.updateTriggered;
           const shouldDecrement = !isWithinRange && currentData.updateTriggered;
 
@@ -183,47 +200,52 @@ const HomeScreen = () => {
     <SafeAreaView style={styles.container}>
       <Text>Welcome, {auth.currentUser?.email}</Text>
       <Button title="Sign out" onPress={signOut} />
+      <View style={styles.container}>
+        <Mapbox.MapView
+          style={styles.mapContainer}
+          styleURL={styleURL}
+          initialRegion={initialRegion}
+          attributionEnabled={false}
+        >
+          {finalRender.map((data) => (
+            <MarkerView
+              key={`marker-${data.companyId}`}
+              coordinate={[data.address.longitude, data.address.latitude]}
+              anchor={{ x: 0.5, y: 1 }} // You can adjust the anchor values to position the marker properly
+            >
+              {/* Provide your marker's content here */}
+              {/* For example, an Image or View */}
+              <Image
+                source={{ uri: "https://i.imgur.com/E1iHHaQ.png" }}
+                style={{ width: 70, height: 70 }}
+              />
+              <Text style={{ color: "white" }}>{data.companyName}</Text>
+              <Text style={{ color: "white" }}>{data.people} Person here</Text>
+              <Text style={{ color: "white" }}>
+                {data.distance.toFixed(2)} Miles away
+              </Text>
+            </MarkerView>
+          ))}
+        </Mapbox.MapView>
+      </View>
 
       <Text>{mapUpdate}</Text>
-      <MapView
-        style={{
-          flex: 1,
-        }}
-        provider="google"
-        initialRegion={{
-          latitude: 42.34825,
-          longitude: -71.0724,
-          latitudeDelta: 0.0922,
-          longitudeDelta: 0.0421,
-        }}
-      >
-        {finalRender.map((data) => (
-          <View key={data.companyId}>
-            <Text>{data.companyName}</Text>
-            <Text>{data.description}</Text>
-            <Text>{data.distance} Miles</Text>
-            <Text>{data.people} People</Text>
-          </View>
-        ))}
-        {finalRender.map((content, index) => (
-          <Marker
-            key={index}
-            coordinate={{
-              latitude: content.address.latitude,
-              longitude: content.address.longitude,
-            }}
-            title={content.companyName}
-            description={content.description}
-          />
-        ))}
 
-        <ActivityIndicator
-          style={styles.animate}
-          animating={showAnimate}
-          size={"large"}
-          color={"blue"}
-        />
-      </MapView>
+      {/* {finalRender.map((data) => (
+        <View key={data.companyId}>
+          <Text>{data.companyName}</Text>
+          <Text>{data.description}</Text>
+          <Text>{data.distance} Miles</Text>
+          <Text>{data.people} People</Text>
+        </View>
+      ))} */}
+
+      <ActivityIndicator
+        style={styles.animate}
+        animating={showAnimate}
+        size={"large"}
+        color={"blue"}
+      />
     </SafeAreaView>
   );
 };
@@ -233,11 +255,15 @@ export default HomeScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    margin: 10,
+
+    backgroundColor: "black",
   },
   animate: {
     flex: 0,
     margin: 50,
     width: "100%",
+  },
+  mapContainer: {
+    flex: 1,
   },
 });
