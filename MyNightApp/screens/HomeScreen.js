@@ -15,9 +15,10 @@ import { ref, onValue, update, runTransaction } from "firebase/database";
 import "firebase/database"; // Import the database module explicitly
 import { getDatabase, ServerValue } from "firebase/database";
 import { FirebaseApp } from "firebase/app";
-import MapView from "react-native-maps";
+import MapView, { Marker } from "react-native-maps";
 
 const HomeScreen = () => {
+  const [theLoader, setTheLoader] = useState("");
   const [mapUpdate, setMapUpdate] = useState("");
   const [showAnimate, setShowAnimate] = useState(true);
   const [dataArr, setDataArr] = useState([]);
@@ -62,6 +63,8 @@ const HomeScreen = () => {
 
       setFinalRender(calculatedObject);
       setShowAnimate(false);
+      // setTheLoader("0")
+      // setTheHeight(0)
     }
   }, [latestLocation, dataArr]);
 
@@ -137,76 +140,90 @@ const HomeScreen = () => {
 
     return () => clearInterval(intervalId);
   }, []); // Empty dependency array to run the effect only once
-
+  let updateTimeout;
   const handleUpdate = (companyId, distance) => {
-    const companyRef = ref(db, "company/" + companyId);
-    runTransaction(companyRef, (currentData) => {
-      if (currentData !== null) {
-        const isWithinRange = distance < 0.01;
-        const shouldUpdate = isWithinRange && !currentData.updateTriggered;
-        const shouldDecrement = !isWithinRange && currentData.updateTriggered;
+    clearTimeout(updateTimeout);
 
-        if (shouldUpdate) {
-          return {
-            ...currentData,
-            people: currentData.people + 1,
-            updateTriggered: true,
-          };
-        }
-        if (shouldDecrement) {
-          return {
-            ...currentData,
-            people: currentData.people - 1,
-            updateTriggered: false,
-          };
-        }
-      }
+    updateTimeout = setTimeout(() => {
+      const companyRef = ref(db, "company/" + companyId);
+      runTransaction(companyRef, (currentData) => {
+        if (currentData !== null) {
+          const isWithinRange = distance < 0.01;
+          const shouldUpdate = isWithinRange && !currentData.updateTriggered;
+          const shouldDecrement = !isWithinRange && currentData.updateTriggered;
 
-      return currentData;
-    })
-      .then(() => {
-        console.log("Update successful");
+          if (shouldUpdate) {
+            return {
+              ...currentData,
+              people: currentData.people + 1,
+              updateTriggered: true,
+            };
+          }
+          if (shouldDecrement) {
+            return {
+              ...currentData,
+              people: currentData.people - 1,
+              updateTriggered: false,
+            };
+          }
+        }
+
+        return currentData;
       })
-      .catch((error) => {
-        console.log("Update failed:", error);
-      });
+        .then(() => {
+          console.log("Update successful");
+        })
+        .catch((error) => {
+          console.log("Update failed:", error);
+        });
+    }, 2000);
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <Text>Welcome, {auth.currentUser?.email}</Text>
       <Button title="Sign out" onPress={signOut} />
-      <ActivityIndicator
-        style={styles.animate}
-        animating={showAnimate}
-        size={"large"}
-        color={"blue"}
-      />
+
       <Text>{mapUpdate}</Text>
       <MapView
         style={{
           flex: 1,
-          width: "100%",
-          height: "500vh",
-          backgroundColor: "red",
         }}
         provider="google"
         initialRegion={{
-          latitude: 37.78825,
-          longitude: -122.4324,
+          latitude: 42.34825,
+          longitude: -71.0724,
           latitudeDelta: 0.0922,
           longitudeDelta: 0.0421,
         }}
-      ></MapView>
+      >
+        {finalRender.map((data) => (
+          <View key={data.companyId}>
+            <Text>{data.companyName}</Text>
+            <Text>{data.description}</Text>
+            <Text>{data.distance} Miles</Text>
+            <Text>{data.people} People</Text>
+          </View>
+        ))}
+        {finalRender.map((content, index) => (
+          <Marker
+            key={index}
+            coordinate={{
+              latitude: content.address.latitude,
+              longitude: content.address.longitude,
+            }}
+            title={content.companyName}
+            description={content.description}
+          />
+        ))}
 
-      {finalRender.map((data) => (
-        <View key={data.companyId}>
-          <Text>{data.companyName}</Text>
-          <Text>{data.description}</Text>
-          <Text>{data.distance} Miles</Text>
-          <Text>{data.people} People</Text>
-        </View>
-      ))}
+        <ActivityIndicator
+          style={styles.animate}
+          animating={showAnimate}
+          size={"large"}
+          color={"blue"}
+        />
+      </MapView>
     </SafeAreaView>
   );
 };
@@ -216,11 +233,10 @@ export default HomeScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center", // Center content vertically
-    alignItems: "center", // Center content horizontally
+    margin: 10,
   },
   animate: {
-    flex: 1,
+    flex: 0,
     margin: 50,
     width: "100%",
   },
