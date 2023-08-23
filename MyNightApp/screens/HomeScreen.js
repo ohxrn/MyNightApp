@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { ModelLayer } from "@rnmapbox/maps";
 
 import {
   StyleSheet,
@@ -8,7 +9,9 @@ import {
   SafeAreaView,
   ActivityIndicator,
   Image,
+  TouchableOpacity,
 } from "react-native";
+import theLogo from "../assets/MNLOGO.png";
 import * as Animatable from "react-native-animatable";
 import { auth } from "../Components/Config";
 import { useNavigation } from "@react-navigation/native";
@@ -17,17 +20,17 @@ import { ref, onValue, update, runTransaction } from "firebase/database";
 import "firebase/database"; // Import the database module explicitly
 import { getDatabase, ServerValue } from "firebase/database";
 import { FirebaseApp } from "firebase/app";
-import mapboxgl from "mapbox-gl";
 
-import Mapbox, { MarkerView } from "@rnmapbox/maps";
+import MapboxGL, { MarkerView } from "@rnmapbox/maps";
 import { Marker } from "react-native-maps";
 import { MapView } from "@rnmapbox/maps";
 import { SymbolLayer } from "@rnmapbox/maps";
 
 const HomeScreen = () => {
-  Mapbox.setAccessToken(
+  MapboxGL.setAccessToken(
     "pk.eyJ1Ijoib2h4cm4iLCJhIjoiY2xsbDB6Yzd5MjFxajNmcGoxMTdmeGlobSJ9.ltqRaN4YdVsVZmm5mdHr8g"
   );
+
   const styleURL = "mapbox://styles/ohxrn/cllmlwayv02jj01p88z3a6nv4";
   const [theLoader, setTheLoader] = useState("");
   const [mapUpdate, setMapUpdate] = useState("");
@@ -36,7 +39,7 @@ const HomeScreen = () => {
   const [latestLocation, setLatestLocation] = useState(null);
   const [finalRender, setFinalRender] = useState([]);
   const db = getDatabase();
-  const { StyleURL } = Mapbox;
+  const { StyleURL } = MapboxGL;
 
   //
   const initialRegion = {
@@ -165,7 +168,7 @@ const HomeScreen = () => {
       const companyRef = ref(db, "company/" + companyId);
       runTransaction(companyRef, (currentData) => {
         if (currentData !== null) {
-          const isWithinRange = distance < 0.2;
+          const isWithinRange = distance < 0.1;
           const shouldUpdate = isWithinRange && !currentData.updateTriggered;
           const shouldDecrement = !isWithinRange && currentData.updateTriggered;
 
@@ -198,35 +201,69 @@ const HomeScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text>Welcome, {auth.currentUser?.email}</Text>
       <Button title="Sign out" onPress={signOut} />
+      <Text style={{ color: "white" }}>Welcome, {auth.currentUser?.email}</Text>
+
       <View style={styles.container}>
-        <Mapbox.MapView
+        <MapboxGL.MapView
           style={styles.mapContainer}
           styleURL={styleURL}
-          initialRegion={initialRegion}
           attributionEnabled={false}
         >
+          <MapboxGL.Camera
+            zoomLevel={13}
+            centerCoordinate={[-71.0589, 42.3601]}
+            pitch={34}
+            animationMode={"flyTo"}
+            animationDuration={6000}
+          />
+          <MapboxGL.PointAnnotation
+            id="marker"
+            coordinate={[-71.0589, 42.3601]}
+          />
+          <ActivityIndicator
+            style={styles.animate}
+            animating={showAnimate}
+            size={"large"}
+            color={"blue"}
+          />
           {finalRender.map((data) => (
+            <View key={`marker-view-${data.companyId}`}>
+              <MarkerView
+                key={`marker-${data.companyId}`}
+                coordinate={[data.address.longitude, data.address.latitude]}
+              >
+                <TouchableOpacity
+                  onPress={() => {
+                    alert(data.description);
+                  }}
+                >
+                  <Image source={theLogo} style={{ width: 60, height: 60 }} />
+                </TouchableOpacity>
+                <Text style={{ color: "white" }}>{data.companyName}</Text>
+                <Text style={{ color: "white" }}>
+                  {data.people} Person here
+                </Text>
+                <Text style={{ color: "white" }}>
+                  {data.distance.toFixed(2)} Miles away
+                </Text>
+              </MarkerView>
+            </View>
+          ))}
+          {console.log(latestLocation)}
+          {latestLocation !== null && (
             <MarkerView
-              key={`marker-${data.companyId}`}
-              coordinate={[data.address.longitude, data.address.latitude]}
-              anchor={{ x: 0.5, y: 1 }} // You can adjust the anchor values to position the marker properly
+              key="currentLocationMarker"
+              coordinate={[latestLocation.longitude, latestLocation.latitude]}
+              anchor={{ x: 0.5, y: 1 }}
             >
-              {/* Provide your marker's content here */}
-              {/* For example, an Image or View */}
               <Image
                 source={{ uri: "https://i.imgur.com/E1iHHaQ.png" }}
-                style={{ width: 70, height: 70 }}
+                style={{ width: 20, height: 20 }}
               />
-              <Text style={{ color: "white" }}>{data.companyName}</Text>
-              <Text style={{ color: "white" }}>{data.people} Person here</Text>
-              <Text style={{ color: "white" }}>
-                {data.distance.toFixed(2)} Miles away
-              </Text>
             </MarkerView>
-          ))}
-        </Mapbox.MapView>
+          )}
+        </MapboxGL.MapView>
       </View>
 
       <Text>{mapUpdate}</Text>
@@ -239,13 +276,6 @@ const HomeScreen = () => {
           <Text>{data.people} People</Text>
         </View>
       ))} */}
-
-      <ActivityIndicator
-        style={styles.animate}
-        animating={showAnimate}
-        size={"large"}
-        color={"blue"}
-      />
     </SafeAreaView>
   );
 };
@@ -255,7 +285,6 @@ export default HomeScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-
     backgroundColor: "black",
   },
   animate: {
@@ -265,5 +294,6 @@ const styles = StyleSheet.create({
   },
   mapContainer: {
     flex: 1,
+    width: "100%", // Add this line to make the map container take up the entire width
   },
 });
