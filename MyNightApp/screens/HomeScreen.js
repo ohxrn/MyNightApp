@@ -16,15 +16,18 @@ import * as Animatable from "react-native-animatable";
 import { auth } from "../Components/Config";
 import { useNavigation } from "@react-navigation/native";
 import * as Location from "expo-location";
-import { ref, onValue, update, runTransaction } from "firebase/database";
+import {
+  ref,
+  onValue,
+  update,
+  runTransaction,
+  push,
+  set,
+} from "firebase/database";
 import "firebase/database"; // Import the database module explicitly
 import { getDatabase, ServerValue } from "firebase/database";
-import { FirebaseApp } from "firebase/app";
 
 import MapboxGL, { MarkerView } from "@rnmapbox/maps";
-import { Marker } from "react-native-maps";
-import { MapView } from "@rnmapbox/maps";
-import { SymbolLayer } from "@rnmapbox/maps";
 
 const HomeScreen = () => {
   MapboxGL.setAccessToken(
@@ -32,6 +35,8 @@ const HomeScreen = () => {
   );
 
   const styleURL = "mapbox://styles/ohxrn/cllmlwayv02jj01p88z3a6nv4";
+  const [dbLocationID, setFireBaseLocationID] = useState("");
+  const [fsLocation, setFSLocation] = useState(false);
   const [theLoader, setTheLoader] = useState("");
   const [mapUpdate, setMapUpdate] = useState("");
   const [showAnimate, setShowAnimate] = useState(true);
@@ -41,11 +46,61 @@ const HomeScreen = () => {
   const db = getDatabase();
   const { StyleURL } = MapboxGL;
 
+  useEffect(() => {
+    let timeoutId;
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => {
+      if (fsLocation == false) {
+        const locoID = ref(db, "userLocation"); // Reference to the "company" location
+        const newLocoRef = push(locoID); // Generate a new child location with a unique key
+        const newCompanyId = newLocoRef.key;
+        set(newLocoRef, {
+          location: latestLocation,
+        })
+          .then(() => {
+            console.log("original location sent to Firestone");
+            setFireBaseLocationID(newCompanyId);
+          })
+          .catch((error) => {
+            alert(error);
+          });
+        setFSLocation(true);
+      }
+    }, 1000);
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, [latestLocation]);
+
   //
-  const initialRegion = {
-    latitude: 42.3601,
-    longitude: -71.0589,
-  }; //
+  useEffect(() => {
+    if (dbLocationID !== null && fsLocation === true) {
+      let timeoutId;
+      timeoutId = setTimeout(() => {
+        const locationRef = ref(db, "userLocation/" + dbLocationID);
+
+        set(locationRef, {
+          location: latestLocation,
+        })
+          .then(() => {
+            console.log("Location data updated successfully");
+          })
+          .catch((error) => {
+            console.error("Error updating location data: ", error);
+          });
+        clearTimeout(timeoutId);
+      }, 6000); // 1 second (adjust as needed)
+      return () => {
+        clearTimeout(timeoutId);
+      };
+    }
+  }, [latestLocation]);
+
+  //
+
+  //
+
   useEffect(() => {
     const postsRef = ref(db, "company");
     const unsubscribe = onValue(postsRef, (snapshot) => {
@@ -142,16 +197,16 @@ const HomeScreen = () => {
     }
   };
 
-  useEffect(() => {
-    if (latestLocation) {
-      console.log(
-        "MY LOCATION:",
-        `Latitude: ${latestLocation.latitude.toFixed(
-          8
-        )}, Longitude: ${latestLocation.longitude.toFixed(8)}`
-      );
-    }
-  }, [latestLocation]);
+  // useEffect(() => {
+  //   if (latestLocation) {
+  //     console.log(
+  //       "MY LOCATION:",
+  //       `Latitude: ${latestLocation.latitude.toFixed(
+  //         8
+  //       )}, Longitude: ${latestLocation.longitude.toFixed(8)}`
+  //     );
+  //   }
+  // }, [latestLocation]);
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -191,7 +246,7 @@ const HomeScreen = () => {
         return currentData;
       })
         .then(() => {
-          console.log("Update successful");
+          // console.log("Update successful");
         })
         .catch((error) => {
           console.log("Update failed:", error);
@@ -250,7 +305,7 @@ const HomeScreen = () => {
               </MarkerView>
             </View>
           ))}
-          {console.log(latestLocation)}
+          {/* {console.log(latestLocation)} */}
           {latestLocation !== null && (
             <MarkerView
               key="currentLocationMarker"
