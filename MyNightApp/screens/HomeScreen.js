@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { ModelLayer } from "@rnmapbox/maps";
+import { HeatmapLayer, ModelLayer } from "@rnmapbox/maps";
 
 import {
   StyleSheet,
@@ -12,22 +12,21 @@ import {
   TouchableOpacity,
 } from "react-native";
 import theLogo from "../assets/MNLOGO.png";
-import * as Animatable from "react-native-animatable";
 import { auth } from "../Components/Config";
 import { useNavigation } from "@react-navigation/native";
 import * as Location from "expo-location";
-import {
-  ref,
-  onValue,
-  update,
-  runTransaction,
-  push,
-  set,
-} from "firebase/database";
+import { ref, onValue, runTransaction, push, set } from "firebase/database";
 import "firebase/database"; // Import the database module explicitly
-import { getDatabase, ServerValue } from "firebase/database";
+import { getDatabase, ServerValue, getDocs } from "firebase/database";
 
-import MapboxGL, { MarkerView } from "@rnmapbox/maps";
+import MapboxGL, {
+  MarkerView,
+  addSource,
+  Map,
+  on,
+  collection,
+  Layer,
+} from "@rnmapbox/maps";
 
 const HomeScreen = () => {
   MapboxGL.setAccessToken(
@@ -35,6 +34,9 @@ const HomeScreen = () => {
   );
 
   const styleURL = "mapbox://styles/ohxrn/cllmlwayv02jj01p88z3a6nv4";
+  const [finalJSON, setFinalJSON] = useState(false);
+  const [geoJSON, setGeoJSON] = useState();
+  const [ulData, setUlData] = useState([]);
   const [dbLocationID, setFireBaseLocationID] = useState("");
   const [fsLocation, setFSLocation] = useState(false);
   const [theLoader, setTheLoader] = useState("");
@@ -43,6 +45,7 @@ const HomeScreen = () => {
   const [dataArr, setDataArr] = useState([]);
   const [latestLocation, setLatestLocation] = useState(null);
   const [finalRender, setFinalRender] = useState([]);
+  const [jsonData, setJsonData] = useState("");
   const db = getDatabase();
   const { StyleURL } = MapboxGL;
 
@@ -54,6 +57,7 @@ const HomeScreen = () => {
         const locoID = ref(db, "userLocation"); // Reference to the "company" location
         const newLocoRef = push(locoID); // Generate a new child location with a unique key
         const newCompanyId = newLocoRef.key;
+
         set(newLocoRef, {
           location: latestLocation,
         })
@@ -208,6 +212,20 @@ const HomeScreen = () => {
   //   }
   // }, [latestLocation]);
 
+  const skding = {
+    type: "FeatureCollection",
+    features: ulData.map((data) => ({
+      type: "Feature",
+      geometry: {
+        type: "Point",
+        coordinates: [data.location.longitude, data.location.latitude],
+      },
+      properties: {
+        radius: 1000,
+      },
+    })),
+  };
+
   useEffect(() => {
     const intervalId = setInterval(() => {
       getLocation(); // Fetch location on interval
@@ -254,6 +272,47 @@ const HomeScreen = () => {
     }, 2000);
   };
 
+  useEffect(() => {
+    const uLRef = ref(db, "userLocation");
+    const theRun = onValue(uLRef, (snapshot) => {
+      const newDataArray = [];
+      snapshot.forEach((childSnapshot) => {
+        const ulData = childSnapshot.val();
+        newDataArray.push(ulData);
+      });
+      setUlData(newDataArray);
+    });
+
+    return () => {
+      theRun();
+    };
+  }, []);
+
+  useEffect(() => {
+    const geojsonData = {
+      type: "FeatureCollection",
+      features: ulData.map((data) => ({
+        type: "Feature",
+        geometry: {
+          type: "Point",
+          coordinates: [data.location.longitude, data.location.latitude],
+        },
+        properties: {
+          radius: 1000,
+        },
+      })),
+    };
+
+    setGeoJSON(geojsonData);
+  }, [ulData]);
+
+  useEffect(() => {
+    if (geoJSON !== undefined) {
+      setFinalJSON(true);
+      console.log("GeoJSON:", JSON.stringify(geoJSON, null, 2));
+    }
+  }, [geoJSON, ulData, dbLocationID, fsLocation]);
+
   return (
     <SafeAreaView style={styles.container}>
       <Button title="Sign out" onPress={signOut} />
@@ -276,6 +335,35 @@ const HomeScreen = () => {
             id="marker"
             coordinate={[-71.0589, 42.3601]}
           />
+
+          <MapboxGL.HeatmapLayer
+            type="geoJSON"
+            data={geoJSON}
+            id="heatmap"
+            sourceLayerID="heatmap"
+            paint={{
+              heatmapColor: [
+                "interpolate",
+                ["linear"],
+                ["heatmap-density"],
+                0.8,
+                "rgba(33,102,172,0)",
+                0.2,
+                "rgb(103,169,207)",
+                0.4,
+                "rgb(209,229,240)",
+                0.6,
+                "rgb(253,219,199)",
+                0.8,
+                "rgb(239,138,98)",
+                1,
+                "rgb(178,24,43)",
+              ],
+              "heatmap-radius": 10000,
+              "heatmap-opacity": 0.8,
+            }}
+          />
+
           <ActivityIndicator
             style={styles.animate}
             animating={showAnimate}
@@ -305,7 +393,7 @@ const HomeScreen = () => {
               </MarkerView>
             </View>
           ))}
-          {/* {console.log(latestLocation)} */}
+
           {latestLocation !== null && (
             <MarkerView
               key="currentLocationMarker"
@@ -314,7 +402,8 @@ const HomeScreen = () => {
             >
               <Image
                 source={{ uri: "https://i.imgur.com/E1iHHaQ.png" }}
-                style={{ width: 20, height: 20 }}
+                style={{ width: 60, height: 60 }}
+                anchor={[0, 0]}
               />
             </MarkerView>
           )}
@@ -322,15 +411,6 @@ const HomeScreen = () => {
       </View>
 
       <Text>{mapUpdate}</Text>
-
-      {/* {finalRender.map((data) => (
-        <View key={data.companyId}>
-          <Text>{data.companyName}</Text>
-          <Text>{data.description}</Text>
-          <Text>{data.distance} Miles</Text>
-          <Text>{data.people} People</Text>
-        </View>
-      ))} */}
     </SafeAreaView>
   );
 };
