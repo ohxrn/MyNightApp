@@ -30,7 +30,7 @@ import MapboxGL, {
 
 const HomeScreen = () => {
   MapboxGL.setAccessToken(
-    "pk.eyJ1Ijoib2h4cm4iLCJhIjoiY2xsbDB6Yzd5MjFxajNmcGoxMTdmeGlobSJ9.ltqRaN4YdVsVZmm5mdHr8g"
+    "sk.eyJ1Ijoib2h4cm4iLCJhIjoiY2xscGFhb3JrMDBhNjNkczI5a3BlMnlocyJ9.cNraiXgDOr5z_wcIB51oZw"
   );
 
   const styleURL = "mapbox://styles/ohxrn/cllmlwayv02jj01p88z3a6nv4";
@@ -212,19 +212,33 @@ const HomeScreen = () => {
   //   }
   // }, [latestLocation]);
 
-  const skding = {
-    type: "FeatureCollection",
-    features: ulData.map((data) => ({
-      type: "Feature",
-      geometry: {
-        type: "Point",
-        coordinates: [data.location.longitude, data.location.latitude],
-      },
-      properties: {
-        radius: 1000,
-      },
-    })),
+  //send to Mapbox---------------------------------------------------------------------
+  const viewDataset = async () => {
+    const datasetID = "clloddi6500xe2cp0m7oal19b"; // Replace with your dataset ID
+    const accessToken =
+      "sk.eyJ1Ijoib2h4cm4iLCJhIjoiY2xscGFhb3JrMDBhNjNkczI5a3BlMnlocyJ9.cNraiXgDOr5z_wcIB51oZw"; // Replace with your Mapbox access token
+
+    try {
+      const response = await fetch(
+        "https://api.mapbox.com/datasets/v1/ohxrn/clloddi6500xe2cp0m7oal19b?access_token=pk.eyJ1Ijoib2h4cm4iLCJhIjoiY2xsbDB6Yzd5MjFxajNmcGoxMTdmeGlobSJ9.ltqRaN4YdVsVZmm5mdHr8g"
+      );
+
+      if (!response.ok) {
+        throw new Error(
+          `Network response was not ok. Status: ${response.status}`
+        );
+      }
+
+      const data = await response.json();
+      console.log("Dataset:", data);
+    } catch (error) {
+      console.error("Error fetching dataset:", error);
+    }
   };
+
+  useEffect(() => {
+    viewDataset();
+  }, [geoJSON]);
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -297,9 +311,7 @@ const HomeScreen = () => {
           type: "Point",
           coordinates: [data.location.longitude, data.location.latitude],
         },
-        properties: {
-          radius: 1000,
-        },
+        description: "the first data upload",
       })),
     };
 
@@ -309,7 +321,7 @@ const HomeScreen = () => {
   useEffect(() => {
     if (geoJSON !== undefined) {
       setFinalJSON(true);
-      console.log("GeoJSON:", JSON.stringify(geoJSON, null, 2));
+      // console.log("GeoJSON:", JSON.stringify(geoJSON, null, 2));
     }
   }, [geoJSON, ulData, dbLocationID, fsLocation]);
 
@@ -324,6 +336,7 @@ const HomeScreen = () => {
           styleURL={styleURL}
           attributionEnabled={false}
         >
+          <MapboxGL.HeatmapLayer />
           <MapboxGL.Camera
             zoomLevel={13}
             centerCoordinate={[-71.0589, 42.3601]}
@@ -335,10 +348,8 @@ const HomeScreen = () => {
             id="marker"
             coordinate={[-71.0589, 42.3601]}
           />
-
-          <MapboxGL.HeatmapLayer
-            type="geoJSON"
-            data={geoJSON}
+          {/* <MapboxGL.HeatmapLayer
+            geoJSONSource={geoJSON}
             id="heatmap"
             sourceLayerID="heatmap"
             paint={{
@@ -359,11 +370,11 @@ const HomeScreen = () => {
                 1,
                 "rgb(178,24,43)",
               ],
-              "heatmap-radius": 10000,
+              "heatmap-radius": 100,
               "heatmap-opacity": 0.8,
             }}
-          />
-
+          /> */}
+          <Text>"clloddi6500xe2cp0m7oal19b"</Text>
           <ActivityIndicator
             style={styles.animate}
             animating={showAnimate}
@@ -393,7 +404,6 @@ const HomeScreen = () => {
               </MarkerView>
             </View>
           ))}
-
           {latestLocation !== null && (
             <MarkerView
               key="currentLocationMarker"
