@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { HeatmapLayer, ModelLayer } from "@rnmapbox/maps";
-
+import uuid from "react-native-uuid";
 import {
   StyleSheet,
   Text,
@@ -30,7 +30,7 @@ import MapboxGL, {
 
 const HomeScreen = () => {
   MapboxGL.setAccessToken(
-    "sk.eyJ1Ijoib2h4cm4iLCJhIjoiY2xscGFhb3JrMDBhNjNkczI5a3BlMnlocyJ9.cNraiXgDOr5z_wcIB51oZw"
+    "pk.eyJ1Ijoib2h4cm4iLCJhIjoiY2xsbDB6Yzd5MjFxajNmcGoxMTdmeGlobSJ9.ltqRaN4YdVsVZmm5mdHr8g"
   );
 
   const styleURL = "mapbox://styles/ohxrn/cllmlwayv02jj01p88z3a6nv4";
@@ -220,10 +220,18 @@ const HomeScreen = () => {
 
     try {
       const response = await fetch(
-        "https://api.mapbox.com/datasets/v1/ohxrn/clloddi6500xe2cp0m7oal19b?access_token=pk.eyJ1Ijoib2h4cm4iLCJhIjoiY2xsbDB6Yzd5MjFxajNmcGoxMTdmeGlobSJ9.ltqRaN4YdVsVZmm5mdHr8g"
+        "https://api.mapbox.com/datasets/v1/ohxrn/clloddi6500xe2cp0m7oal19b/features/fad29966a10b68d7a7937fd54b033fb1?access_token=pk.eyJ1Ijoib2h4cm4iLCJhIjoiY2xsbDB6Yzd5MjFxajNmcGoxMTdmeGlobSJ9.ltqRaN4YdVsVZmm5mdHr8g"
+        // {
+        //   method: "PUT",
+        //   headers: {
+        //     "Content-Type": "application/json",
+        //   },
+        //   body: JSON.stringify({ hello: "hey" }), // Replace with your updated feature data
+        // }
       );
 
       if (!response.ok) {
+        console.log(response);
         throw new Error(
           `Network response was not ok. Status: ${response.status}`
         );
@@ -302,6 +310,10 @@ const HomeScreen = () => {
     };
   }, []);
 
+  const generateUniqueId = () => {
+    return uuid.v4();
+  };
+
   useEffect(() => {
     const geojsonData = {
       type: "FeatureCollection",
@@ -310,6 +322,10 @@ const HomeScreen = () => {
         geometry: {
           type: "Point",
           coordinates: [data.location.longitude, data.location.latitude],
+        },
+        properties: {
+          id: generateUniqueId(),
+          name: "Examples" + generateUniqueId(),
         },
         description: "the first data upload",
       })),
