@@ -30,7 +30,7 @@ import MapboxGL, {
 
 const HomeScreen = () => {
   MapboxGL.setAccessToken(
-    "pk.eyJ1Ijoib2h4cm4iLCJhIjoiY2xsbDB6Yzd5MjFxajNmcGoxMTdmeGlobSJ9.ltqRaN4YdVsVZmm5mdHr8g"
+    "sk.eyJ1Ijoib2h4cm4iLCJhIjoiY2xscG51YjJkMDZndTNkbzJvZmd3MmpmNSJ9.1yj9ewdvaGBxVPF_cdlLIQ"
   );
 
   const styleURL = "mapbox://styles/ohxrn/cllmlwayv02jj01p88z3a6nv4";
@@ -216,22 +216,14 @@ const HomeScreen = () => {
   const viewDataset = async () => {
     const datasetID = "clloddi6500xe2cp0m7oal19b"; // Replace with your dataset ID
     const accessToken =
-      "sk.eyJ1Ijoib2h4cm4iLCJhIjoiY2xscGFhb3JrMDBhNjNkczI5a3BlMnlocyJ9.cNraiXgDOr5z_wcIB51oZw"; // Replace with your Mapbox access token
+      "sk.eyJ1Ijoib2h4cm4iLCJhIjoiY2xscG51YjJkMDZndTNkbzJvZmd3MmpmNSJ9.1yj9ewdvaGBxVPF_cdlLIQ"; // Replace with your Mapbox access token
 
     try {
       const response = await fetch(
-        "https://api.mapbox.com/datasets/v1/ohxrn/clloddi6500xe2cp0m7oal19b/features/fad29966a10b68d7a7937fd54b033fb1?access_token=pk.eyJ1Ijoib2h4cm4iLCJhIjoiY2xsbDB6Yzd5MjFxajNmcGoxMTdmeGlobSJ9.ltqRaN4YdVsVZmm5mdHr8g"
-        // {
-        //   method: "PUT",
-        //   headers: {
-        //     "Content-Type": "application/json",
-        //   },
-        //   body: JSON.stringify({ hello: "hey" }), // Replace with your updated feature data
-        // }
+        "https://api.mapbox.com/datasets/v1/ohxrn/clloddi6500xe2cp0m7oal19b/features/fad29966a10b68d7a7937fd54b033fb1?access_token=sk.eyJ1Ijoib2h4cm4iLCJhIjoiY2xscG51YjJkMDZndTNkbzJvZmd3MmpmNSJ9.1yj9ewdvaGBxVPF_cdlLIQ"
       );
 
       if (!response.ok) {
-        console.log(response);
         throw new Error(
           `Network response was not ok. Status: ${response.status}`
         );
@@ -352,7 +344,6 @@ const HomeScreen = () => {
           styleURL={styleURL}
           attributionEnabled={false}
         >
-          <MapboxGL.HeatmapLayer />
           <MapboxGL.Camera
             zoomLevel={13}
             centerCoordinate={[-71.0589, 42.3601]}
@@ -364,32 +355,6 @@ const HomeScreen = () => {
             id="marker"
             coordinate={[-71.0589, 42.3601]}
           />
-          {/* <MapboxGL.HeatmapLayer
-            geoJSONSource={geoJSON}
-            id="heatmap"
-            sourceLayerID="heatmap"
-            paint={{
-              heatmapColor: [
-                "interpolate",
-                ["linear"],
-                ["heatmap-density"],
-                0.8,
-                "rgba(33,102,172,0)",
-                0.2,
-                "rgb(103,169,207)",
-                0.4,
-                "rgb(209,229,240)",
-                0.6,
-                "rgb(253,219,199)",
-                0.8,
-                "rgb(239,138,98)",
-                1,
-                "rgb(178,24,43)",
-              ],
-              "heatmap-radius": 100,
-              "heatmap-opacity": 0.8,
-            }}
-          /> */}
           <Text>"clloddi6500xe2cp0m7oal19b"</Text>
           <ActivityIndicator
             style={styles.animate}
