@@ -50,6 +50,7 @@ const HomeScreen = () => {
   const { StyleURL } = MapboxGL;
 
   useEffect(() => {
+    console.log("THIS IS THE JSON", JSON.stringify(geoJSON));
     let timeoutId;
     clearTimeout(timeoutId);
     timeoutId = setTimeout(() => {
