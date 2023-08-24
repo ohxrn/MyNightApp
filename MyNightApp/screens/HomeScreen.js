@@ -201,17 +201,6 @@ const HomeScreen = () => {
     }
   };
 
-  // useEffect(() => {
-  //   if (latestLocation) {
-  //     console.log(
-  //       "MY LOCATION:",
-  //       `Latitude: ${latestLocation.latitude.toFixed(
-  //         8
-  //       )}, Longitude: ${latestLocation.longitude.toFixed(8)}`
-  //     );
-  //   }
-  // }, [latestLocation]);
-
   //send to Mapbox---------------------------------------------------------------------
   const viewDataset = async () => {
     const datasetID = "clloddi6500xe2cp0m7oal19b"; // Replace with your dataset ID
