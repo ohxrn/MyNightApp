@@ -32,6 +32,7 @@ function CompanyForm() {
         {
           params: {
             address: address,
+            key: "AIzaSyBpkeReT5KZNMo5_WxaRNJepGtDAu8nrG4",
           },
         }
       );

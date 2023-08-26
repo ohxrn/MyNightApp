@@ -29,7 +29,9 @@ import MapboxGL, {
 } from "@rnmapbox/maps";
 
 const HomeScreen = () => {
-  MapboxGL.setAccessToken();
+  MapboxGL.setAccessToken(
+    "sk.eyJ1Ijoib2h4cm4iLCJhIjoiY2xscG51YjJkMDZndTNkbzJvZmd3MmpmNSJ9.1yj9ewdvaGBxVPF_cdlLIQ"
+  );
 
   const styleURL = "mapbox://styles/ohxrn/cllmlwayv02jj01p88z3a6nv4";
   const [finalJSON, setFinalJSON] = useState(false);
@@ -202,8 +204,14 @@ const HomeScreen = () => {
 
   //send to Mapbox---------------------------------------------------------------------
   const viewDataset = async () => {
+    const datasetID = "clloddi6500xe2cp0m7oal19b"; // Replace with your dataset ID
+    const accessToken =
+      "sk.eyJ1Ijoib2h4cm4iLCJhIjoiY2xscG51YjJkMDZndTNkbzJvZmd3MmpmNSJ9.1yj9ewdvaGBxVPF_cdlLIQ"; // Replace with your Mapbox access token
+
     try {
-      const response = await fetch();
+      const response = await fetch(
+        "https://api.mapbox.com/datasets/v1/ohxrn/clloddi6500xe2cp0m7oal19b/features/fad29966a10b68d7a7937fd54b033fb1?access_token=sk.eyJ1Ijoib2h4cm4iLCJhIjoiY2xscG51YjJkMDZndTNkbzJvZmd3MmpmNSJ9.1yj9ewdvaGBxVPF_cdlLIQ"
+      );
 
       if (!response.ok) {
         throw new Error(
