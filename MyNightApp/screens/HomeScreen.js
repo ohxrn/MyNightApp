@@ -50,7 +50,7 @@ const HomeScreen = () => {
   const { StyleURL } = MapboxGL;
 
   useEffect(() => {
-    console.log("THIS IS THE JSON", JSON.stringify(geoJSON));
+    // console.log("THIS IS THE JSON", JSON.stringify(geoJSON));
     let timeoutId;
     clearTimeout(timeoutId);
     timeoutId = setTimeout(() => {
@@ -137,6 +137,7 @@ const HomeScreen = () => {
           );
 
           calculatedObject.push({ ...item, distance });
+
           handleUpdate(item.companyId, distance); // Check if this line gets executed
         }
       }
@@ -202,33 +203,33 @@ const HomeScreen = () => {
     }
   };
 
-  //send to Mapbox---------------------------------------------------------------------
-  const viewDataset = async () => {
-    const datasetID = "clloddi6500xe2cp0m7oal19b"; // Replace with your dataset ID
-    const accessToken =
-      "sk.eyJ1Ijoib2h4cm4iLCJhIjoiY2xscG51YjJkMDZndTNkbzJvZmd3MmpmNSJ9.1yj9ewdvaGBxVPF_cdlLIQ"; // Replace with your Mapbox access token
+  // //send to Mapbox---------------------------------------------------------------------
+  // const viewDataset = async () => {
+  //   const datasetID = "clloddi6500xe2cp0m7oal19b"; // Replace with your dataset ID
+  //   const accessToken =
+  //     "sk.eyJ1Ijoib2h4cm4iLCJhIjoiY2xscG51YjJkMDZndTNkbzJvZmd3MmpmNSJ9.1yj9ewdvaGBxVPF_cdlLIQ"; // Replace with your Mapbox access token
 
-    try {
-      const response = await fetch(
-        "https://api.mapbox.com/datasets/v1/ohxrn/clloddi6500xe2cp0m7oal19b/features/fad29966a10b68d7a7937fd54b033fb1?access_token=sk.eyJ1Ijoib2h4cm4iLCJhIjoiY2xscG51YjJkMDZndTNkbzJvZmd3MmpmNSJ9.1yj9ewdvaGBxVPF_cdlLIQ"
-      );
+  //   try {
+  //     const response = await fetch(
+  //       "https://api.mapbox.com/datasets/v1/ohxrn/clloddi6500xe2cp0m7oal19b/features/fad29966a10b68d7a7937fd54b033fb1?access_token=sk.eyJ1Ijoib2h4cm4iLCJhIjoiY2xscG51YjJkMDZndTNkbzJvZmd3MmpmNSJ9.1yj9ewdvaGBxVPF_cdlLIQ"
+  //     );
 
-      if (!response.ok) {
-        throw new Error(
-          `Network response was not ok. Status: ${response.status}`
-        );
-      }
+  //     if (!response.ok) {
+  //       throw new Error(
+  //         `Network response was not ok. Status: ${response.status}`
+  //       );
+  //     }
 
-      const data = await response.json();
-      console.log("Dataset:", data);
-    } catch (error) {
-      console.error("Error fetching dataset:", error);
-    }
-  };
+  //     const data = await response.json();
+  //     // console.log("Dataset:", data);
+  //   } catch (error) {
+  //     console.error("Error fetching dataset:", error);
+  //   }
+  // };
 
-  useEffect(() => {
-    viewDataset();
-  }, [geoJSON]);
+  // useEffect(() => {
+  //   viewDataset();
+  // }, [geoJSON]);
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -243,9 +244,12 @@ const HomeScreen = () => {
 
     updateTimeout = setTimeout(() => {
       const companyRef = ref(db, "company/" + companyId);
+      console.log(companyRef);
+
       runTransaction(companyRef, (currentData) => {
         if (currentData !== null) {
           const isWithinRange = distance < 0.1;
+          console.log(isWithinRange);
           const shouldUpdate = isWithinRange && !currentData.updateTriggered;
           const shouldDecrement = !isWithinRange && currentData.updateTriggered;
 
