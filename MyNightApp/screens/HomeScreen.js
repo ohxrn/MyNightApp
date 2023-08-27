@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+
+import io from "socket.io-client";
 import { HeatmapLayer, ModelLayer } from "@rnmapbox/maps";
 import uuid from "react-native-uuid";
 import {
@@ -48,6 +50,14 @@ const HomeScreen = () => {
   const [jsonData, setJsonData] = useState("");
   const db = getDatabase();
   const { StyleURL } = MapboxGL;
+  const socket = io("https://8df3-192-80-65-177.ngrok-free.app");
+  //
+
+  const handleSocket = () => {
+    socket.emit("buttonMessage", auth.currentUser?.email);
+  };
+
+  //
 
   useEffect(() => {
     // console.log("THIS IS THE JSON", JSON.stringify(geoJSON));
@@ -103,7 +113,16 @@ const HomeScreen = () => {
   }, [latestLocation]);
 
   //
+  useEffect(() => {
+    socket.on("server message", (data) => {
+      console.log("Received 'yo' message from server:", data);
+    });
 
+    // Clean up the event listener when the component unmounts
+    return () => {
+      socket.off("yo");
+    };
+  });
   //
 
   useEffect(() => {
@@ -330,6 +349,7 @@ const HomeScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <Button title="Sign out" onPress={signOut} />
+      <Button title="press" onPress={handleSocket} />
       <Text style={{ color: "white" }}>Welcome, {auth.currentUser?.email}</Text>
 
       <View style={styles.container}>
@@ -370,9 +390,7 @@ const HomeScreen = () => {
                   <Image source={theLogo} style={{ width: 60, height: 60 }} />
                 </TouchableOpacity>
                 <Text style={{ color: "white" }}>{data.companyName}</Text>
-                <Text style={{ color: "white" }}>
-                  {data.people} Person here
-                </Text>
+                <Text style={{ color: "red" }}>{data.people} Person here</Text>
                 <Text style={{ color: "white" }}>
                   {data.distance.toFixed(2)} Miles away
                 </Text>
