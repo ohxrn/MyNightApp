@@ -50,14 +50,31 @@ const HomeScreen = () => {
   const [jsonData, setJsonData] = useState("");
   const db = getDatabase();
   const { StyleURL } = MapboxGL;
-  const socket = io("https://8df3-192-80-65-177.ngrok-free.app");
-  //
-
-  const handleSocket = () => {
-    socket.emit("buttonMessage", auth.currentUser?.email);
-  };
+  const [socketRoom, setSocketRoom] = useState(false);
+  const [socketWelcome, setSocketWelcome] = useState("");
 
   //
+
+  //------------------------------[[[[[[[[SOCKET ROOM]]]]]]]]]]]--------------------------------------------------
+
+  useEffect(() => {
+    if (socketRoom) {
+      const socket = io("https://f6c5-192-80-65-177.ngrok-free.app");
+      socket.on("serverEnterRoom", (data) => {
+        console.log("HERE DATA", data);
+        setSocketWelcome(data);
+      });
+
+      socket.emit("buttonMessage", auth.currentUser?.email);
+
+      return () => {
+        // Clean up the socket connection when the socketRoom value changes
+        socket.disconnect();
+      };
+    }
+  }, [socketRoom]);
+
+  //------------------------------[[[[[[[[ SOCKET ROOM]]]]]]]]]]]--------------------------------------------------
 
   useEffect(() => {
     // console.log("THIS IS THE JSON", JSON.stringify(geoJSON));
@@ -113,16 +130,7 @@ const HomeScreen = () => {
   }, [latestLocation]);
 
   //
-  useEffect(() => {
-    socket.on("server message", (data) => {
-      console.log("Received 'yo' message from server:", data);
-    });
 
-    // Clean up the event listener when the component unmounts
-    return () => {
-      socket.off("yo");
-    };
-  });
   //
 
   useEffect(() => {
@@ -268,6 +276,7 @@ const HomeScreen = () => {
       runTransaction(companyRef, (currentData) => {
         if (currentData !== null) {
           const isWithinRange = distance < 0.1;
+          setSocketRoom(true);
           console.log(isWithinRange);
           const shouldUpdate = isWithinRange && !currentData.updateTriggered;
           const shouldDecrement = !isWithinRange && currentData.updateTriggered;
@@ -349,8 +358,9 @@ const HomeScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <Button title="Sign out" onPress={signOut} />
-      <Button title="press" onPress={handleSocket} />
+
       <Text style={{ color: "white" }}>Welcome, {auth.currentUser?.email}</Text>
+      <Text style={{ color: "white" }}>{socketWelcome}</Text>
 
       <View style={styles.container}>
         <MapboxGL.MapView

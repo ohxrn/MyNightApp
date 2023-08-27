@@ -14,14 +14,15 @@ app.use(cors());
 //
 const socketIO = require("socket.io")(http, {
   cors: {
-    origin: "https://8df3-192-80-65-177.ngrok-free.app",
+    origin: "https://f6c5-192-80-65-177.ngrok-free.app",
   },
 });
 
 //👇🏻 Add this before the app.get() block
 socketIO.on("connection", (socket) => {
   socket.on("buttonMessage", (arg) => {
-    console.log(arg);
+    console.log(`user ${arg} has entered the room!`);
+    socket.emit("serverEnterRoom", `user ${arg} has entered the room!`);
   });
   console.log(`⚡: ${socket.id} user just connected!`);
   socket.on("message", (arg) => {
