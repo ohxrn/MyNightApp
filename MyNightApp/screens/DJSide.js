@@ -1,12 +1,12 @@
 import React from "react";
-import { View, StyleSheet, Text, SafeAreaView } from "react-native";
+import { View, StyleSheet, SafeAreaView, Text } from "react-native";
 
-function Voting(props) {
+function DJSide(props) {
   return (
     <View style={styles.container}>
       <SafeAreaView>
         <View>
-          <Text>Welcome to voting page!</Text>
+          <Text>DJ side of app TBA</Text>
         </View>
       </SafeAreaView>
     </View>
@@ -17,4 +17,4 @@ const styles = StyleSheet.create({
   container: {},
 });
 
-export default Voting;
+export default DJSide;

@@ -1,21 +1,38 @@
-import { StatusBar } from "expo-status-bar";
-import { useState } from "react";
-import { View, Text, StyleSheet } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-
-import LoginScreen from "./screens/LoginScreen";
-
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import React, { useState, useEffect } from "react";
+import { View, Text, StyleSheet } from "react-native";
+import UserForm from "./screens/UserForm";
 import HomeScreen from "./screens/HomeScreen";
 import CompanyForm from "./screens/CompanyForm";
 import CompanySubmit from "./screens/CompanySubmit";
+import { auth } from "./Components/Config";
+import Voting from "./screens/Voting";
+import DJSide from "./screens/DJSide";
 
-function App(props) {
-  const Stack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator();
+const Tab = createBottomTabNavigator();
+
+function App() {
+  const [initialRoute, setInitialRoute] = useState("Login");
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        setInitialRoute("Welcome");
+      } else {
+        setInitialRoute("Login");
+      }
+    });
+    return unsubscribe;
+  }, []);
+
   return (
     <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen name="Login" component={LoginScreen} />
+      <Stack.Navigator initialRouteName={initialRoute}>
+        <Stack.Screen name="Login" component={UserForm} />
+
         <Stack.Screen
           name="CompanyForm"
           options={{ headerShown: false }}
@@ -27,21 +44,35 @@ function App(props) {
           component={CompanySubmit}
         />
         <Stack.Screen
-          name="welcome"
+          name="HomeScreen"
           options={{ headerShown: false }}
-          component={HomeScreen}
+          component={MainNavigator}
         />
       </Stack.Navigator>
     </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-});
+function MainNavigator() {
+  const Tab = createBottomTabNavigator();
+  return (
+    <Tab.Navigator>
+      <Tab.Screen
+        name="HomeScreen"
+        component={HomeScreen}
+        options={{ tabBarLabel: "Home" }}
+      />
+      <Tab.Screen
+        name="Voting"
+        component={Voting}
+        options={{ tabBarLabel: "See Rooms" }}
+      />
+      <Tab.Screen
+        name="DJSide"
+        component={DJSide}
+        options={{ tabBarLabel: "Join as DJ" }}
+      />
+    </Tab.Navigator>
+  );
+}
 
 export default App;

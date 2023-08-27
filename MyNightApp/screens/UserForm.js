@@ -17,8 +17,7 @@ import {
 
 import { db, auth } from "../Components/Config";
 import { useEffect } from "react";
-
-import { useNavigation } from "@react-navigation/core";
+import { useNavigation } from "@react-navigation/native";
 
 function UserForm(props) {
   const navigation = useNavigation();
@@ -28,7 +27,7 @@ function UserForm(props) {
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
-        navigation.replace("welcome");
+        navigation.replace("HomeScreen");
       }
     });
     return unsubscribe;
