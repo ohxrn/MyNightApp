@@ -1,4 +1,8 @@
 import React, { useState, useEffect } from "react";
+import {
+  scheduleNotificationAsync,
+  getPermissionsAsync,
+} from "expo-notifications";
 
 import io from "socket.io-client";
 import { HeatmapLayer, ModelLayer } from "@rnmapbox/maps";
@@ -59,7 +63,9 @@ const HomeScreen = () => {
 
   useEffect(() => {
     if (socketRoom) {
-      const socket = io("https://f6c5-192-80-65-177.ngrok-free.app");
+      const socket = io(
+        " https://7592-2601-19b-800-4b80-3965-108c-9626-5897.ngrok-free.app"
+      );
       socket.on("serverEnterRoom", (data) => {
         console.log("HERE DATA", data);
         setSocketWelcome(data);
@@ -276,11 +282,15 @@ const HomeScreen = () => {
       runTransaction(companyRef, (currentData) => {
         if (currentData !== null) {
           const isWithinRange = distance < 0.1;
-          setSocketRoom(true);
+          // console.log("IS IT W IN?", currentData);
+          if (isWithinRange) {
+            setSocketRoom(true);
+          }
+
           console.log(isWithinRange);
           const shouldUpdate = isWithinRange && !currentData.updateTriggered;
           const shouldDecrement = !isWithinRange && currentData.updateTriggered;
-
+          sendPushNotification(currentData);
           if (shouldUpdate) {
             return {
               ...currentData,
@@ -306,6 +316,26 @@ const HomeScreen = () => {
           console.log("Update failed:", error);
         });
     }, 2000);
+  };
+
+  const sendPushNotification = async (data) => {
+    const { status } = await getPermissionsAsync();
+    // console.log("HERE IS DATA", data);
+
+    if (status !== "granted") {
+      console.error("Permission to send push notifications denied.");
+      return;
+    }
+
+    const notificationContent = {
+      title: `You are near ${data.companyName}!`,
+      body: `there are currently ${data.people} person here.`,
+    };
+
+    await scheduleNotificationAsync({
+      content: notificationContent,
+      trigger: null,
+    });
   };
 
   useEffect(() => {
@@ -401,7 +431,7 @@ const HomeScreen = () => {
                 </TouchableOpacity>
                 <Text style={{ color: "white" }}>{data.companyName}</Text>
                 <Text style={{ color: "red" }}>{data.people} Person here</Text>
-                <Text style={{ color: "white" }}>
+                <Text style={{ color: "red" }}>
                   {data.distance.toFixed(2)} Miles away
                 </Text>
               </MarkerView>
