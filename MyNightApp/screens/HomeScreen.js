@@ -3,6 +3,8 @@ import {
   scheduleNotificationAsync,
   getPermissionsAsync,
 } from "expo-notifications";
+import * as BackgroundFetch from "expo-background-fetch";
+import * as TaskManager from "expo-task-manager";
 
 import io from "socket.io-client";
 import { HeatmapLayer, ModelLayer } from "@rnmapbox/maps";
@@ -34,7 +36,7 @@ import MapboxGL, {
   Layer,
 } from "@rnmapbox/maps";
 
-const HomeScreen = () => {
+const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   MapboxGL.setAccessToken(
     "sk.eyJ1Ijoib2h4cm4iLCJhIjoiY2xscG51YjJkMDZndTNkbzJvZmd3MmpmNSJ9.1yj9ewdvaGBxVPF_cdlLIQ"
   );
@@ -58,6 +60,13 @@ const HomeScreen = () => {
   const [socketWelcome, setSocketWelcome] = useState("");
 
   //
+  async function registerBackgroundFetchAsync() {
+    return BackgroundFetch.registerTaskAsync(BACKGROUND_FETCH_TASK, {
+      minimumInterval: 60 * 15, // 15 minutes
+      stopOnTerminate: false, // android only,
+      startOnBoot: true, // android only
+    });
+  }
 
   //------------------------------[[[[[[[[SOCKET ROOM]]]]]]]]]]]--------------------------------------------------
 

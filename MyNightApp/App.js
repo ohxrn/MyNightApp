@@ -14,17 +14,40 @@ import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
 import Constants from "expo-constants";
 import { useRef } from "react";
+import * as BackgroundFetch from "expo-background-fetch";
+import * as TaskManager from "expo-task-manager";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 function App() {
+  const BACKGROUND_FETCH_TASK = "background-fetch";
+
   // registerNNPushToken(11405, "TetwsDIx2V6LHpXAJmmtMz");
   const [initialRoute, setInitialRoute] = useState("Login");
   const [expoPushToken, setExpoPushToken] = useState("");
   const [notification, setNotification] = useState(false);
   const notificationListener = useRef();
   const responseListener = useRef();
+
+  TaskManager.defineTask(BACKGROUND_FETCH_TASK, async () => {
+    const now = Date.now();
+
+    console.log(
+      `Got background fetch call at date: ${new Date(now).toISOString()}`
+    );
+
+    // Be sure to return the successful result type!
+    return BackgroundFetch.BackgroundFetchResult.NewData;
+  });
+
+  async function registerBackgroundFetchAsync() {
+    return BackgroundFetch.registerTaskAsync(BACKGROUND_FETCH_TASK, {
+      minimumInterval: 60 * 15, // 15 minutes
+      stopOnTerminate: false, // android only,
+      startOnBoot: true, // android only
+    });
+  }
 
   useEffect(() => {
     registerForPushNotificationsAsync().then((token) =>
@@ -138,6 +161,7 @@ function App() {
         />
         <Stack.Screen
           name="HomeScreen"
+          BACKGROUND_FETCH_TASK={BACKGROUND_FETCH_TASK}
           options={{ headerShown: false }}
           component={MainNavigator}
         />
