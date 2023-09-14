@@ -23,7 +23,14 @@ import theLogo from "../assets/MNLOGO.png";
 import { auth } from "../Components/Config";
 import { useNavigation } from "@react-navigation/native";
 import * as Location from "expo-location";
-import { ref, onValue, runTransaction, push, set } from "firebase/database";
+import {
+  ref,
+  onValue,
+  runTransaction,
+  push,
+  set,
+  update,
+} from "firebase/database";
 import "firebase/database"; // Import the database module explicitly
 import { getDatabase, ServerValue, getDocs } from "firebase/database";
 
@@ -41,6 +48,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
     "sk.eyJ1Ijoib2h4cm4iLCJhIjoiY2xscG51YjJkMDZndTNkbzJvZmd3MmpmNSJ9.1yj9ewdvaGBxVPF_cdlLIQ"
   );
 
+  const [add, setAdd] = useState(0);
   const styleURL = "mapbox://styles/ohxrn/cllmlwayv02jj01p88z3a6nv4";
   const [notiName, setNotiName] = useState([]);
   const [oGName, setOGName] = useState();
@@ -273,12 +281,65 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   // useEffect(() => {
   //   viewDataset();
   // }, [geoJSON]);
-  useEffect(
-    (line) => {
-      console.log(line);
-    },
-    [line]
-  );
+
+  const lineCalulcation = (data, id) => {
+    console.log("THIS IS ID", id);
+    console.log(data.length);
+    let latSum = 0;
+    let longSum = 0;
+    const last10Pings = data.slice(-10); // Get the last 10 pings
+
+    if (last10Pings.length > 0) {
+      // Calculate weights for each ping, giving more weight to recent pings
+      const weights = Array.from(
+        { length: last10Pings.length },
+        (_, i) => i + 1
+      );
+
+      // Calculate the sum of weights for normalization
+      const weightSum = weights.reduce((sum, w) => sum + w, 0);
+
+      for (let i = 0; i < last10Pings.length; i++) {
+        const weight = weights[i] / weightSum; // Normalize weights
+        latSum += last10Pings[i][0] * weight;
+        longSum += last10Pings[i][1] * weight;
+      }
+
+      let differenceLat = latestLocation.latitude - latSum;
+      let differenceLong = latestLocation.longitude - longSum;
+      let finalDistance = (differenceLat + differenceLong) / 2;
+
+      // Adjust the threshold as needed
+      if (finalDistance < 0.002 && finalDistance > -0.002) {
+        console.log("You are still in line");
+        setAdd(add + 1);
+        console.log("TRIGGA", add);
+        if (add >= 3) {
+          setAdd(0);
+
+          const lineRef = ref(db, `company/${id}/line`);
+
+          runTransaction(lineRef, (currentLine) => {
+            if (!currentLine) {
+              // If "line" data doesn't exist, initialize it with a value of 0
+              return 9;
+            }
+
+            // Increment the "line" field by 1
+            return 5;
+          })
+            .then(() => {
+              console.log("line updated");
+            })
+            .catch((error) => {
+              console.log(error);
+              alert(error);
+            });
+        }
+      }
+      console.log("DISTANCE DIFFERENCE", finalDistance);
+    }
+  };
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -297,15 +358,15 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
 
       runTransaction(companyRef, (currentData) => {
         if (currentData !== null) {
-          const isWithinRange = distance < 0.082;
+          const isWithinRange = distance < 0.182;
 
           if (isWithinRange) {
             setSocketRoom(true);
             setLine([
               ...line,
-              currentData.address.latitude,
-              currentData.address.longitude,
+              [latestLocation.latitude, latestLocation.longitude],
             ]);
+            lineCalulcation(line, companyId);
           }
 
           console.log(isWithinRange);
@@ -437,7 +498,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
             id="marker"
             coordinate={[-71.0589, 42.3601]}
           />
-          <Text>"clloddi6500xe2cp0m7oal19b"</Text>
+
           <ActivityIndicator
             style={styles.animate}
             animating={showAnimate}
