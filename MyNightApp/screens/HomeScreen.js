@@ -355,7 +355,6 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
     updateTimeout = setTimeout(() => {
       const companyRef = ref(db, "company/" + companyId);
       console.log(companyRef);
-
       runTransaction(companyRef, (currentData) => {
         if (currentData !== null) {
           const isWithinRange = distance < 0.182;
@@ -483,7 +482,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
           attributionEnabled={false}
         >
           <MapboxGL.Camera
-            zoomLevel={14.5}
+            zoomLevel={8.5}
             centerCoordinate={
               latestLocation !== null
                 ? [latestLocation.longitude, latestLocation.latitude]
