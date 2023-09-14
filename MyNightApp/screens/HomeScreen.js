@@ -292,7 +292,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
 
       runTransaction(companyRef, (currentData) => {
         if (currentData !== null) {
-          const isWithinRange = distance < 0.1;
+          const isWithinRange = distance < 0.062;
           // console.log("IS IT W IN?", currentData);
           if (isWithinRange) {
             setSocketRoom(true);
@@ -301,8 +301,9 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
           console.log(isWithinRange);
           const shouldUpdate = isWithinRange && !currentData.updateTriggered;
           const shouldDecrement = !isWithinRange && currentData.updateTriggered;
-          sendPushNotification(currentData);
+
           if (shouldUpdate) {
+            sendPushNotification(currentData);
             return {
               ...currentData,
               people: currentData.people + 1,
@@ -365,38 +366,38 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
       theRun();
     };
   }, []);
+  //---------------------------------------[[[[[[[[[[[THE CODE FOR HEATMAP FAILURE]]]]]]]]]]]--------------------------------------
+  // const generateUniqueId = () => {
+  //   return uuid.v4();
+  // };
 
-  const generateUniqueId = () => {
-    return uuid.v4();
-  };
+  // useEffect(() => {
+  //   const geojsonData = {
+  //     type: "FeatureCollection",
+  //     features: ulData.map((data) => ({
+  //       type: "Feature",
+  //       geometry: {
+  //         type: "Point",
+  //         coordinates: [data.location.longitude, data.location.latitude],
+  //       },
+  //       properties: {
+  //         id: generateUniqueId(),
+  //         name: "Examples" + generateUniqueId(),
+  //       },
+  //       description: "the first data upload",
+  //     })),
+  //   };
 
-  useEffect(() => {
-    const geojsonData = {
-      type: "FeatureCollection",
-      features: ulData.map((data) => ({
-        type: "Feature",
-        geometry: {
-          type: "Point",
-          coordinates: [data.location.longitude, data.location.latitude],
-        },
-        properties: {
-          id: generateUniqueId(),
-          name: "Examples" + generateUniqueId(),
-        },
-        description: "the first data upload",
-      })),
-    };
+  //   setGeoJSON(geojsonData);
+  // }, [ulData]);
 
-    setGeoJSON(geojsonData);
-  }, [ulData]);
-
-  useEffect(() => {
-    if (geoJSON !== undefined) {
-      setFinalJSON(true);
-      // console.log("GeoJSON:", JSON.stringify(geoJSON, null, 2));
-    }
-  }, [geoJSON, ulData, dbLocationID, fsLocation]);
-
+  // useEffect(() => {
+  //   if (geoJSON !== undefined) {
+  //     setFinalJSON(true);
+  //     // console.log("GeoJSON:", JSON.stringify(geoJSON, null, 2));
+  //   }
+  // }, [geoJSON, ulData, dbLocationID, fsLocation]);
+  //---------------------------------------[[[[[[[[[[[THE CODE FOR HEATMAP FAILURE]]]]]]]]]]]--------------------------------------
   return (
     <SafeAreaView style={styles.container}>
       <Button title="Sign out" onPress={signOut} />
