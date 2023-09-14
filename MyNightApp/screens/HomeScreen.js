@@ -60,6 +60,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   const { StyleURL } = MapboxGL;
   const [socketRoom, setSocketRoom] = useState(false);
   const [socketWelcome, setSocketWelcome] = useState("");
+  const [line, setLine] = useState([]);
 
   //
   async function registerBackgroundFetchAsync() {
@@ -74,9 +75,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
 
   useEffect(() => {
     if (socketRoom) {
-      const socket = io(
-        " https://7592-2601-19b-800-4b80-3965-108c-9626-5897.ngrok-free.app"
-      );
+      const socket = io("https://5828-192-80-65-177.ngrok-free.app");
       socket.on("serverEnterRoom", (data) => {
         console.log("HERE DATA", data);
         setSocketWelcome(data);
@@ -274,6 +273,12 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   // useEffect(() => {
   //   viewDataset();
   // }, [geoJSON]);
+  useEffect(
+    (line) => {
+      console.log(line);
+    },
+    [line]
+  );
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -292,10 +297,15 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
 
       runTransaction(companyRef, (currentData) => {
         if (currentData !== null) {
-          const isWithinRange = distance < 0.062;
-          // console.log("IS IT W IN?", currentData);
+          const isWithinRange = distance < 0.082;
+
           if (isWithinRange) {
             setSocketRoom(true);
+            setLine([
+              ...line,
+              currentData.address.latitude,
+              currentData.address.longitude,
+            ]);
           }
 
           console.log(isWithinRange);
@@ -412,12 +422,17 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
           attributionEnabled={false}
         >
           <MapboxGL.Camera
-            zoomLevel={13}
-            centerCoordinate={[-71.0589, 42.3601]}
+            zoomLevel={14.5}
+            centerCoordinate={
+              latestLocation !== null
+                ? [latestLocation.longitude, latestLocation.latitude]
+                : [-71.0589, 42.3601] // Provide default values if latestLocation is null
+            }
             pitch={34}
             animationMode={"flyTo"}
-            animationDuration={6000}
+            animationDuration={7000}
           />
+
           <MapboxGL.PointAnnotation
             id="marker"
             coordinate={[-71.0589, 42.3601]}
