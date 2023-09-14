@@ -42,6 +42,8 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   );
 
   const styleURL = "mapbox://styles/ohxrn/cllmlwayv02jj01p88z3a6nv4";
+  const [notiName, setNotiName] = useState([]);
+  const [oGName, setOGName] = useState();
   const [finalJSON, setFinalJSON] = useState(false);
   const [geoJSON, setGeoJSON] = useState();
   const [ulData, setUlData] = useState([]);
@@ -329,7 +331,8 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
 
   const sendPushNotification = async (data) => {
     const { status } = await getPermissionsAsync();
-    // console.log("HERE IS DATA", data);
+    // setNotiName(push(data.companyName));
+    console.log(notiName);
 
     if (status !== "granted") {
       console.error("Permission to send push notifications denied.");
