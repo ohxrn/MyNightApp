@@ -287,22 +287,22 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
     console.log(data.length);
     let latSum = 0;
     let longSum = 0;
-    const last10Pings = data.slice(-10); // Get the last 10 pings
+    const last5Pings = data.slice(-5); // Get the last 10 pings
 
-    if (last10Pings.length > 0) {
+    if (last5Pings.length > 0) {
       // Calculate weights for each ping, giving more weight to recent pings
       const weights = Array.from(
-        { length: last10Pings.length },
+        { length: last5Pings.length },
         (_, i) => i + 1
       );
 
       // Calculate the sum of weights for normalization
       const weightSum = weights.reduce((sum, w) => sum + w, 0);
 
-      for (let i = 0; i < last10Pings.length; i++) {
+      for (let i = 0; i < last5Pings.length; i++) {
         const weight = weights[i] / weightSum; // Normalize weights
-        latSum += last10Pings[i][0] * weight;
-        longSum += last10Pings[i][1] * weight;
+        latSum += last5Pings[i][0] * weight;
+        longSum += last5Pings[i][1] * weight;
       }
 
       let differenceLat = latestLocation.latitude - latSum;
@@ -310,7 +310,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
       let finalDistance = (differenceLat + differenceLong) / 2;
 
       // Adjust the threshold as needed
-      if (finalDistance < 0.002 && finalDistance > -0.002) {
+      if (finalDistance < 0.00002 && finalDistance > -0.00002) {
         console.log("You are still in line");
         setAdd(add + 1);
         console.log("TRIGGA", add);
@@ -320,13 +320,15 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
           const lineRef = ref(db, `company/${id}/line`);
 
           runTransaction(lineRef, (currentLine) => {
+            let number = 0;
             if (!currentLine) {
               // If "line" data doesn't exist, initialize it with a value of 0
-              return 9;
+
+              return number;
             }
 
             // Increment the "line" field by 1
-            return 5;
+            return number + 1;
           })
             .then(() => {
               console.log("line updated");
@@ -336,6 +338,8 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
               alert(error);
             });
         }
+      } else {
+        console.log("NOT IN LINE ANYMORE");
       }
       console.log("DISTANCE DIFFERENCE", finalDistance);
     }
@@ -482,7 +486,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
           attributionEnabled={false}
         >
           <MapboxGL.Camera
-            zoomLevel={8.5}
+            zoomLevel={14.5}
             centerCoordinate={
               latestLocation !== null
                 ? [latestLocation.longitude, latestLocation.latitude]

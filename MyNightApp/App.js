@@ -16,6 +16,7 @@ import Constants from "expo-constants";
 import { useRef } from "react";
 import * as BackgroundFetch from "expo-background-fetch";
 import * as TaskManager from "expo-task-manager";
+import theLogo from "./assets/MNLOGO.png";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -180,7 +181,7 @@ function MainNavigator() {
       <Tab.Screen
         name="Voting"
         component={Voting}
-        options={{ tabBarLabel: "See Rooms" }}
+        options={{ tabBarLabel: "Add friends" }}
       />
       <Tab.Screen
         name="DJSide"
