@@ -310,7 +310,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
       let finalDistance = (differenceLat + differenceLong) / 2;
 
       // Adjust the threshold as needed
-      if (finalDistance < 0.00002 && finalDistance > -0.00002) {
+      if (finalDistance < 0.000002 && finalDistance > -0.000002) {
         console.log("You are still in line");
         setAdd(add + 1);
         console.log("TRIGGA", add);
