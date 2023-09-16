@@ -174,7 +174,13 @@ function App() {
 function MainNavigator() {
   const Tab = createBottomTabNavigator();
   return (
-    <Tab.Navigator>
+    <Tab.Navigator
+      screenOptions={{
+        tabBarStyle: { backgroundColor: "lightblue" }, // Set the background color here
+        tabBarActiveTintColor: "pink", // Set the active tab text color
+        tabBarInactiveTintColor: "white", // Set the inactive tab text color
+      }}
+    >
       <Tab.Screen
         name="HomeScreen"
         component={HomeScreen}

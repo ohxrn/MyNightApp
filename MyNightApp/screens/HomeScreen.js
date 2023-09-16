@@ -474,17 +474,39 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   //---------------------------------------[[[[[[[[[[[THE CODE FOR HEATMAP FAILURE]]]]]]]]]]]--------------------------------------
   return (
     <SafeAreaView style={styles.container}>
-      <Button title="Sign out" onPress={signOut} />
-
-      <Text style={{ color: "white" }}>Welcome, {auth.currentUser?.email}</Text>
-      <Text style={{ color: "white" }}>{socketWelcome}</Text>
-
       <View style={styles.container}>
         <MapboxGL.MapView
           style={styles.mapContainer}
           styleURL={styleURL}
           attributionEnabled={false}
         >
+          <View style={{ display: "flex" }}>
+            <Text
+              style={{
+                textAlign: "center",
+                color: "black",
+                backgroundColor: "white",
+                height: 22,
+              }}
+            >
+              Welcome, {auth.currentUser?.email}
+            </Text>
+            <TouchableOpacity
+              style={{
+                backgroundColor: "white",
+                width: "30%",
+                height: 30,
+                justifyContent: "center",
+                alignItems: "center",
+                alignSelf: "center",
+              }}
+              onPress={signOut}
+            >
+              <Text style={{ fontSize: 20 }}>Sign Out</Text>
+            </TouchableOpacity>
+
+            <Text style={{ color: "black" }}>{socketWelcome}</Text>
+          </View>
           <MapboxGL.Camera
             zoomLevel={14.5}
             centerCoordinate={
@@ -544,8 +566,6 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
           )}
         </MapboxGL.MapView>
       </View>
-
-      <Text>{mapUpdate}</Text>
     </SafeAreaView>
   );
 };
