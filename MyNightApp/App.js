@@ -17,6 +17,7 @@ import { useRef } from "react";
 import * as BackgroundFetch from "expo-background-fetch";
 import * as TaskManager from "expo-task-manager";
 import theLogo from "./assets/MNLOGO.png";
+import Intro from "./screens/Intro";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -136,7 +137,7 @@ function App() {
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
-        setInitialRoute("Welcome");
+        setInitialRoute("Intro");
       } else {
         setInitialRoute("Login");
       }
@@ -147,6 +148,7 @@ function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName={initialRoute}>
+        <Stack.Screen name="Intro" component={Intro} />
         <Stack.Screen name="Login" component={UserForm} />
 
         <Stack.Screen
