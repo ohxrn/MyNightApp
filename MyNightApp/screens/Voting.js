@@ -5,8 +5,11 @@ function Voting(props) {
   return (
     <View style={styles.container}>
       <SafeAreaView>
+        <View style={{ marginBottom: 50 }}>
+          <Text>My Friends</Text>
+        </View>
         <View>
-          <Text>Welcome to voting page!</Text>
+          <Text>Add Friends</Text>
         </View>
       </SafeAreaView>
     </View>
