@@ -83,7 +83,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
 
   useEffect(() => {
     if (socketRoom) {
-      const socket = io("https://5828-192-80-65-177.ngrok-free.app");
+      const socket = io("https://5b09-192-80-65-177.ngrok-free.app");
       socket.on("serverEnterRoom", (data) => {
         console.log("HERE DATA", data);
         setSocketWelcome(data);

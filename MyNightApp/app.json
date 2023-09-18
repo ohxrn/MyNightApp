@@ -11,7 +11,9 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.ohxrn.MyNightApp"
@@ -38,6 +40,7 @@
       "eas": {
         "projectId": "3bb27801-f654-42c0-bd41-c45738cfdb24"
       }
-    }
+    },
+    "owner": "ohxrn"
   }
 }
