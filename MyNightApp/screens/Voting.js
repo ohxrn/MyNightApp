@@ -3,6 +3,7 @@ import { View, StyleSheet, Text, SafeAreaView } from "react-native";
 import HomeScreen from "./HomeScreen";
 import io from "socket.io-client";
 import { auth } from "../Components/Config";
+import Spotify from "rn-spotify-sdk";
 
 function Voting(props) {
   const [user, setUser] = useState("");
