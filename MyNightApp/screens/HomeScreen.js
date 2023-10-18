@@ -375,7 +375,6 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
           console.log(isWithinRange);
           const shouldUpdate = isWithinRange && !currentData.updateTriggered;
           const shouldDecrement = !isWithinRange && currentData.updateTriggered;
-
           if (shouldUpdate) {
             sendPushNotification(currentData);
             return {

@@ -3,10 +3,31 @@ import { View, StyleSheet, Text, SafeAreaView } from "react-native";
 import HomeScreen from "./HomeScreen";
 import io from "socket.io-client";
 import { auth } from "../Components/Config";
-import Spotify from "rn-spotify-sdk";
+import DeviceInfo from "react-native-device-info";
+import { MPMusicPlayerController } from "react-native";
 
 function Voting(props) {
   const [user, setUser] = useState("");
+
+  //actual track grab ---------------
+  useEffect(() => {
+    const musicPlayer = MPMusicPlayerController.applicationMusicPlayer();
+    const nowPlayingItem = musicPlayer.nowPlayingItem;
+
+    if (nowPlayingItem) {
+      const title = nowPlayingItem.title;
+      const artist = nowPlayingItem.artist;
+      const album = nowPlayingItem.albumTitle;
+
+      console.log("Currently Playing:");
+      console.log(`Title: ${title}`);
+      console.log(`Artist: ${artist}`);
+      console.log(`Album: ${album}`);
+    } else {
+      console.log("No media is currently playing.");
+    }
+  }, []);
+  //actual track grab ---------------
 
   useEffect(() => {
     const socket = io("https://5b09-192-80-65-177.ngrok-free.app");
