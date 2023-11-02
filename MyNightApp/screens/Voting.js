@@ -10,27 +10,9 @@ function Voting(props) {
   const [user, setUser] = useState("");
 
   //actual track grab ---------------
-  useEffect(() => {
-    const musicPlayer = MPMusicPlayerController.applicationMusicPlayer();
-    const nowPlayingItem = musicPlayer.nowPlayingItem;
-
-    if (nowPlayingItem) {
-      const title = nowPlayingItem.title;
-      const artist = nowPlayingItem.artist;
-      const album = nowPlayingItem.albumTitle;
-
-      console.log("Currently Playing:");
-      console.log(`Title: ${title}`);
-      console.log(`Artist: ${artist}`);
-      console.log(`Album: ${album}`);
-    } else {
-      console.log("No media is currently playing.");
-    }
-  }, []);
-  //actual track grab ---------------
 
   useEffect(() => {
-    const socket = io("https://5b09-192-80-65-177.ngrok-free.app");
+    const socket = io("https://2967-2600-387-15-912-00-7.ngrok-free.app");
     if (user == "") {
       setUser("not in range of party");
     }

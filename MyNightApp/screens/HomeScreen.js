@@ -83,7 +83,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
 
   useEffect(() => {
     if (socketRoom) {
-      const socket = io("https://5b09-192-80-65-177.ngrok-free.app");
+      const socket = io("https://2967-2600-387-15-912-00-7.ngrok-free.app");
       socket.on("serverEnterRoom", (data) => {
         console.log("HERE DATA", data);
         setSocketWelcome(data);
@@ -543,7 +543,13 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
                   <Image source={theLogo} style={{ width: 60, height: 60 }} />
                 </TouchableOpacity>
                 <Text style={{ color: "white" }}>{data.companyName}</Text>
-                <Text style={{ color: "red" }}>{data.people} Person here</Text>
+                <Text style={{ color: "red" }}>
+                  {data.people == 1 ? (
+                    <Text>1 person here</Text>
+                  ) : (
+                    <Text>{data.people} people here</Text>
+                  )}
+                </Text>
                 <Text style={{ color: "red" }}>
                   {data.distance.toFixed(2)} Miles away
                 </Text>
