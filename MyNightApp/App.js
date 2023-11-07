@@ -191,11 +191,6 @@ function MainNavigator() {
         component={Voting}
         options={{ tabBarLabel: "Add friends" }}
       />
-      <Tab.Screen
-        name="DJSide"
-        component={DJSide}
-        options={{ tabBarLabel: "Join as DJ" }}
-      />
     </Tab.Navigator>
   );
 }
