@@ -511,7 +511,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
             centerCoordinate={
               latestLocation !== null
                 ? [latestLocation.longitude, latestLocation.latitude]
-                : [-71.0589, 42.3601] // Provide default values if latestLocation is null
+                : [-71.0589, 42.3601]
             }
             pitch={34}
             animationMode={"flyTo"}
@@ -589,6 +589,6 @@ const styles = StyleSheet.create({
   },
   mapContainer: {
     flex: 1,
-    width: "100%", // Add this line to make the map container take up the entire width
+    width: "100%",
   },
 });
