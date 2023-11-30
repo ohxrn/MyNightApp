@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, Text, SafeAreaView } from "react-native";
+import { View, StyleSheet, Text, SafeAreaView, Image } from "react-native";
 import HomeScreen from "./HomeScreen";
 import io from "socket.io-client";
 import { auth } from "../Components/Config";
@@ -13,7 +13,7 @@ function Voting(props) {
 
   useEffect(() => {
     const socket = io(
-      "https://17ca-2601-19b-280-4960-cc85-c5d-f316-8d9.ngrok-free.app"
+      "https://66f2-2601-19b-280-4960-991a-168d-d1f9-7e02.ngrok-free.app"
     );
     if (user == "") {
       setUser("not in range of party");
@@ -34,15 +34,24 @@ function Voting(props) {
   return (
     <SafeAreaView
       style={{
-        backgroundColor: "lightpink",
+        backgroundColor: "purple",
         flex: 1,
         justifyContent: "flex-end",
       }}
     >
-      <View style={{ backgroundColor: "white", flex: 3 }}>
+      <View style={{ backgroundColor: "darkblue", flex: 3 }}>
         <Text style={{ fontSize: 22, color: "red" }}>
           Let's see what's playing
         </Text>
+        <Image
+          style={{
+            width: 150,
+            height: 150,
+            justifyContent: "center",
+            alignSelf: "center",
+          }}
+          source={require("../assets/disco.gif")}
+        />
       </View>
 
       <Text

@@ -84,7 +84,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   useEffect(() => {
     if (socketRoom) {
       const socket = io(
-        "https://17ca-2601-19b-280-4960-cc85-c5d-f316-8d9.ngrok-free.app"
+        "https://66f2-2601-19b-280-4960-991a-168d-d1f9-7e02.ngrok-free.app"
       );
       socket.on("serverEnterRoom", (data) => {
         console.log("HERE DATA", data);
@@ -505,6 +505,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
             >
               <Text style={{ fontSize: 20 }}>Sign Out</Text>
             </TouchableOpacity>
+            <Text>Powered by OHXRN X Virtual Vintage LLC</Text>
 
             <Text style={{ color: "black" }}>{socketWelcome}</Text>
           </View>
