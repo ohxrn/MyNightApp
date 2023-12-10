@@ -43,6 +43,7 @@
     "react-native-uuid": "^2.0.1",
     "react-native-video": "^5.2.1",
     "react-native-websocket": "^1.0.2",
+    "react-navigation": "^5.0.0",
     "socket.io-client": "^4.7.2",
     "spotify-sdk": "^1.0.0-beta2",
     "threebox": "^0.1.5",

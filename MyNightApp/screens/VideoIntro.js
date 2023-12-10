@@ -1,30 +1,24 @@
 import React, { useRef } from "react";
-import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
+import { View, StyleSheet } from "react-native";
 import Video from "react-native-video";
-import { useNavigation } from "@react-navigation/native";
 
-const Intro = () => {
-  const navigation = useNavigation();
+const VideoIntro = ({ navigation }) => {
   const videoRef = useRef(null);
 
   const onEnd = () => {
-    // Video playback has ended, navigate to the desired screen
-    navigation.navigate("HomeScreen");
+    // Video playback has ended, navigate to the next screen
+    navigation.navigate("Next");
   };
 
   return (
     <View style={styles.container}>
       <Video
         ref={videoRef}
-        source={{ uri: "../assets/mm.mp4" }}
+        source={{ uri: "your_video_url.mp4" }}
         style={styles.video}
         onEnd={onEnd}
         resizeMode="cover"
-        repeat={false}
       />
-      <TouchableOpacity onPress={() => onEnd()}>
-        <Text>Skip Video</Text>
-      </TouchableOpacity>
     </View>
   );
 };
@@ -42,4 +36,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Intro;
+export default VideoIntro;
