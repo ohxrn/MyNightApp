@@ -83,7 +83,9 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
 
   useEffect(() => {
     if (socketRoom) {
-      const socket = io("https://2606-73-47-230-127.ngrok-free.app");
+      const socket = io(
+        "https://68e6-2601-19b-280-4960-6d67-fa88-5c7d-1c99.ngrok-free.app"
+      );
       socket.on("serverEnterRoom", (data) => {
         console.log("HERE DATA", data);
         setSocketWelcome(data);
@@ -353,15 +355,19 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
     return () => clearInterval(intervalId);
   }, []); // Empty dependency array to run the effect only once
   let updateTimeout;
+
+  //
+
+  //
   const handleUpdate = (companyId, distance) => {
-    clearTimeout(updateTimeout);
+    console.log(companyId, distance);
 
     updateTimeout = setTimeout(() => {
       const companyRef = ref(db, "company/" + companyId);
-      console.log(companyRef);
+
       runTransaction(companyRef, (currentData) => {
         if (currentData !== null) {
-          const isWithinRange = distance < 0.182;
+          const isWithinRange = distance < 0.2;
 
           if (isWithinRange) {
             setSocketRoom(true);
@@ -372,7 +378,6 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
             lineCalulcation(line, companyId);
           }
 
-          console.log(isWithinRange);
           const shouldUpdate = isWithinRange && !currentData.updateTriggered;
           const shouldDecrement = !isWithinRange && currentData.updateTriggered;
           if (shouldUpdate) {

@@ -12,7 +12,9 @@ function Voting(props) {
   //actual track grab ---------------
 
   useEffect(() => {
-    const socket = io("https://2606-73-47-230-127.ngrok-free.app");
+    const socket = io(
+      "https://68e6-2601-19b-280-4960-6d67-fa88-5c7d-1c99.ngrok-free.app"
+    );
     if (user == "") {
       setUser("not in range of party");
     }

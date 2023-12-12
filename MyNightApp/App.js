@@ -44,7 +44,7 @@ function App() {
   // registerBackgroundFetchAsync();
 
   // registerNNPushToken(11405, "TetwsDIx2V6LHpXAJmmtMz");
-  const [initialRoute, setInitialRoute] = useState("Login");
+
   const [expoPushToken, setExpoPushToken] = useState("");
   const [notification, setNotification] = useState(false);
   const notificationListener = useRef();
@@ -134,22 +134,28 @@ function App() {
     return token;
   }
 
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (user) {
-        setInitialRoute("Intro");
-      } else {
-        setInitialRoute("Login");
-      }
-    });
-    return unsubscribe;
-  }, []);
-
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName={initialRoute}>
-        <Stack.Screen name="Intro" component={Intro} />
-        <Stack.Screen name="Login" component={UserForm} />
+      <Stack.Navigator
+        initialRouteName="Intro"
+        screenOptions={{
+          cardStyleInterpolator: ({ current }) => ({
+            cardStyle: {
+              opacity: current.progress,
+            },
+          }),
+        }}
+      >
+        <Stack.Screen
+          name="Intro"
+          component={Intro}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Login"
+          component={UserForm}
+          options={{ headerShown: false }}
+        />
 
         <Stack.Screen
           name="CompanyForm"
