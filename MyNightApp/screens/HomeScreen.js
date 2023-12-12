@@ -49,6 +49,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   );
 
   const [add, setAdd] = useState(0);
+  const [currentGroup, setCurrentGroup] = useState();
   const styleURL = "mapbox://styles/ohxrn/cllmlwayv02jj01p88z3a6nv4";
   const [notiName, setNotiName] = useState([]);
   const [oGName, setOGName] = useState();
@@ -87,7 +88,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
         "https://68e6-2601-19b-280-4960-6d67-fa88-5c7d-1c99.ngrok-free.app"
       );
       socket.on("serverEnterRoom", (data) => {
-        console.log("HERE DATA", data);
+        console.log("HERE IS ALL DA DATA", currentGroup);
         setSocketWelcome(data);
       });
 
@@ -370,6 +371,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
           const isWithinRange = distance < 0.2;
 
           if (isWithinRange) {
+            setCurrentGroup(currentData.companyName);
             setSocketRoom(true);
             setLine([
               ...line,
@@ -513,13 +515,13 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
             <Text style={{ color: "black" }}>{socketWelcome}</Text>
           </View>
           <MapboxGL.Camera
-            zoomLevel={14.5}
+            zoomLevel={15.5}
             centerCoordinate={
               latestLocation !== null
                 ? [latestLocation.longitude, latestLocation.latitude]
                 : [-71.0589, 42.3601]
             }
-            pitch={34}
+            pitch={54}
             animationMode={"flyTo"}
             animationDuration={7000}
           />

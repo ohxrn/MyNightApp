@@ -9,7 +9,7 @@ import CompanyForm from "./screens/CompanyForm";
 import CompanySubmit from "./screens/CompanySubmit";
 import { auth } from "./Components/Config";
 import Voting from "./screens/Voting";
-import DJSide from "./screens/DJSide";
+
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
 import Constants from "expo-constants";
@@ -196,11 +196,6 @@ function MainNavigator() {
         name="Voting"
         component={Voting}
         options={{ tabBarLabel: "Add friends" }}
-      />
-      <Tab.Screen
-        name="Dj"
-        component={DJSide}
-        options={{ tabBarLabel: "The DJ" }}
       />
     </Tab.Navigator>
   );

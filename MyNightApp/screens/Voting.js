@@ -8,6 +8,7 @@ import { MPMusicPlayerController } from "react-native";
 
 function Voting(props) {
   const [user, setUser] = useState("");
+  const [groupName, setGroupName] = useState("");
 
   //actual track grab ---------------
 
@@ -21,6 +22,10 @@ function Voting(props) {
     socket.on("serverEnterRoom", (data) => {
       console.log("HERE DATA", data);
       setUser(data);
+    });
+    socket.on("groupNameEnd", (data) => {
+      console.log("it came through");
+      setGroupName(data);
     });
 
     socket.emit("buttonMessage", auth.currentUser?.email);
@@ -40,8 +45,9 @@ function Voting(props) {
       }}
     >
       <View style={{ backgroundColor: "darkblue", flex: 3 }}>
-        <Text style={{ fontSize: 22, color: "red" }}>
-          Let's see what's playing
+        <Text style={{ fontSize: 22, color: "red" }}>Here{groupName}</Text>
+        <Text style={{ fontSize: 22, color: "red", textAlign: "right" }}>
+          hey
         </Text>
         <Image
           style={{
