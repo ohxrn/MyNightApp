@@ -23,28 +23,6 @@ const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 function App() {
-  const BACKGROUND_FETCH_TASK = "background-fetch";
-
-  // TaskManager.defineTask(BACKGROUND_FETCH_TASK, async () => {
-  //   const now = Date.now();
-
-  //   console.log(
-  //     `Got background fetch call at date: ${new Date(now).toISOString()}`
-  //   );
-
-  //   // Be sure to return the successful result type!
-  //   return BackgroundFetch.BackgroundFetchResult.NewData;
-  // });
-
-  // async function registerBackgroundFetchAsync() {
-  //   return BackgroundFetch.registerTaskAsync(BACKGROUND_FETCH_TASK, {
-  //     minimumInterval: 5, // 15 minutes
-  //   });
-  // }
-  // registerBackgroundFetchAsync();
-
-  // registerNNPushToken(11405, "TetwsDIx2V6LHpXAJmmtMz");
-
   const [expoPushToken, setExpoPushToken] = useState("");
   const [notification, setNotification] = useState(false);
   const notificationListener = useRef();
@@ -169,7 +147,6 @@ function App() {
         />
         <Stack.Screen
           name="HomeScreen"
-          BACKGROUND_FETCH_TASK={BACKGROUND_FETCH_TASK}
           options={{ headerShown: false }}
           component={MainNavigator}
         />

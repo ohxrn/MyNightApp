@@ -10,6 +10,8 @@ import {
 import io from "socket.io-client";
 import { auth } from "../Components/Config";
 import HomeScreen from "./HomeScreen";
+import { useObserver } from "mobx-react";
+import { useSocket } from "../App";
 
 function Voting(props) {
   const socket = io(
@@ -56,39 +58,6 @@ function Voting(props) {
       style={{ backgroundColor: "purple", flex: 1, justifyContent: "flex-end" }}
     >
       <View style={{ backgroundColor: "darkblue", flex: 3 }}>
-        <Text style={{ fontSize: 22, color: "red" }}>
-          Here{JSON.stringify(groupName)}
-        </Text>
-        <Text style={{ fontSize: 22, color: "red", textAlign: "right" }}>
-          hey
-        </Text>
-        <TouchableOpacity
-          style={{
-            backgroundColor: "white",
-            width: "30%",
-            height: 30,
-            justifyContent: "center",
-            alignItems: "center",
-            alignSelf: "center",
-          }}
-          onPress={sendContext}
-        >
-          <Text style={{ fontSize: 20 }}>Send</Text>
-        </TouchableOpacity>
-        <TextInput
-          style={{
-            backgroundColor: "white",
-            width: "80%",
-            height: 40,
-            borderRadius: 7,
-            borderWidth: 0.2,
-            textAlign: "center",
-            margin: 2,
-          }}
-          placeholder="Talk to people at XX"
-          value={context}
-          onChangeText={(content) => setContext(content)}
-        />
         <Image
           style={{
             width: 150,
@@ -100,6 +69,28 @@ function Voting(props) {
         />
         <Text
           style={{
+            fontSize: 22,
+            color: "red",
+            textAlign: "center",
+            fontWeight: "bold",
+          }}
+        >
+          Welcome to the{" "}
+          {!groupName.room ? <Text>...</Text> : <Text>{groupName.room}</Text>}{" "}
+          room!
+        </Text>
+        <Text
+          style={{
+            fontSize: 17,
+            fontWeight: "bold",
+            color: "white",
+            textAlign: "center",
+          }}
+        >
+          (You can now chat with other people in the {groupName.room} area.)
+        </Text>
+        <Text
+          style={{
             fontSize: 40,
             color: "red",
             textAlign: "center",
@@ -108,6 +99,33 @@ function Voting(props) {
         >
           {context}
         </Text>
+        <TextInput
+          style={{
+            backgroundColor: "white",
+            width: "80%",
+            height: 40,
+            borderRadius: 7,
+            borderWidth: 0.2,
+            alignSelf: "center",
+          }}
+          placeholder="Talk to people at XX"
+          value={context}
+          onChangeText={(content) => setContext(content)}
+        />
+        <TouchableOpacity
+          style={{
+            backgroundColor: "white",
+            width: "30%",
+            height: 30,
+            justifyContent: "center",
+            alignItems: "center",
+            alignSelf: "center",
+            marginTop: 20,
+          }}
+          onPress={sendContext}
+        >
+          <Text style={{ fontSize: 20 }}>Send</Text>
+        </TouchableOpacity>
       </View>
 
       <Text style={{ color: "red", fontSize: 22, textAlign: "center" }}>
