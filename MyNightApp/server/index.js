@@ -12,7 +12,7 @@ app.use(cors());
 
 const socketIO = require("socket.io")(http, {
   cors: {
-    origin: "https://f410-2601-19b-280-4960-bc6a-9e0b-d312-1217.ngrok-free.app",
+    origin: "https://e907-2601-19b-280-4960-cd3e-4a80-f38-4949.ngrok-free.app",
   },
 });
 
@@ -25,15 +25,11 @@ socketIO.on("connection", (socket) => {
     socket.emit("serverEnterRoom", `user ${arg} has entered the room!`);
   });
 
-  // Move the "groupName" event listener outside the "buttonMessage" event listener
-  // socket.on("groupName", (data) => {
-  //   console.log("this is what server receives", data);
-  //   socket.emit("groupNameEnd", data);
-  // });
   socket.on("joinRoom", (context) => {
-    console.log("this is what triggers on the enter", context);
+    console.log("User will join this room:", context);
+    socket.broadcast.emit("groupSituation", context);
+    console.log("event was thrown from server");
   });
-
   socket.on("message", (arg) => {
     socket.emit("server send", "this is sent from the server");
   });

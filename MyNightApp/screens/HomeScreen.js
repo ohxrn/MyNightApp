@@ -5,7 +5,7 @@ import {
 } from "expo-notifications";
 import * as BackgroundFetch from "expo-background-fetch";
 import * as TaskManager from "expo-task-manager";
-
+import Voting from "./Voting";
 import io from "socket.io-client";
 import { HeatmapLayer, ModelLayer } from "@rnmapbox/maps";
 import uuid from "react-native-uuid";
@@ -47,6 +47,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   MapboxGL.setAccessToken(
     "sk.eyJ1Ijoib2h4cm4iLCJhIjoiY2xscG51YjJkMDZndTNkbzJvZmd3MmpmNSJ9.1yj9ewdvaGBxVPF_cdlLIQ"
   );
+  const [groupName, setGroupName] = useState();
   const [groupTrigger, setGroupTrigger] = useState(false);
   const [add, setAdd] = useState(0);
   const [currentGroup, setCurrentGroup] = useState();
@@ -80,28 +81,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
     });
   }
 
-  //------------------------------[[[[[[[[SOCKET ROOM]]]]]]]]]]]--------------------------------------------------
-
-  useEffect(() => {
-    if (socketRoom) {
-      const socket = io("https://f410-2601-19b-280-4960-bc7.ngrok-free.app");
-
-      socket.on("serverEnterRoom", (data) => {
-        // console.log("HERE IS ALL DA DATA", currentGroup);
-        setSocketWelcome(data);
-      });
-
-      socket.emit("buttonMessage", auth.currentUser?.email);
-
-      return () => {
-        // Clean up the socket connection when the socketRoom value changes
-        socket.disconnect();
-      };
-    }
-  }, [socketRoom]);
-
-  //------------------------------[[[[[[[[ SOCKET ROOM]]]]]]]]]]]--------------------------------------------------
-
+  //
   useEffect(() => {
     // console.log("THIS IS THE JSON", JSON.stringify(geoJSON));
     let timeoutId;
@@ -370,10 +350,11 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
           const isWithinRange = distance < 0.2;
 
           if (isWithinRange) {
+            console.log(groupTrigger);
             if (groupTrigger == false) {
               setGroupTrigger(true);
               const socket = io(
-                "https://f410-2601-19b-280-4960-bc6a-9e0b-d312-1217.ngrok-free.app"
+                "https://e907-2601-19b-280-4960-cd3e-4a80-f38-4949.ngrok-free.app"
               );
 
               socket.emit("joinRoom", { room: currentData.companyName });
