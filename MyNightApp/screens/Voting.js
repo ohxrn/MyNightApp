@@ -1,20 +1,36 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, Text, SafeAreaView, Image } from "react-native";
+import {
+  View,
+  StyleSheet,
+  Text,
+  SafeAreaView,
+  Image,
+  TouchableOpacity,
+  TextInput,
+} from "react-native";
 import HomeScreen from "./HomeScreen";
 import io from "socket.io-client";
 import { auth } from "../Components/Config";
 import DeviceInfo from "react-native-device-info";
 import { MPMusicPlayerController } from "react-native";
+import { Button } from "react-native-paper";
 
 function Voting(props) {
   const [user, setUser] = useState("");
   const [groupName, setGroupName] = useState("");
+  const [context, setContext] = useState("");
 
-  //actual track grab ---------------
+  //
+  const sendContext = () => {
+    console.log("THIS IS SENT", context);
+
+    socket.emit(context);
+  };
+  //
 
   useEffect(() => {
     const socket = io(
-      "https://68e6-2601-19b-280-4960-6d67-fa88-5c7d-1c99.ngrok-free.app"
+      "https://f410-2601-19b-280-4960-bc6a-9e0b-d312-1217.ngrok-free.app"
     );
     if (user == "") {
       setUser("not in range of party");
@@ -49,6 +65,33 @@ function Voting(props) {
         <Text style={{ fontSize: 22, color: "red", textAlign: "right" }}>
           hey
         </Text>
+        <TouchableOpacity
+          style={{
+            backgroundColor: "white",
+            width: "30%",
+            height: 30,
+            justifyContent: "center",
+            alignItems: "center",
+            alignSelf: "center",
+          }}
+          onPress={sendContext}
+        >
+          <Text style={{ fontSize: 20 }}>Send</Text>
+        </TouchableOpacity>
+        <TextInput
+          style={{
+            backgroundColor: "white",
+            width: "80%",
+            height: 40,
+            borderRadius: 7,
+            borderWidth: 0.2,
+            textAlign: "center",
+            margin: 2,
+          }}
+          placeholder="Talk to people at XX"
+          value={context}
+          onChangeText={(content) => setContext(content)}
+        />
         <Image
           style={{
             width: 150,
@@ -58,6 +101,16 @@ function Voting(props) {
           }}
           source={require("../assets/disco.gif")}
         />
+        <Text
+          style={{
+            fontSize: 40,
+            color: "red",
+            textAlign: "center",
+            marginTop: 20,
+          }}
+        >
+          {context}
+        </Text>
       </View>
 
       <Text

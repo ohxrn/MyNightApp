@@ -47,7 +47,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   MapboxGL.setAccessToken(
     "sk.eyJ1Ijoib2h4cm4iLCJhIjoiY2xscG51YjJkMDZndTNkbzJvZmd3MmpmNSJ9.1yj9ewdvaGBxVPF_cdlLIQ"
   );
-
+  const [groupTrigger, setGroupTrigger] = useState(false);
   const [add, setAdd] = useState(0);
   const [currentGroup, setCurrentGroup] = useState();
   const styleURL = "mapbox://styles/ohxrn/cllmlwayv02jj01p88z3a6nv4";
@@ -84,11 +84,10 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
 
   useEffect(() => {
     if (socketRoom) {
-      const socket = io(
-        "https://68e6-2601-19b-280-4960-6d67-fa88-5c7d-1c99.ngrok-free.app"
-      );
+      const socket = io("https://f410-2601-19b-280-4960-bc7.ngrok-free.app");
+
       socket.on("serverEnterRoom", (data) => {
-        console.log("HERE IS ALL DA DATA", currentGroup);
+        // console.log("HERE IS ALL DA DATA", currentGroup);
         setSocketWelcome(data);
       });
 
@@ -286,8 +285,8 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   // }, [geoJSON]);
 
   const lineCalulcation = (data, id) => {
-    console.log("THIS IS ID", id);
-    console.log(data.length);
+    // console.log("THIS IS ID", id);
+    // console.log(data.length);
     let latSum = 0;
     let longSum = 0;
     const last5Pings = data.slice(-5); // Get the last 10 pings
@@ -314,9 +313,9 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
 
       // Adjust the threshold as needed
       if (finalDistance < 0.000002 && finalDistance > -0.000002) {
-        console.log("You are still in line");
+        // console.log("You are still in line");
         setAdd(add + 1);
-        console.log("TRIGGA", add);
+        // console.log("TRIGGA", add);
         if (add >= 3) {
           setAdd(0);
 
@@ -334,7 +333,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
             return number + 1;
           })
             .then(() => {
-              console.log("line updated");
+              // console.log("line updated");
             })
             .catch((error) => {
               console.log(error);
@@ -342,9 +341,9 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
             });
         }
       } else {
-        console.log("NOT IN LINE ANYMORE");
+        // console.log("NOT IN LINE ANYMORE");
       }
-      console.log("DISTANCE DIFFERENCE", finalDistance);
+      // console.log("DISTANCE DIFFERENCE", finalDistance);
     }
   };
 
@@ -361,7 +360,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
 
   //
   const handleUpdate = (companyId, distance) => {
-    console.log(companyId, distance);
+    // console.log(companyId, distance);
 
     updateTimeout = setTimeout(() => {
       const companyRef = ref(db, "company/" + companyId);
@@ -371,8 +370,17 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
           const isWithinRange = distance < 0.2;
 
           if (isWithinRange) {
-            setCurrentGroup(currentData.companyName);
-            setSocketRoom(true);
+            if (groupTrigger == false) {
+              setGroupTrigger(true);
+              const socket = io(
+                "https://f410-2601-19b-280-4960-bc6a-9e0b-d312-1217.ngrok-free.app"
+              );
+
+              socket.emit("joinRoom", { room: currentData.companyName });
+              setCurrentGroup(currentData.companyName);
+              setSocketRoom(true);
+            }
+
             setLine([
               ...line,
               [latestLocation.latitude, latestLocation.longitude],
@@ -391,6 +399,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
             };
           }
           if (shouldDecrement) {
+            setGroupTrigger(false);
             return {
               ...currentData,
               people: currentData.people - 1,
