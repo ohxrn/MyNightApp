@@ -15,7 +15,7 @@ import { useSocket } from "../App";
 
 function Voting(props) {
   const socket = io(
-    "https://e907-2601-19b-280-4960-cd3e-4a80-f38-4949.ngrok-free.app"
+    "https://7cae-2601-19b-280-4960-cd3e-4a80-f38-4949.ngrok-free.app"
   );
   const [user, setUser] = useState("");
   const [groupName, setGroupName] = useState([]);

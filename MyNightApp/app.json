@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "MyNightApp",
-    "slug": "MyNightApp",
+    "slug": "mynighttesting",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -38,9 +38,9 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "3bb27801-f654-42c0-bd41-c45738cfdb24"
+        "projectId": "94ea9ac7-3966-4cb7-9e94-2d37148868c3"
       }
     },
-    "owner": "ohxrn"
+    "owner": "jackohrn"
   }
 }
