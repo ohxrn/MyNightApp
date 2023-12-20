@@ -5,7 +5,7 @@ import {
 } from "expo-notifications";
 import * as BackgroundFetch from "expo-background-fetch";
 import * as TaskManager from "expo-task-manager";
-import Voting from "./Voting";
+
 import io from "socket.io-client";
 import { HeatmapLayer, ModelLayer } from "@rnmapbox/maps";
 import uuid from "react-native-uuid";
