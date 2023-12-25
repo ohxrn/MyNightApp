@@ -14,7 +14,7 @@ import { useObserver } from "mobx-react";
 import { useSocket } from "../App";
 
 function Voting(props) {
-  const socket = io("https://0280-73-47-230-127.ngrok-free.app");
+  const socket = io("https://51a5-73-47-230-127.ngrok-free.app");
   const [user, setUser] = useState("");
   const [groupName, setGroupName] = useState([]);
   const [context, setContext] = useState("");
