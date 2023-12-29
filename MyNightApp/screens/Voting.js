@@ -9,48 +9,61 @@ import {
 } from "react-native";
 import io from "socket.io-client";
 import { auth } from "../Components/Config";
-import HomeScreen from "./HomeScreen";
-import { useObserver } from "mobx-react";
-import { useSocket } from "../App";
 
 function Voting(props) {
-  const socket = io("https://51a5-73-47-230-127.ngrok-free.app");
+  // State variables
+  const [socket, setSocket] = useState(null);
   const [user, setUser] = useState("");
-  const [groupName, setGroupName] = useState([]);
+  const [groupName, setGroupName] = useState({});
   const [context, setContext] = useState("");
+  const [theText, setTheText] = useState("");
+  const [roomText, setRoomText] = useState([]);
 
+  // Establishing the socket connection
   useEffect(() => {
-    socket.on("connect_error", (error) => {
+    const newSocket = io(
+      "https://99af-2601-19b-280-4960-1d91-5f7b-b451-5fae.ngrok-free.app"
+    );
+
+    // Handle socket connection errors
+    newSocket.on("connect_error", (error) => {
       console.error("Socket connection error:", error);
     });
 
     // Handle successful connection
-    socket.on("connect", () => {
-      console.log("Socket connected:", socket.connected);
-      socket.on("groupSituation", (data) => {
+    newSocket.on("connect", () => {
+      console.log("Socket connected on voting page -", newSocket.connected);
+      newSocket.on("groupSituation", (data) => {
         console.log("Received groupSituation event. Data:", data);
         setGroupName(data);
       });
     });
 
-    if (user === "") {
-      setUser("not in range of party");
-    }
-    socket.on("serverEnterRoom", (data) => {
-      console.log("HERE DATA", data);
-      setUser(data);
+    // Handle other socket events...
+    newSocket.on("roomTextFromServer", (gibach) => {
+      console.log("THIS ISY IS", gibach);
     });
-    socket.emit("buttonMessage", auth.currentUser?.email);
-    return () => {
-      socket.disconnect();
-    };
-  });
+    // Set the socket state variable
+    setSocket(newSocket);
 
+    // Cleanup function to disconnect the socket when the component is unmounted
+    return () => {
+      newSocket.disconnect();
+      console.log("Socket disconnected on voting page");
+    };
+  }, []); // Empty dependency array ensures this effect runs once on mount
+
+  // Function to send context to the server
   const sendContext = () => {
-    console.log("THIS IS SENT", context);
-    socket.emit("groupSituation", context);
+    if (theText.trim() !== "") {
+      const groupFilter = { text: theText, room: groupName.room };
+      socket.emit("sendGroupToServer", groupFilter);
+      console.log("THIS IS SENT", groupFilter);
+      setTheText(""); // Clear the text after sending
+    }
   };
 
+  // JSX for the component
   return (
     <SafeAreaView
       style={{ backgroundColor: "purple", flex: 1, justifyContent: "flex-end" }}
@@ -87,16 +100,7 @@ function Voting(props) {
         >
           (You can now chat with other people in the {groupName.room} area.)
         </Text>
-        <Text
-          style={{
-            fontSize: 40,
-            color: "red",
-            textAlign: "center",
-            marginTop: 20,
-          }}
-        >
-          {context}
-        </Text>
+        {/* Rest of your UI components */}
         <TextInput
           style={{
             backgroundColor: "white",
@@ -107,8 +111,10 @@ function Voting(props) {
             alignSelf: "center",
           }}
           placeholder="Talk to people at XX"
-          value={context}
-          onChangeText={(content) => setContext(content)}
+          value={theText}
+          onChangeText={(text) => {
+            setTheText(text);
+          }}
         />
         <TouchableOpacity
           style={{
