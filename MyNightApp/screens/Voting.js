@@ -18,6 +18,7 @@ function Voting(props) {
   const [context, setContext] = useState("");
   const [theText, setTheText] = useState("");
   const [roomText, setRoomText] = useState([]);
+  const [roomGroupChat, setRoomGroupChat] = useState([]);
 
   // Establishing the socket connection
   useEffect(() => {
@@ -40,8 +41,8 @@ function Voting(props) {
     });
 
     // Handle other socket events...
-    newSocket.on("roomTextFromServer", (gibach) => {
-      console.log("THIS ISY IS", gibach);
+    newSocket.on("roomTextFromServer", (data) => {
+      setRoomGroupChat((prevRoomGroupChat) => [...prevRoomGroupChat, data]);
     });
     // Set the socket state variable
     setSocket(newSocket);
@@ -131,7 +132,22 @@ function Voting(props) {
           <Text style={{ fontSize: 20 }}>Send</Text>
         </TouchableOpacity>
       </View>
-
+      <View style={{ textAlign: "center" }}>
+        {roomGroupChat.map((message, key) => {
+          return (
+            <View
+              style={{ backgroundColor: "white", borderRadius: 20, margin: 2 }}
+            >
+              <Text
+                style={{ textAlign: "center", fontSize: 16, fontWeight: "700" }}
+                key={key}
+              >
+                {message.text}
+              </Text>
+            </View>
+          );
+        })}
+      </View>
       <Text style={{ color: "red", fontSize: 22, textAlign: "center" }}>
         {user}
       </Text>
