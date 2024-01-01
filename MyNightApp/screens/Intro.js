@@ -29,7 +29,7 @@ const Intro = () => {
     <View style={styles.container}>
       <Video
         ref={videoRef}
-        source={require("../assets/mm.mp4")}
+        source={require("../assets/MNIB.mp4")}
         style={styles.video}
         onEnd={onEnd}
         resizeMode="cover"
