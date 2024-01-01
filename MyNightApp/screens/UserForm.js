@@ -29,6 +29,9 @@ function UserForm(props) {
       if (user) {
         navigation.replace("HomeScreen");
       }
+      if (!user) {
+        console.log("-------------User not defined yet.-------------");
+      }
     });
     return unsubscribe;
   }, []);
@@ -40,6 +43,7 @@ function UserForm(props) {
         // User successfully created
         const user = userCredential.user;
         console.log("Registered with:", user.email);
+        navigation.replace("UserSetup");
       })
       .catch((error) => {
         // Handle error

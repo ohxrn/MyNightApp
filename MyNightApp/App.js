@@ -18,6 +18,9 @@ import * as BackgroundFetch from "expo-background-fetch";
 import * as TaskManager from "expo-task-manager";
 import theLogo from "./assets/MNLOGO.png";
 import Intro from "./screens/Intro";
+import Profile from "./screens/Profile";
+//
+import UserSetup from "./screens/UserSetup";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -130,6 +133,11 @@ function App() {
           options={{ headerShown: false }}
         />
         <Stack.Screen
+          name="UserSetup"
+          component={UserSetup}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
           name="Login"
           component={UserForm}
           options={{ headerShown: false }}
@@ -173,6 +181,16 @@ function MainNavigator() {
         name="Voting"
         component={Voting}
         options={{ tabBarLabel: "Add friends" }}
+      />
+      <Tab.Screen
+        name="Profile"
+        component={Profile}
+        options={{ tabBarLabel: "My Profile" }}
+      />
+      <Tab.Screen
+        name="UserSet"
+        component={UserSetup}
+        options={{ tabBarLabel: "Setup" }}
       />
     </Tab.Navigator>
   );
