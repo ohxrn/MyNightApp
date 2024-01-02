@@ -3,6 +3,7 @@ import { View, StyleSheet, Image, Text, TouchableOpacity } from "react-native";
 import { BlurView, VibrancyView } from "@react-native-community/blur";
 import UploadProgressBar from "./UploadProgressBar";
 import { Video } from "expo-av";
+import { auth } from "../Components/Config";
 
 function UploadLast({ image, video, progress }) {
   const [uploadComplete, setUploadComplete] = useState(false);
@@ -84,7 +85,12 @@ function UploadLast({ image, video, progress }) {
   }
 
   // If upload is complete, return null or any component you want to display after upload
-  return null;
+  return (
+    <View>
+      <Text>{auth.currentUser?.email}</Text>
+      <Text>File uploaded!</Text>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
