@@ -87,7 +87,7 @@ function UploadLast({ image, video, progress }) {
   // If upload is complete, return null or any component you want to display after upload
   return (
     <View>
-      <Text>{auth.currentUser?.email}</Text>
+      <Text>{JSON.stringify(auth.currentUser.uid)}</Text>
       <Text>File uploaded!</Text>
     </View>
   );

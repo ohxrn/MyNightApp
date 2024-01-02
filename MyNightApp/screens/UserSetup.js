@@ -9,7 +9,7 @@ import { Ionicons } from "@expo/vector-icons";
 
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { addDoc, collection, onSnapshot } from "firebase/firestore";
-import { storage } from "../Components/Config";
+import { auth, storage } from "../Components/Config";
 import Video from "react-native-video";
 
 export default function ImagePickerExample() {
@@ -45,7 +45,10 @@ export default function ImagePickerExample() {
   const imageUpload = async (uri, fileType) => {
     const response = await fetch(uri);
     const blob = await response.blob();
-    const storageRef = ref(storage, "PhotoBase/" + new Date().getTime());
+    const storageRef = ref(
+      storage,
+      `PhotoBase/${auth.currentUser.uid}/${new Date().getTime()}`
+    );
     const uploadTask = uploadBytesResumable(storageRef, blob);
 
     uploadTask.on(
