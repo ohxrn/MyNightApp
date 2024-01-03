@@ -65,7 +65,7 @@ export default function ImagePickerExample() {
       async () => {
         try {
           const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-          console.log("file available at", downloadURL);
+          console.log("files available at", downloadURL);
           setImage(downloadURL);
           // Any other logic you want to execute after successful upload
         } catch (error) {
