@@ -189,19 +189,17 @@ function Voting(props) {
               >
                 {message.text}
               </Text>
-              {/* Display images associated with the message */}
               {message.images && message.images.length > 0 && (
-                <View
-                  style={{
-                    flexDirection: "row",
-                    flexWrap: "wrap",
-                    justifyContent: "center",
-                  }}
-                >
+                <View style={{ display: "flex" }}>
                   {message.images.map((url, index) => (
                     <Image
                       key={index}
-                      style={{ width: 100, height: 100, margin: 5 }}
+                      style={{
+                        width: 50,
+                        height: 50,
+                        margin: 5,
+                        borderRadius: 49,
+                      }}
                       source={{ uri: url }}
                     />
                   ))}
