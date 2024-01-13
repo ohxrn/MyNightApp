@@ -353,9 +353,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
             console.log(groupTrigger);
             if (groupTrigger == false) {
               setGroupTrigger(true);
-              const socket = io(
-                "https://7d8b-2601-19b-280-4960-a9b3-ca2f-f892-84aa.ngrok-free.app"
-              );
+              const socket = io("https://9219-192-80-65-177.ngrok-free.app");
 
               socket.emit("joinRoom", { room: currentData.companyName });
               setCurrentGroup(currentData.companyName);

@@ -12,7 +12,7 @@ app.use(cors());
 
 const socketIO = require("socket.io")(http, {
   cors: {
-    origin: "https://7d8b-2601-19b-280-4960-a9b3-ca2f-f892-84aa.ngrok-free.app",
+    origin: "https://9219-192-80-65-177.ngrok-free.app",
   },
 });
 const connectedClients = {};
@@ -32,7 +32,7 @@ socketIO.on("connection", (socket) => {
       "Here is what is sent to server for the group--------------------------------------",
       data
     );
-    socket.emit("roomTextFromServer", data);
+    socket.broadcast.emit("roomTextFromServer", data);
   });
 
   socket.on("joinRoom", (context) => {
