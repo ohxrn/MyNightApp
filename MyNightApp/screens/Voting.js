@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import io from "socket.io-client";
 import { auth, storage } from "../Components/Config";
+import { get } from "firebase/database";
 // import { storage } from "firebase/storage";
 import {
   ref,
@@ -22,6 +23,11 @@ import { addDoc, collection, onSnapshot } from "firebase/firestore";
 
 function Voting(props) {
   // State variables
+  const [fName, setFName] = useState();
+  const [lName, setLName] = useState();
+  const [username, setUsername] = useState();
+  const [age, setAge] = useState();
+  const [bio, setBio] = useState();
   const [socket, setSocket] = useState(null);
   const [user, setUser] = useState("");
   const [groupName, setGroupName] = useState({});
@@ -58,6 +64,8 @@ function Voting(props) {
         console.error("Error fetching photos:", error);
       });
   }, []);
+
+  //
 
   //
 
