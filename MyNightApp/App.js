@@ -180,17 +180,17 @@ function MainNavigator() {
       <Tab.Screen
         name="Voting"
         component={Voting}
-        options={{ tabBarLabel: "Add friends" }}
+        options={{ tabBarLabel: "Chat room" }}
       />
       <Tab.Screen
         name="Profile"
         component={Profile}
-        options={{ tabBarLabel: "My Profile" }}
+        options={{ tabBarLabel: "Edit Profile" }}
       />
       <Tab.Screen
         name="UserSet"
         component={UserSetup}
-        options={{ tabBarLabel: "Setup" }}
+        options={{ tabBarLabel: "Photos" }}
       />
     </Tab.Navigator>
   );
