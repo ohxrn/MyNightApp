@@ -1,16 +1,18 @@
 import { View, Text, Image, TouchableOpacity } from "react-native";
 import React, { useEffect, useState } from "react";
-import { auth, storage } from "../Components/Config";
+import { auth } from "../Components/Config";
 import { getDownloadURL, listAll } from "firebase/storage";
 import { Button, TextInput } from "react-native-paper";
 import { db } from "../Components/Config";
 
 import { getDatabase, set, ref, get } from "firebase/database";
+import { getStorage, storage } from "firebase/storage";
 
 export default function Profile() {
   const [imageLinks, setImageLinks] = useState();
   //
   const database = getDatabase();
+
   //
   const [fName, setFName] = useState();
   const [lName, setLName] = useState();
@@ -73,26 +75,18 @@ export default function Profile() {
   // }, []);
 
   // const runAlg = () => {
-  //   const userFolderRef = ref(storage, "PhotoBase/" + auth?.currentUser.uid);
+  //   const userPhotoRef = ref(
+  //     storage,
+  //     "PhotoBase/" + auth?.currentUser.uid + "/"
+  //   );
 
-  //   listAll(userFolderRef)
-  //     .then((result) => {
-  //       // result.items is an array of references to each photo
-  //       const downloadPromises = result.items.map((itemRef) => {
-  //         return getDownloadURL(itemRef);
-  //       });
-
-  //       // Promise.all resolves when all downloadURL promises are resolved
-  //       return Promise.all(downloadPromises);
-  //     })
-  //     .then((downloadURLs) => {
-  //       // downloadURLs is an array of URLs for each photo
-  //       // You can handle these URLs as needed, for example, displaying them in your UI
-  //       console.log(downloadURLs);
-  //       setImageLinks(downloadURLs);
+  //   getDownloadURL(userPhotoRef)
+  //     .then((downloadURL) => {
+  //       console.log(downloadURL);
+  //       setImageLinks([downloadURL]); // Put the URL in an array for mapping in your component
   //     })
   //     .catch((error) => {
-  //       console.error("Error fetching photos:", error);
+  //       console.error("Error fetching the photo:", error);
   //     });
   // };
   return (

@@ -28,14 +28,20 @@ socketIO.on("connection", (socket) => {
   });
 
   socket.on("sendGroupToServer", (data) => {
+    newDataArray = {
+      text: data.text,
+      room: data.room,
+      ID: data.ID,
+      images: data.images[0],
+    };
     console.log(
       "Here is what is sent to server for the group--------------------------------------",
-      data
+      newDataArray
     );
     if (data.room == "undefined") {
       console.log("NOBODY IS HERE");
     } else {
-      socket.broadcast.emit("roomTextFromServer", data);
+      socket.broadcast.emit("roomTextFromServer", newDataArray);
     }
   });
 
