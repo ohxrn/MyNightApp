@@ -63,7 +63,9 @@ function Voting(props) {
 
   // Establishing the socket connection
   useEffect(() => {
-    const newSocket = io("https://9219-192-80-65-177.ngrok-free.app");
+    const newSocket = io(
+      "https://cbd3-2601-19b-280-4960-88af-51e1-12a7-e48e.ngrok-free.app"
+    );
 
     // Handle socket connection errors
     newSocket.on("connect_error", (error) => {
@@ -98,10 +100,11 @@ function Voting(props) {
     if (theText.trim() !== "") {
       const groupFilter = {
         text: theText,
-        room: groupName.room,
+        room: groupName.room || "undefined",
         ID: auth?.currentUser.uid,
         images: imageLinks,
       };
+
       socket.emit("sendGroupToServer", groupFilter);
       console.log("THIS IS SENT", groupFilter);
       setTheText(""); // Clear the text after sending
