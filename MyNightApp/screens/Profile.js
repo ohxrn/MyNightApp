@@ -29,6 +29,7 @@ export default function Profile() {
       username: username,
       age: age,
       bio: bio,
+      entered: 0,
     });
     const userData = {
       first_name: fName,
@@ -36,6 +37,7 @@ export default function Profile() {
       username: username,
       age: age,
       bio: bio,
+      entered: 0,
     };
     console.log("here is the data", userData);
   };

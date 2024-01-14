@@ -19,6 +19,7 @@ import {
   Image,
   TouchableOpacity,
 } from "react-native";
+
 import theLogo from "../assets/MNLOGO.png";
 import { auth } from "../Components/Config";
 import { useNavigation } from "@react-navigation/native";
@@ -32,7 +33,7 @@ import {
   update,
 } from "firebase/database";
 import "firebase/database"; // Import the database module explicitly
-import { getDatabase, ServerValue, getDocs } from "firebase/database";
+import { getDatabase, get, ServerValue, getDocs } from "firebase/database";
 
 import MapboxGL, {
   MarkerView,
@@ -49,8 +50,16 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   );
   const [groupName, setGroupName] = useState();
   const [groupTrigger, setGroupTrigger] = useState(false);
-  const [add, setAdd] = useState(0);
+
   const [currentGroup, setCurrentGroup] = useState();
+  const [proxyPersonal, setProxyPersonal] = useState(false);
+  const [proxy, setProxy] = useState();
+  const [fName, setFName] = useState();
+  const [lName, setLName] = useState();
+  const [username, setUsername] = useState();
+  const [age, setAge] = useState();
+  const [bio, setBio] = useState();
+  const [add, setAdd] = useState(0);
   const styleURL = "mapbox://styles/ohxrn/cllmlwayv02jj01p88z3a6nv4";
   const [notiName, setNotiName] = useState([]);
   const [oGName, setOGName] = useState();
@@ -81,7 +90,8 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
     });
   }
 
-  //
+  //------------------------------[[[[[[[[SOCKET ROOM]]]]]]]]]]]--------------------------------------------------
+
   useEffect(() => {
     // console.log("THIS IS THE JSON", JSON.stringify(geoJSON));
     let timeoutId;
@@ -195,11 +205,11 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
       Math.cos(lat1Rad) * Math.cos(lat2Rad) * Math.sin(lonDiff / 2) ** 2;
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     const total = earthRadius * c;
-    // if (total > 2000) {
-    //   setMapUpdate(
-    //     alert("You are out of range. Version 1 only released to Boston area.")
-    //   );
-    // }
+    if (total > 2000) {
+      setMapUpdate(
+        alert("You are out of range. Version 1 only released to Boston area.")
+      );
+    }
     return total;
   };
 
@@ -265,8 +275,8 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   // }, [geoJSON]);
 
   const lineCalulcation = (data, id) => {
-    // console.log("THIS IS ID", id);
-    // console.log(data.length);
+    console.log("THIS IS ID", id);
+    console.log(data.length);
     let latSum = 0;
     let longSum = 0;
     const last5Pings = data.slice(-5); // Get the last 10 pings
@@ -293,9 +303,9 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
 
       // Adjust the threshold as needed
       if (finalDistance < 0.000002 && finalDistance > -0.000002) {
-        // console.log("You are still in line");
+        console.log("You are still in line");
         setAdd(add + 1);
-        // console.log("TRIGGA", add);
+        console.log("TRIGGA", add);
         if (add >= 3) {
           setAdd(0);
 
@@ -313,7 +323,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
             return number + 1;
           })
             .then(() => {
-              // console.log("line updated");
+              console.log("line updated");
             })
             .catch((error) => {
               console.log(error);
@@ -321,9 +331,9 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
             });
         }
       } else {
-        // console.log("NOT IN LINE ANYMORE");
+        console.log("NOT IN LINE ANYMORE");
       }
-      // console.log("DISTANCE DIFFERENCE", finalDistance);
+      console.log("DISTANCE DIFFERENCE", finalDistance);
     }
   };
 
@@ -335,71 +345,115 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
     return () => clearInterval(intervalId);
   }, []); // Empty dependency array to run the effect only once
   let updateTimeout;
-
-  //
-
-  //
   const handleUpdate = (companyId, distance) => {
-    // console.log(companyId, distance);
+    clearTimeout(updateTimeout);
 
     updateTimeout = setTimeout(() => {
-      const companyRef = ref(db, "company/" + companyId);
+      const uid = auth.currentUser?.uid;
+      const database = getDatabase();
+      const userRef = ref(database, `User Data/${uid}`);
 
-      runTransaction(companyRef, (currentData) => {
-        if (currentData !== null) {
-          const isWithinRange = distance < 0.2;
+      get(userRef)
+        .then((snapshot) => {
+          if (snapshot.exists()) {
+            const userData = snapshot.val();
+            // console.log("User data: ", userData);
 
-          if (isWithinRange) {
-            console.log(groupTrigger);
-            if (groupTrigger == false) {
-              setGroupTrigger(true);
-              const socket = io(
-                "https://cbd3-2601-19b-280-4960-88af-51e1-12a7-e48e.ngrok-free.app"
-              );
+            // Set your state values based on the retrieved data
+            setFName(userData.first_name);
+            setLName(userData.last_name);
+            setUsername(userData.username);
+            setAge(userData.age);
+            setBio(userData.bio);
+            setProxy(userData.entered);
 
-              socket.emit("joinRoom", { room: currentData.companyName });
-              setCurrentGroup(currentData.companyName);
-              setSocketRoom(true);
-            }
+            // Check if entered is 0
 
-            setLine([
-              ...line,
-              [latestLocation.latitude, latestLocation.longitude],
-            ]);
-            lineCalulcation(line, companyId);
+            const companyRef = ref(db, "company/" + companyId);
+            console.log(companyRef);
+            runTransaction(companyRef, (currentData) => {
+              if (currentData !== null) {
+                const isWithinRange = distance < 0.1;
+
+                if (isWithinRange) {
+                  if (groupTrigger == false) {
+                    setGroupTrigger(true);
+                    const socket = io(
+                      "https://cbd3-2601-19b-280-4960-88af-51e1-12a7-e48e.ngrok-free.app"
+                    );
+
+                    socket.emit("joinRoom", { room: currentData.companyName });
+                    setCurrentGroup(currentData.companyName);
+                    setSocketRoom(true);
+                  }
+                  setLine([
+                    ...line,
+                    [latestLocation.latitude, latestLocation.longitude],
+                  ]);
+                  lineCalulcation(line, companyId);
+                }
+
+                console.log(isWithinRange);
+                const shouldUpdate = isWithinRange;
+                const shouldDecrement = !isWithinRange && proxy === 1;
+
+                if (shouldUpdate && proxy === 0) {
+                  sendPushNotification(currentData);
+                  const newEnteredValue = 1;
+                  update(userRef, { entered: newEnteredValue })
+                    .then(() => {
+                      console.log(
+                        "User has been added to the database for location"
+                      );
+                      setProxy(newEnteredValue); // Update state if the database update is successful
+                    })
+                    .catch((error) => {
+                      console.error("Error updating entered value:", error);
+                    });
+                  return {
+                    ...currentData,
+                    people: currentData.people + 1,
+                    updateTriggered: true,
+                  };
+                }
+
+                if (shouldDecrement) {
+                  const newEnteredValue = 0;
+                  console.log("Setting entered to 0...");
+                  update(userRef, { entered: newEnteredValue })
+                    .then(() => {
+                      console.log("Entered value updated in the database.");
+                      setProxy(newEnteredValue); // Update state if the database update is successful
+                    })
+                    .catch((error) => {
+                      console.error("Error updating entered value:", error);
+                    });
+
+                  return {
+                    ...currentData,
+                    people: currentData.people - 1,
+                    updateTriggered: false,
+                  };
+                }
+              }
+
+              return currentData;
+            })
+              .then(() => {
+                console.log("Transaction successful");
+                // Update the entered value to 1 if it's still 0
+              })
+
+              .catch((error) => {
+                console.log("Update failed:", error);
+              });
           }
-
-          const shouldUpdate = isWithinRange && !currentData.updateTriggered;
-          const shouldDecrement = !isWithinRange && currentData.updateTriggered;
-          if (shouldUpdate) {
-            sendPushNotification(currentData);
-            return {
-              ...currentData,
-              people: currentData.people + 1,
-              updateTriggered: true,
-            };
-          }
-          if (shouldDecrement) {
-            setGroupTrigger(false);
-            return {
-              ...currentData,
-              people: currentData.people - 1,
-              updateTriggered: false,
-            };
-          }
-        }
-
-        return currentData;
-      })
-        .then(() => {
-          // console.log("Update successful");
         })
         .catch((error) => {
-          console.log("Update failed:", error);
+          console.error("Error fetching user data:", error);
         });
     }, 2000);
   };
-
   const sendPushNotification = async (data) => {
     const { status } = await getPermissionsAsync();
     // setNotiName(push(data.companyName));
@@ -505,15 +559,15 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
             <Text style={{ color: "black" }}>{socketWelcome}</Text>
           </View>
           <MapboxGL.Camera
-            zoomLevel={15.5}
+            zoomLevel={14.5}
             centerCoordinate={
               latestLocation !== null
                 ? [latestLocation.longitude, latestLocation.latitude]
                 : [-71.0589, 42.3601]
             }
-            pitch={54}
+            pitch={34}
             animationMode={"flyTo"}
-            animationDuration={6000}
+            animationDuration={7000}
           />
 
           <MapboxGL.PointAnnotation

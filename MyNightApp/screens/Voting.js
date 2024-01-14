@@ -18,6 +18,7 @@ import {
   listAll,
 } from "firebase/storage";
 import { addDoc, collection, onSnapshot } from "firebase/firestore";
+import { getDatabase } from "firebase/database";
 
 //
 
@@ -63,6 +64,7 @@ function Voting(props) {
       .catch((error) => {
         console.error("Error fetching photos:", error);
       });
+    //
   }, []);
 
   //
