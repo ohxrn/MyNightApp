@@ -28,6 +28,7 @@ const auth = initializeAuth(app, {
 });
 
 const db = getDatabase(app);
+const fb = getDatabase(app);
 
 //
 // const uploadToFirebase = async (uri, name) => {
@@ -71,4 +72,4 @@ const db = getDatabase(app);
 // );
 // };
 
-export { auth, db, storage };
+export { auth, fb, db, storage };
