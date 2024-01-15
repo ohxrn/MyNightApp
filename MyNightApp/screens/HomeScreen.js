@@ -377,7 +377,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
             console.log(companyRef);
             runTransaction(companyRef, (currentData) => {
               if (currentData !== null) {
-                const isWithinRange = distance < 0.03;
+                const isWithinRange = distance < 0.02;
 
                 if (isWithinRange) {
                   if (groupTrigger == false) {
@@ -404,6 +404,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
                 if (shouldUpdate && proxy === 0 && temporaryMarker == false) {
                   setTemporaryMarker(true);
                   setTemporaryDecrease(false);
+
                   sendPushNotification(currentData);
                   const newEnteredValue = 1;
                   update(userRef, { entered: newEnteredValue })
