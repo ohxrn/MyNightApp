@@ -403,6 +403,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
 
                 if (shouldUpdate && proxy === 0 && temporaryMarker == false) {
                   setTemporaryMarker(true);
+                  setTemporaryDecrease(false);
                   sendPushNotification(currentData);
                   const newEnteredValue = 1;
                   update(userRef, { entered: newEnteredValue })
@@ -424,6 +425,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
 
                 if (shouldDecrement && temporaryDecrease == false) {
                   setTemporaryDecrease(true);
+                  setTemporaryMarker(false);
                   const newEnteredValue = 0;
                   console.log("Setting entered to 0...");
                   update(userRef, { entered: newEnteredValue })
