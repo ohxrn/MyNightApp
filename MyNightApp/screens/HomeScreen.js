@@ -48,6 +48,10 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   MapboxGL.setAccessToken(
     "sk.eyJ1Ijoib2h4cm4iLCJhIjoiY2xscG51YjJkMDZndTNkbzJvZmd3MmpmNSJ9.1yj9ewdvaGBxVPF_cdlLIQ"
   );
+
+  const [temporaryDecrease, setTemporaryDecrease] = useState(false);
+
+  const [temporaryMarker, setTemporaryMarker] = useState(false);
   const [groupName, setGroupName] = useState();
   const [groupTrigger, setGroupTrigger] = useState(false);
 
@@ -373,13 +377,13 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
             console.log(companyRef);
             runTransaction(companyRef, (currentData) => {
               if (currentData !== null) {
-                const isWithinRange = distance < 0.1;
+                const isWithinRange = distance < 0.03;
 
                 if (isWithinRange) {
                   if (groupTrigger == false) {
                     setGroupTrigger(true);
                     const socket = io(
-                      "https://cbd3-2601-19b-280-4960-88af-51e1-12a7-e48e.ngrok-free.app"
+                      "https://4326-2601-19b-280-4960-88af-51e1-12a7-e48e.ngrok-free.app"
                     );
 
                     socket.emit("joinRoom", { room: currentData.companyName });
@@ -397,7 +401,8 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
                 const shouldUpdate = isWithinRange;
                 const shouldDecrement = !isWithinRange && proxy === 1;
 
-                if (shouldUpdate && proxy === 0) {
+                if (shouldUpdate && proxy === 0 && temporaryMarker == false) {
+                  setTemporaryMarker(true);
                   sendPushNotification(currentData);
                   const newEnteredValue = 1;
                   update(userRef, { entered: newEnteredValue })
@@ -410,14 +415,15 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
                     .catch((error) => {
                       console.error("Error updating entered value:", error);
                     });
+
                   return {
                     ...currentData,
                     people: currentData.people + 1,
-                    updateTriggered: true,
                   };
                 }
 
-                if (shouldDecrement) {
+                if (shouldDecrement && temporaryDecrease == false) {
+                  setTemporaryDecrease(true);
                   const newEnteredValue = 0;
                   console.log("Setting entered to 0...");
                   update(userRef, { entered: newEnteredValue })
@@ -432,7 +438,6 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
                   return {
                     ...currentData,
                     people: currentData.people - 1,
-                    updateTriggered: false,
                   };
                 }
               }
