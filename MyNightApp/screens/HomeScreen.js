@@ -343,7 +343,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
 
   useEffect(() => {
     const intervalId = setInterval(() => {
-      getLocation(); // Fetch location on interval
+      getLocation();
     }, 8000);
 
     return () => clearInterval(intervalId);
