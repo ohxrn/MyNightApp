@@ -347,7 +347,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
     }, 8000);
 
     return () => clearInterval(intervalId);
-  }, []); // Empty dependency array to run the effect only once
+  }, []);
   let updateTimeout;
   const handleUpdate = (companyId, distance) => {
     clearTimeout(updateTimeout);
