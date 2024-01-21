@@ -279,7 +279,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   // }, [geoJSON]);
 
   const lineCalulcation = (data, id) => {
-    console.log("THIS IS ID", id);
+    // console.log("THIS IS ID", id);
     console.log(data.length);
     let latSum = 0;
     let longSum = 0;
@@ -310,21 +310,20 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
         console.log("You are still in line");
         setAdd(add + 1);
         console.log("TRIGGA", add);
-        if (add >= 3) {
+        if (add >= 4) {
+          console.log("You have been in the same spot for 2 minutes.");
           setAdd(0);
-
+          // console.log("THIS IS THE COMPANY ID", id);
           const lineRef = ref(db, `company/${id}/line`);
+          // console.log(lineRef, "this is line reference");
 
           runTransaction(lineRef, (currentLine) => {
-            let number = 0;
-            if (!currentLine) {
-              // If "line" data doesn't exist, initialize it with a value of 0
+            // console.log("THIS IS DATA", currentLine);
 
-              return number;
-            }
+            let returnValue = currentLine + 3;
 
             // Increment the "line" field by 1
-            return number + 1;
+            return returnValue;
           })
             .then(() => {
               console.log("line updated");
@@ -383,7 +382,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
                   if (groupTrigger == false) {
                     setGroupTrigger(true);
                     const socket = io(
-                      "https://4326-2601-19b-280-4960-88af-51e1-12a7-e48e.ngrok-free.app"
+                      "https://f71e-2601-19b-280-4960-11ce-5c99-18f0-73f7.ngrok-free.app"
                     );
 
                     socket.emit("joinRoom", { room: currentData.companyName });
@@ -397,7 +396,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
                   lineCalulcation(line, companyId);
                 }
 
-                console.log(isWithinRange);
+                // console.log(isWithinRange);
                 const shouldUpdate = isWithinRange;
                 const shouldDecrement = !isWithinRange && proxy === 1;
 
