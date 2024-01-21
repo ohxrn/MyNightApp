@@ -5,7 +5,7 @@ import {
 } from "expo-notifications";
 import * as BackgroundFetch from "expo-background-fetch";
 import * as TaskManager from "expo-task-manager";
-
+import { useFocusEffect } from "@react-navigation/native";
 import io from "socket.io-client";
 import { HeatmapLayer, ModelLayer } from "@rnmapbox/maps";
 import uuid from "react-native-uuid";
@@ -93,6 +93,23 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
       startOnBoot: true, // android only
     });
   }
+  //  //------------------------------******************************************------------------------------------------------
+  const pingData = (data) => {
+    console.log("This is what we see", data);
+    const socket = io(
+      "https://48cd-2601-19b-280-4960-548d-c744-ac96-ef4d.ngrok-free.app"
+    );
+    setTimeout(() => {
+      socket.emit("joinRoom", { room: data.companyName });
+      // Your code to be executed after the delay
+    }, 5000);
+
+    // Cleanup function to clear the timer if needed
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  };
+  //  //------------------------------******************************************------------------------------------------------
 
   //------------------------------[[[[[[[[SOCKET ROOM]]]]]]]]]]]--------------------------------------------------
 
@@ -148,10 +165,6 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
       };
     }
   }, [latestLocation]);
-
-  //
-
-  //
 
   useEffect(() => {
     const postsRef = ref(db, "company");
@@ -316,11 +329,11 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
           // console.log("THIS IS THE COMPANY ID", id);
           const lineRef = ref(db, `company/${id}/line`);
           // console.log(lineRef, "this is line reference");
-
+          let currentLine = 0;
           runTransaction(lineRef, (currentLine) => {
             // console.log("THIS IS DATA", currentLine);
 
-            let returnValue = currentLine + 3;
+            let returnValue = currentLine + 6;
 
             // Increment the "line" field by 1
             return returnValue;
@@ -340,6 +353,9 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
     }
   };
 
+  //-------------------------------Trigger socket when page clears----------------------------------------
+
+  //
   useEffect(() => {
     const intervalId = setInterval(() => {
       getLocation();
@@ -379,13 +395,9 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
                 const isWithinRange = distance < 0.02;
 
                 if (isWithinRange) {
+                  pingData(currentData);
                   if (groupTrigger == false) {
                     setGroupTrigger(true);
-                    const socket = io(
-                      "https://f71e-2601-19b-280-4960-11ce-5c99-18f0-73f7.ngrok-free.app"
-                    );
-
-                    socket.emit("joinRoom", { room: currentData.companyName });
                     setCurrentGroup(currentData.companyName);
                     setSocketRoom(true);
                   }
