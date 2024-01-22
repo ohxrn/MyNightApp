@@ -12,7 +12,7 @@ app.use(cors());
 
 const socketIO = require("socket.io")(http, {
   cors: {
-    origin: "https://48cd-2601-19b-280-4960-548d-c744-ac96-ef4d.ngrok-free.app",
+    origin: "https://61fa-2601-19b-280-4960-548d-c744-ac96-ef4d.ngrok-free.app",
   },
 });
 const connectedClients = {};
@@ -25,6 +25,10 @@ socketIO.on("connection", (socket) => {
   });
 
   socket.on("sendGroupToServer", (data) => {
+    console.log(data);
+    if (data.images.length == 0) {
+      console.log("NO IMAGE HERE");
+    }
     newDataArray = {
       text: data.text,
       room: data.room,

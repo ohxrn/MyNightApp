@@ -97,7 +97,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   const pingData = (data) => {
     console.log("This is what we see", data);
     const socket = io(
-      "https://48cd-2601-19b-280-4960-548d-c744-ac96-ef4d.ngrok-free.app"
+      "https://61fa-2601-19b-280-4960-548d-c744-ac96-ef4d.ngrok-free.app"
     );
     setTimeout(() => {
       socket.emit("joinRoom", { room: data.companyName });
