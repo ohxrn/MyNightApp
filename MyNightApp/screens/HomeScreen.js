@@ -312,7 +312,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
       let differenceLat = latestLocation.latitude - latSum;
       let differenceLong = latestLocation.longitude - longSum;
       let finalDistance = (differenceLat + differenceLong) / 2;
-
+      //conditional that is triggered if distance between weighted pings is small enough, you're added to firebase in the line queue.
       if (finalDistance < 0.00002 && finalDistance > -0.00002) {
         console.log(
           "You are still in line",
@@ -323,8 +323,8 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
           add,
           "------------------------------------------------------------------------------------------------------"
         );
+        //callback to increment the trigger where after the fourth consecutive ping, you're entered into queue.
         setAdd((prevAdd) => prevAdd + 1);
-        // console.log("TRIGGA", add);
 
         if (add >= 4 && !lineUpdated) {
           setAdd(0);
