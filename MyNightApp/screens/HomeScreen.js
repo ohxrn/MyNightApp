@@ -50,7 +50,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   );
 
   const [temporaryDecrease, setTemporaryDecrease] = useState(false);
-
+  const [lineUpdated, setLineUpdated] = useState(false);
   const [temporaryMarker, setTemporaryMarker] = useState(false);
   const [groupName, setGroupName] = useState();
   const [groupTrigger, setGroupTrigger] = useState(false);
@@ -95,10 +95,8 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   }
   //  //------------------------------******************************************------------------------------------------------
   const pingData = (data) => {
-    console.log("This is what we see", data);
-    const socket = io(
-      "https://61fa-2601-19b-280-4960-548d-c744-ac96-ef4d.ngrok-free.app"
-    );
+    // console.log("This is what we see", data);
+    const socket = io("https://f257d61d006c.ngrok.app");
     setTimeout(() => {
       socket.emit("joinRoom", { room: data.companyName });
       // Your code to be executed after the delay
@@ -127,7 +125,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
           location: latestLocation,
         })
           .then(() => {
-            console.log("original location sent to Firestone");
+            console.log("original location sent to Firestone", latestLocation);
             setFireBaseLocationID(newCompanyId);
           })
           .catch((error) => {
@@ -291,25 +289,22 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   //   viewDataset();
   // }, [geoJSON]);
 
-  const lineCalulcation = (data, id) => {
-    // console.log("THIS IS ID", id);
+  const lineCalulcation = async (data, id) => {
     console.log(data.length);
     let latSum = 0;
     let longSum = 0;
-    const last5Pings = data.slice(-5); // Get the last 10 pings
+    const last5Pings = data.slice(-5);
 
     if (last5Pings.length > 0) {
-      // Calculate weights for each ping, giving more weight to recent pings
       const weights = Array.from(
         { length: last5Pings.length },
         (_, i) => i + 1
       );
 
-      // Calculate the sum of weights for normalization
       const weightSum = weights.reduce((sum, w) => sum + w, 0);
 
       for (let i = 0; i < last5Pings.length; i++) {
-        const weight = weights[i] / weightSum; // Normalize weights
+        const weight = weights[i] / weightSum;
         latSum += last5Pings[i][0] * weight;
         longSum += last5Pings[i][1] * weight;
       }
@@ -318,38 +313,32 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
       let differenceLong = latestLocation.longitude - longSum;
       let finalDistance = (differenceLat + differenceLong) / 2;
 
-      // Adjust the threshold as needed
-      if (finalDistance < 0.000002 && finalDistance > -0.000002) {
+      if (finalDistance < 0.00002 && finalDistance > -0.00002) {
         console.log("You are still in line");
-        setAdd(add + 1);
+        setAdd((prevAdd) => prevAdd + 1);
         console.log("TRIGGA", add);
-        if (add >= 4) {
-          console.log("You have been in the same spot for 2 minutes.");
+
+        if (add >= 4 && !lineUpdated) {
           setAdd(0);
-          // console.log("THIS IS THE COMPANY ID", id);
+          console.log("You have been in the same spot for 2 minutes.");
           const lineRef = ref(db, `company/${id}/line`);
-          // console.log(lineRef, "this is line reference");
-          let currentLine = 0;
-          runTransaction(lineRef, (currentLine) => {
-            // console.log("THIS IS DATA", currentLine);
 
-            let returnValue = currentLine + 6;
+          try {
+            const snapshot = await get(lineRef);
+            const currentLine = snapshot.val();
 
-            // Increment the "line" field by 1
-            return returnValue;
-          })
-            .then(() => {
-              console.log("line updated");
-            })
-            .catch((error) => {
-              console.log(error);
-              alert(error);
-            });
+            const updated = currentLine + 1;
+            await set(lineRef, updated);
+
+            console.log("Line updated successfully", updated);
+          } catch (error) {
+            console.log("Error updating line:", error);
+            alert(error);
+          }
         }
       } else {
         console.log("NOT IN LINE ANYMORE");
       }
-      console.log("DISTANCE DIFFERENCE", finalDistance);
     }
   };
 
@@ -357,6 +346,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
 
   //
   useEffect(() => {
+    getLocation();
     const intervalId = setInterval(() => {
       getLocation();
     }, 8000);
@@ -624,6 +614,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
                 <Text style={{ color: "red" }}>
                   {data.distance.toFixed(2)} Miles away
                 </Text>
+                <Text>{data.line} People in line here</Text>
               </MarkerView>
             </View>
           ))}

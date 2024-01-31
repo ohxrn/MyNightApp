@@ -9,7 +9,7 @@ import CompanyForm from "./screens/CompanyForm";
 import CompanySubmit from "./screens/CompanySubmit";
 import { auth } from "./Components/Config";
 import Voting from "./screens/Voting";
-
+import LinearGradient from "react-native-linear-gradient";
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
 import Constants from "expo-constants";
@@ -167,9 +167,15 @@ function MainNavigator() {
   return (
     <Tab.Navigator
       screenOptions={{
-        tabBarStyle: { backgroundColor: "lightblue" }, // Set the background color here
+        tabBarStyle: {
+          backgroundColor: "darkblue",
+          borderTopLeftRadius: 20, // Adjust the border radius as needed
+          borderTopRightRadius: 20,
+        },
         tabBarActiveTintColor: "pink", // Set the active tab text color
         tabBarInactiveTintColor: "white", // Set the inactive tab text color
+        borderTopLeftRadius: 20, // Adjust the border radius as needed
+        borderTopRightRadius: 20,
       }}
     >
       <Tab.Screen
@@ -190,7 +196,7 @@ function MainNavigator() {
       <Tab.Screen
         name="UserSet"
         component={UserSetup}
-        options={{ tabBarLabel: "Photos" }}
+        options={{ tabBarLabel: "Edit Profile" }}
       />
     </Tab.Navigator>
   );
