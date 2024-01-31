@@ -151,7 +151,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
           location: latestLocation,
         })
           .then(() => {
-            console.log("Location data updated successfully");
+            // console.log("Location data updated successfully");
           })
           .catch((error) => {
             console.error("Error updating location data: ", error);
@@ -290,7 +290,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   // }, [geoJSON]);
 
   const lineCalulcation = async (data, id) => {
-    console.log(data.length);
+    // console.log(data.length);
     let latSum = 0;
     let longSum = 0;
     const last5Pings = data.slice(-5);
@@ -314,9 +314,17 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
       let finalDistance = (differenceLat + differenceLong) / 2;
 
       if (finalDistance < 0.00002 && finalDistance > -0.00002) {
-        console.log("You are still in line");
+        console.log(
+          "You are still in line",
+          "DISTANCE:",
+          finalDistance,
+          "--------------------",
+          "ping number",
+          add,
+          "------------------------------------------------------------------------------------------------------"
+        );
         setAdd((prevAdd) => prevAdd + 1);
-        console.log("TRIGGA", add);
+        // console.log("TRIGGA", add);
 
         if (add >= 4 && !lineUpdated) {
           setAdd(0);
@@ -337,7 +345,8 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
           }
         }
       } else {
-        console.log("NOT IN LINE ANYMORE");
+        console.log("NOT IN LINE ANYMORE. DIstance is:", finalDistance);
+        setAdd(1);
       }
     }
   };
@@ -449,7 +458,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
               return currentData;
             })
               .then(() => {
-                console.log("Transaction successful");
+                // console.log("Transaction successful");
                 // Update the entered value to 1 if it's still 0
               })
 
@@ -466,7 +475,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   const sendPushNotification = async (data) => {
     const { status } = await getPermissionsAsync();
     // setNotiName(push(data.companyName));
-    console.log(notiName);
+    // console.log(notiName);
 
     if (status !== "granted") {
       console.error("Permission to send push notifications denied.");
@@ -614,7 +623,9 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
                 <Text style={{ color: "red" }}>
                   {data.distance.toFixed(2)} Miles away
                 </Text>
-                <Text>{data.line} People in line here</Text>
+                <Text style={{ fontSize: 12, fontWeight: "bold" }}>
+                  {data.line} People in line here
+                </Text>
               </MarkerView>
             </View>
           ))}
