@@ -10,6 +10,11 @@ import io from "socket.io-client";
 import { HeatmapLayer, ModelLayer } from "@rnmapbox/maps";
 import uuid from "react-native-uuid";
 import {
+  uploadBytesResumable,
+  getDownloadURL,
+  listAll,
+} from "firebase/storage";
+import {
   StyleSheet,
   Text,
   View,
@@ -84,6 +89,42 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   const [socketRoom, setSocketRoom] = useState(false);
   const [socketWelcome, setSocketWelcome] = useState("");
   const [line, setLine] = useState([]);
+  const [friendsLocations, setFriendsLocations] = useState([]);
+  const [friendsMapTrigger, setFriendsMapTrigger] = useState(false);
+
+  useEffect(() => {
+    console.log("THIS IS FRIENDS LOCO", friendsLocations);
+  }, [friendsLocations]);
+
+  //----------------------------------------------------------------------------------------
+  // THE MYNIGHTMAPPED ALGORITHM SCALED
+  useEffect(() => {
+    const myNightMapReference = ref(db, "userLocation");
+
+    const fetchData = () => {
+      onValue(myNightMapReference, (snapshot) => {
+        const data = snapshot.val();
+
+        if (data) {
+          const usersArray = Object.keys(data).map((userId) => ({
+            id: userId,
+            ...data[userId],
+          }));
+          setFriendsLocations(usersArray);
+        }
+      });
+    };
+
+    fetchData();
+
+    return () => {
+      console.log("Detaching listener");
+    };
+  }, []);
+  //
+  //----------------------------------------------------------------------------------------
+
+  //
 
   //
   async function registerBackgroundFetchAsync() {
@@ -96,7 +137,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   //  //------------------------------******************************************------------------------------------------------
   const pingData = (data) => {
     // console.log("This is what we see", data);
-    const socket = io("https://f257d61d006c.ngrok.app");
+    const socket = io("https://368da10281cd.ngrok.app");
     setTimeout(() => {
       socket.emit("joinRoom", { room: data.companyName });
       // Your code to be executed after the delay
@@ -139,13 +180,39 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
       clearTimeout(timeoutId);
     };
   }, [latestLocation]);
+  //
+  // useEffect(() => {
+  //   // const userFolderRef = ref(storage, "PhotoBase/" + auth?.currentUser.uid);
+  //   const avatarRef = ref(db, "userLocation/" + auth?.currentUser.uid);
 
+  //   listAll(userFolderRef)
+  //     .then((result) => {
+  //       // result.items is an array of references to each photo
+  //       const downloadPromises = result.items.map((itemRef) => {
+  //         return getDownloadURL(itemRef);
+  //       });
+
+  //       // Promise.all resolves when all downloadURL promises are resolved
+  //       return Promise.all(downloadPromises);
+  //     })
+  //     .then((downloadURLs) => {
+  //       // downloadURLs is an array of URLs for each photo
+  //       // You can handle these URLs as needed, for example, displaying them in your UI
+  //       console.log(downloadURLs);
+  //       setImageLinks(downloadURLs);
+  //     })
+  //     .catch((error) => {
+  //       console.error("Error fetching photos:", error);
+  //     });
+  //   //
+  // }, []);
+  //
   //
   useEffect(() => {
     if (dbLocationID !== null && fsLocation === true) {
       let timeoutId;
       timeoutId = setTimeout(() => {
-        const locationRef = ref(db, "userLocation/" + dbLocationID);
+        const locationRef = ref(db, "userLocation/" + auth.currentUser?.uid);
 
         set(locationRef, {
           location: latestLocation,
@@ -577,7 +644,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
             <Text style={{ color: "black" }}>{socketWelcome}</Text>
           </View>
           <MapboxGL.Camera
-            zoomLevel={14.5}
+            zoomLevel={16.5}
             centerCoordinate={
               latestLocation !== null
                 ? [latestLocation.longitude, latestLocation.latitude]
@@ -629,6 +696,26 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
               </MarkerView>
             </View>
           ))}
+          {friendsLocations !== null && (
+            <>
+              {friendsLocations.map((friend) => (
+                <MarkerView
+                  key={friend.id}
+                  coordinate={[
+                    friend.location.longitude,
+                    friend.location.latitude,
+                  ]}
+                >
+                  {/* Your marker content goes here */}
+                  <Image
+                    source={{ uri: "https://i.imgur.com/E1iHHaQ.png" }}
+                    style={{ width: 60, height: 60 }}
+                    anchor={[0, 0]}
+                  />
+                </MarkerView>
+              ))}
+            </>
+          )}
           {latestLocation !== null && (
             <MarkerView
               key="currentLocationMarker"
