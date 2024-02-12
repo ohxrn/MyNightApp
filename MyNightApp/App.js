@@ -177,7 +177,7 @@ function TabNavigator() {
           borderTopRightRadius: 20,
         },
         tabBarActiveTintColor: "blue", // Set the active tab text color
-        tabBarInactiveTintColor: "lightgreen", // Set the inactive tab text color
+        tabBarInactiveTintColor: "white", // Set the inactive tab text color
         borderTopLeftRadius: 20, // Adjust the border radius as needed
         borderTopRightRadius: 20,
       }}

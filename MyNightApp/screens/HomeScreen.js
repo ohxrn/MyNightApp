@@ -92,35 +92,24 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   const [friendsLocations, setFriendsLocations] = useState([]);
   const [friendsMapTrigger, setFriendsMapTrigger] = useState(false);
 
-  useEffect(() => {
-    console.log("THIS IS FRIENDS LOCO", friendsLocations);
-  }, [friendsLocations]);
-
   //----------------------------------------------------------------------------------------
   // THE MYNIGHTMAPPED ALGORITHM SCALED
-  useEffect(() => {
+
+  const fetchData = () => {
     const myNightMapReference = ref(db, "userLocation");
+    onValue(myNightMapReference, (snapshot) => {
+      const data = snapshot.val();
 
-    const fetchData = () => {
-      onValue(myNightMapReference, (snapshot) => {
-        const data = snapshot.val();
+      if (data) {
+        const usersArray = Object.keys(data).map((userId) => ({
+          id: userId,
+          ...data[userId],
+        }));
+        setFriendsLocations(usersArray);
+      }
+    });
+  };
 
-        if (data) {
-          const usersArray = Object.keys(data).map((userId) => ({
-            id: userId,
-            ...data[userId],
-          }));
-          setFriendsLocations(usersArray);
-        }
-      });
-    };
-
-    fetchData();
-
-    return () => {
-      console.log("Detaching listener");
-    };
-  }, []);
   //
   //----------------------------------------------------------------------------------------
 
@@ -425,6 +414,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
     getLocation();
     const intervalId = setInterval(() => {
       getLocation();
+      fetchData();
     }, 8000);
 
     return () => clearInterval(intervalId);
@@ -628,7 +618,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
       <Text style={{ flex: 1, color: "white" }}>{socketWelcome}</Text>
 
       <MapboxGL.Camera
-        zoomLevel={16.5}
+        zoomLevel={20.5}
         centerCoordinate={
           latestLocation !== null
             ? [latestLocation.longitude, latestLocation.latitude]
@@ -684,9 +674,8 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
               key={friend.id}
               coordinate={[friend.location.longitude, friend.location.latitude]}
             >
-              {/* Your marker content goes here */}
               <Image
-                source={{ uri: "https://i.imgur.com/E1iHHaQ.png" }}
+                source={require("../assets/MyNightMale.png")}
                 style={{ width: 60, height: 60 }}
                 anchor={[0, 0]}
               />

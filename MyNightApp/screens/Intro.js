@@ -35,9 +35,6 @@ const Intro = () => {
         resizeMode="cover"
         repeat={false}
       />
-      <TouchableOpacity onPress={() => onEnd()}>
-        <Text>Skip Video</Text>
-      </TouchableOpacity>
     </View>
   );
 };
