@@ -19,6 +19,7 @@ export default function Profile() {
   const [username, setUsername] = useState();
   const [age, setAge] = useState();
   const [bio, setBio] = useState();
+  const [gender, setGender] = useState();
 
   const submitTheData = () => {
     const db = getDatabase();
@@ -36,6 +37,7 @@ export default function Profile() {
       last_name: lName,
       username: username,
       age: age,
+      gender: gender,
       bio: bio,
       entered: 0,
     };
@@ -58,6 +60,7 @@ export default function Profile() {
           setLName(userData.last_name);
           setUsername(userData.username);
           setAge(userData.age);
+          setGender(userData.gender);
           setBio(userData.bio);
         } else {
           console.log("User data not found");
@@ -150,6 +153,15 @@ export default function Profile() {
           value={age}
           onChangeText={(data) => {
             setAge(data);
+          }}
+        />
+      </View>
+      <View>
+        <TextInput
+          placeholder="gender"
+          value={lName}
+          onChangeText={(data) => {
+            setGender(data);
           }}
         />
       </View>

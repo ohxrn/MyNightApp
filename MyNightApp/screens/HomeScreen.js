@@ -407,9 +407,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
     }
   };
 
-  //-------------------------------Trigger socket when page clears----------------------------------------
-
-  //
+  //----------------------------------------------------------------------------------------------------
   useEffect(() => {
     getLocation();
     const intervalId = setInterval(() => {
@@ -420,6 +418,8 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
     return () => clearInterval(intervalId);
   }, []);
   let updateTimeout;
+  //----------------------------------------------------------------------------------------------------
+
   const handleUpdate = (companyId, distance) => {
     clearTimeout(updateTimeout);
 
@@ -529,11 +529,9 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
         });
     }, 2000);
   };
+  //----------------------------------------------------------------------------------------------------
   const sendPushNotification = async (data) => {
     const { status } = await getPermissionsAsync();
-    // setNotiName(push(data.companyName));
-    // console.log(notiName);
-
     if (status !== "granted") {
       console.error("Permission to send push notifications denied.");
       return;
@@ -549,7 +547,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
       trigger: null,
     });
   };
-
+  //----------------------------------------------------------------------------------------------------
   useEffect(() => {
     const uLRef = ref(db, "userLocation");
     const theRun = onValue(uLRef, (snapshot) => {
@@ -565,38 +563,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
       theRun();
     };
   }, []);
-  //---------------------------------------[[[[[[[[[[[THE CODE FOR HEATMAP FAILURE]]]]]]]]]]]--------------------------------------
-  // const generateUniqueId = () => {
-  //   return uuid.v4();
-  // };
-
-  // useEffect(() => {
-  //   const geojsonData = {
-  //     type: "FeatureCollection",
-  //     features: ulData.map((data) => ({
-  //       type: "Feature",
-  //       geometry: {
-  //         type: "Point",
-  //         coordinates: [data.location.longitude, data.location.latitude],
-  //       },
-  //       properties: {
-  //         id: generateUniqueId(),
-  //         name: "Examples" + generateUniqueId(),
-  //       },
-  //       description: "the first data upload",
-  //     })),
-  //   };
-
-  //   setGeoJSON(geojsonData);
-  // }, [ulData]);
-
-  // useEffect(() => {
-  //   if (geoJSON !== undefined) {
-  //     setFinalJSON(true);
-  //     // console.log("GeoJSON:", JSON.stringify(geoJSON, null, 2));
-  //   }
-  // }, [geoJSON, ulData, dbLocationID, fsLocation]);
-  //---------------------------------------[[[[[[[[[[[THE CODE FOR HEATMAP FAILURE]]]]]]]]]]]--------------------------------------
+  //----------------------------------------------------------------------------------------------------
   return (
     <MapboxGL.MapView
       style={styles.mapContainer}
