@@ -100,7 +100,7 @@ function App() {
       });
       console.log(token);
     } else {
-      alert("Must use physical device for Push Notifications");
+      alert("Must use a physical device for Push Notifications");
     }
 
     if (Platform.OS === "android") {
@@ -142,7 +142,6 @@ function App() {
           component={UserForm}
           options={{ headerShown: false }}
         />
-
         <Stack.Screen
           name="CompanyForm"
           options={{ headerShown: false }}
@@ -156,14 +155,14 @@ function App() {
         <Stack.Screen
           name="HomeScreen"
           options={{ headerShown: false }}
-          component={MainNavigator}
+          component={TabNavigator}
         />
       </Stack.Navigator>
     </NavigationContainer>
   );
 }
-function MainNavigator() {
-  const Tab = createBottomTabNavigator();
+
+function TabNavigator() {
   return (
     <Tab.Navigator
       screenOptions={{
@@ -181,22 +180,22 @@ function MainNavigator() {
       <Tab.Screen
         name="HomeScreen"
         component={HomeScreen}
-        options={{ tabBarLabel: "Home" }}
+        options={{ tabBarLabel: "Home", headerShown: false }}
       />
       <Tab.Screen
         name="Voting"
         component={Voting}
-        options={{ tabBarLabel: "Chat room" }}
+        options={{ tabBarLabel: "Chat room", headerShown: false }}
       />
       <Tab.Screen
         name="Profile"
         component={Profile}
-        options={{ tabBarLabel: "Edit Profile" }}
+        options={{ tabBarLabel: "Edit Profile", headerShown: false }}
       />
       <Tab.Screen
         name="UserSet"
         component={UserSetup}
-        options={{ tabBarLabel: "Edit Profile" }}
+        options={{ tabBarLabel: "Edit Profile", headerShown: false }}
       />
     </Tab.Navigator>
   );

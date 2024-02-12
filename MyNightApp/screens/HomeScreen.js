@@ -608,130 +608,120 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   // }, [geoJSON, ulData, dbLocationID, fsLocation]);
   //---------------------------------------[[[[[[[[[[[THE CODE FOR HEATMAP FAILURE]]]]]]]]]]]--------------------------------------
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.container}>
-        <MapboxGL.MapView
-          style={styles.mapContainer}
-          styleURL={styleURL}
-          attributionEnabled={false}
-        >
-          <View style={{ display: "flex" }}>
-            <Text
-              style={{
-                textAlign: "center",
-                color: "black",
-                backgroundColor: "white",
-                height: 22,
-              }}
-            >
-              Welcome, {auth.currentUser?.email}
-            </Text>
+    <MapboxGL.MapView
+      style={styles.mapContainer}
+      styleURL={styleURL}
+      attributionEnabled={false}
+    >
+      <TouchableOpacity
+        style={{
+          position: "absolute",
+          top: 20,
+          right: 10,
+          zIndex: 1,
+        }}
+        onPress={signOut}
+      >
+        <Text style={{ fontSize: 20, color: "white" }}>Sign Out</Text>
+      </TouchableOpacity>
+
+      <Text style={{ position: "absolute", bottom: 10, color: "white" }}>
+        {socketWelcome}
+      </Text>
+
+      <View
+        style={{
+          flexDirection: "column",
+          justifyContent: "flex-end",
+          flex: 1,
+          backgroundColor: "red",
+        }}
+      >
+        <TouchableOpacity>
+          <Text>Hey</Text>
+        </TouchableOpacity>
+      </View>
+      <MapboxGL.Camera
+        zoomLevel={16.5}
+        centerCoordinate={
+          latestLocation !== null
+            ? [latestLocation.longitude, latestLocation.latitude]
+            : [-71.0589, 42.3601]
+        }
+        pitch={34}
+        animationMode={"flyTo"}
+        animationDuration={7000}
+      />
+
+      <MapboxGL.PointAnnotation id="marker" coordinate={[-71.0589, 42.3601]} />
+
+      <ActivityIndicator
+        style={styles.animate}
+        animating={showAnimate}
+        size={"large"}
+        color={"blue"}
+      />
+      {finalRender.map((data) => (
+        <View key={`marker-view-${data.companyId}`}>
+          <MarkerView
+            key={`marker-${data.companyId}`}
+            coordinate={[data.address.longitude, data.address.latitude]}
+          >
             <TouchableOpacity
-              style={{
-                backgroundColor: "white",
-                width: "30%",
-                height: 30,
-                justifyContent: "center",
-                alignItems: "center",
-                alignSelf: "center",
+              onPress={() => {
+                alert(data.description);
               }}
-              onPress={signOut}
             >
-              <Text style={{ fontSize: 20 }}>Sign Out</Text>
+              <Image source={theLogo} style={{ width: 60, height: 60 }} />
             </TouchableOpacity>
-            <Text>Powered by OHXRN X Virtual Vintage LLC</Text>
-
-            <Text style={{ color: "black" }}>{socketWelcome}</Text>
-          </View>
-          <MapboxGL.Camera
-            zoomLevel={16.5}
-            centerCoordinate={
-              latestLocation !== null
-                ? [latestLocation.longitude, latestLocation.latitude]
-                : [-71.0589, 42.3601]
-            }
-            pitch={34}
-            animationMode={"flyTo"}
-            animationDuration={7000}
-          />
-
-          <MapboxGL.PointAnnotation
-            id="marker"
-            coordinate={[-71.0589, 42.3601]}
-          />
-
-          <ActivityIndicator
-            style={styles.animate}
-            animating={showAnimate}
-            size={"large"}
-            color={"blue"}
-          />
-          {finalRender.map((data) => (
-            <View key={`marker-view-${data.companyId}`}>
-              <MarkerView
-                key={`marker-${data.companyId}`}
-                coordinate={[data.address.longitude, data.address.latitude]}
-              >
-                <TouchableOpacity
-                  onPress={() => {
-                    alert(data.description);
-                  }}
-                >
-                  <Image source={theLogo} style={{ width: 60, height: 60 }} />
-                </TouchableOpacity>
-                <Text style={{ color: "white" }}>{data.companyName}</Text>
-                <Text style={{ color: "red" }}>
-                  {data.people == 1 ? (
-                    <Text>1 person here</Text>
-                  ) : (
-                    <Text>{data.people} people here</Text>
-                  )}
-                </Text>
-                <Text style={{ color: "red" }}>
-                  {data.distance.toFixed(2)} Miles away
-                </Text>
-                <Text style={{ fontSize: 12, fontWeight: "bold" }}>
-                  {data.line} People in line here
-                </Text>
-              </MarkerView>
-            </View>
-          ))}
-          {friendsLocations !== null && (
-            <>
-              {friendsLocations.map((friend) => (
-                <MarkerView
-                  key={friend.id}
-                  coordinate={[
-                    friend.location.longitude,
-                    friend.location.latitude,
-                  ]}
-                >
-                  {/* Your marker content goes here */}
-                  <Image
-                    source={{ uri: "https://i.imgur.com/E1iHHaQ.png" }}
-                    style={{ width: 60, height: 60 }}
-                    anchor={[0, 0]}
-                  />
-                </MarkerView>
-              ))}
-            </>
-          )}
-          {latestLocation !== null && (
+            <Text style={{ color: "white" }}>{data.companyName}</Text>
+            <Text style={{ color: "red" }}>
+              {data.people == 1 ? (
+                <Text>1 person here</Text>
+              ) : (
+                <Text>{data.people} people here</Text>
+              )}
+            </Text>
+            <Text style={{ color: "red" }}>
+              {data.distance.toFixed(2)} Miles away
+            </Text>
+            <Text style={{ fontSize: 12, fontWeight: "bold" }}>
+              {data.line} People in line here
+            </Text>
+          </MarkerView>
+        </View>
+      ))}
+      {friendsLocations !== null && (
+        <>
+          {friendsLocations.map((friend) => (
             <MarkerView
-              key="currentLocationMarker"
-              coordinate={[latestLocation.longitude, latestLocation.latitude]}
-              anchor={{ x: 0.5, y: 1 }}
+              key={friend.id}
+              coordinate={[friend.location.longitude, friend.location.latitude]}
             >
+              {/* Your marker content goes here */}
               <Image
                 source={{ uri: "https://i.imgur.com/E1iHHaQ.png" }}
                 style={{ width: 60, height: 60 }}
                 anchor={[0, 0]}
               />
             </MarkerView>
-          )}
-        </MapboxGL.MapView>
-      </View>
-    </SafeAreaView>
+          ))}
+        </>
+      )}
+      {latestLocation !== null && (
+        <MarkerView
+          key="currentLocationMarker"
+          coordinate={[latestLocation.longitude, latestLocation.latitude]}
+          anchor={{ x: 0.5, y: 1 }}
+        >
+          <Image
+            source={{ uri: "https://i.imgur.com/E1iHHaQ.png" }}
+            style={{ width: 60, height: 60 }}
+            anchor={[0, 0]}
+          />
+        </MarkerView>
+      )}
+    </MapboxGL.MapView>
   );
 };
 
