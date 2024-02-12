@@ -167,12 +167,17 @@ function TabNavigator() {
     <Tab.Navigator
       screenOptions={{
         tabBarStyle: {
-          backgroundColor: "darkblue",
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          elevation: 0, // This removes the shadow on Android
+          backgroundColor: "#0F0F0F",
           borderTopLeftRadius: 20, // Adjust the border radius as needed
           borderTopRightRadius: 20,
         },
-        tabBarActiveTintColor: "pink", // Set the active tab text color
-        tabBarInactiveTintColor: "white", // Set the inactive tab text color
+        tabBarActiveTintColor: "blue", // Set the active tab text color
+        tabBarInactiveTintColor: "lightgreen", // Set the inactive tab text color
         borderTopLeftRadius: 20, // Adjust the border radius as needed
         borderTopRightRadius: 20,
       }}

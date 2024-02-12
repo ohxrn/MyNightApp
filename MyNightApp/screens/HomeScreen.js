@@ -625,22 +625,8 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
         <Text style={{ fontSize: 20, color: "white" }}>Sign Out</Text>
       </TouchableOpacity>
 
-      <Text style={{ position: "absolute", bottom: 10, color: "white" }}>
-        {socketWelcome}
-      </Text>
+      <Text style={{ flex: 1, color: "white" }}>{socketWelcome}</Text>
 
-      <View
-        style={{
-          flexDirection: "column",
-          justifyContent: "flex-end",
-          flex: 1,
-          backgroundColor: "red",
-        }}
-      >
-        <TouchableOpacity>
-          <Text>Hey</Text>
-        </TouchableOpacity>
-      </View>
       <MapboxGL.Camera
         zoomLevel={16.5}
         centerCoordinate={
