@@ -20,6 +20,8 @@ import theLogo from "./assets/MNLOGO.png";
 import Intro from "./screens/Intro";
 import Profile from "./screens/Profile";
 //
+import { Image } from "react-native";
+
 import UserSetup from "./screens/UserSetup";
 
 const Stack = createNativeStackNavigator();
@@ -188,12 +190,38 @@ function TabNavigator() {
       <Tab.Screen
         name="HomeScreen"
         component={HomeScreen}
-        options={{ tabBarLabel: "Home", headerShown: false }}
+        options={{
+          tabBarLabel: "Home",
+          headerShown: false,
+          tabBarIcon: ({ focused }) => (
+            <Image
+              source={
+                focused
+                  ? require("./assets/mynightHome.png")
+                  : require("./assets/mynightHome.png")
+              }
+              style={{ width: 24, height: 24, resizeMode: "contain" }}
+            />
+          ),
+        }}
       />
       <Tab.Screen
         name="Voting"
         component={Voting}
-        options={{ tabBarLabel: "Chat room", headerShown: false }}
+        options={{
+          tabBarLabel: "Chat Room",
+          headerShown: false,
+          tabBarIcon: ({ focused }) => (
+            <Image
+              source={
+                focused
+                  ? require("./assets/chat.png")
+                  : require("./assets/chat.png")
+              }
+              style={{ width: 24, height: 24, resizeMode: "contain" }}
+            />
+          ),
+        }}
       />
       <Tab.Screen
         name="Profile"
