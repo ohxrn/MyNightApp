@@ -175,11 +175,14 @@ function TabNavigator() {
           backgroundColor: "#0F0F0F",
           borderTopLeftRadius: 20, // Adjust the border radius as needed
           borderTopRightRadius: 20,
+          borderColor: "purple",
+          borderTopColor: "purple",
+          borderTopWidth: 3,
+          borderLeftWidth: 3,
+          borderRightWidth: 3,
         },
         tabBarActiveTintColor: "blue", // Set the active tab text color
         tabBarInactiveTintColor: "white", // Set the inactive tab text color
-        borderTopLeftRadius: 20, // Adjust the border radius as needed
-        borderTopRightRadius: 20,
       }}
     >
       <Tab.Screen

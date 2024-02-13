@@ -573,21 +573,6 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
       attributionEnabled={false}
       gestureEnabled={true}
     >
-      <TouchableOpacity
-        style={{
-          position: "absolute",
-          top: 20,
-          right: 10,
-          zIndex: 1,
-        }}
-        onPress={signOut}
-        pointerEvents="box-none" // Allow touches to go through this view
-      >
-        <Text style={{ fontSize: 20, color: "white" }}>Sign Out</Text>
-      </TouchableOpacity>
-
-      <Text style={{ flex: 1, color: "white" }}>{socketWelcome}</Text>
-
       <MapboxGL.Camera
         zoomLevel={20.5}
         centerCoordinate={
