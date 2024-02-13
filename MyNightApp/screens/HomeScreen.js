@@ -39,8 +39,10 @@ import {
 } from "firebase/database";
 import "firebase/database"; // Import the database module explicitly
 import { getDatabase, get, ServerValue, getDocs } from "firebase/database";
+import { SymbolLayer } from "@rnmapbox/maps";
 
 import MapboxGL, {
+  Feature,
   MarkerView,
   addSource,
   Map,
@@ -566,9 +568,10 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   //----------------------------------------------------------------------------------------------------
   return (
     <MapboxGL.MapView
-      style={styles.mapContainer}
+      style={{ flex: 1 }}
       styleURL={styleURL}
       attributionEnabled={false}
+      gestureEnabled={true}
     >
       <TouchableOpacity
         style={{
@@ -578,6 +581,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
           zIndex: 1,
         }}
         onPress={signOut}
+        pointerEvents="box-none" // Allow touches to go through this view
       >
         <Text style={{ fontSize: 20, color: "white" }}>Sign Out</Text>
       </TouchableOpacity>
@@ -596,8 +600,6 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
         animationDuration={7000}
       />
 
-      <MapboxGL.PointAnnotation id="marker" coordinate={[-71.0589, 42.3601]} />
-
       <ActivityIndicator
         style={styles.animate}
         animating={showAnimate}
@@ -605,35 +607,34 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
         color={"blue"}
       />
       {finalRender.map((data) => (
-        <View key={`marker-view-${data.companyId}`}>
-          <MarkerView
-            key={`marker-${data.companyId}`}
-            coordinate={[data.address.longitude, data.address.latitude]}
+        <MarkerView
+          key={`marker-${data.companyId}`}
+          coordinate={[data.address.longitude, data.address.latitude]}
+        >
+          <TouchableOpacity
+            onPress={() => {
+              alert(data.description);
+            }}
           >
-            <TouchableOpacity
-              onPress={() => {
-                alert(data.description);
-              }}
-            >
-              <Image source={theLogo} style={{ width: 60, height: 60 }} />
-            </TouchableOpacity>
-            <Text style={{ color: "white" }}>{data.companyName}</Text>
-            <Text style={{ color: "red" }}>
-              {data.people == 1 ? (
-                <Text>1 person here</Text>
-              ) : (
-                <Text>{data.people} people here</Text>
-              )}
-            </Text>
-            <Text style={{ color: "red" }}>
-              {data.distance.toFixed(2)} Miles away
-            </Text>
-            <Text style={{ fontSize: 12, fontWeight: "bold" }}>
-              {data.line} People in line here
-            </Text>
-          </MarkerView>
-        </View>
+            <Image source={theLogo} style={{ width: 60, height: 60 }} />
+          </TouchableOpacity>
+          <Text style={{ color: "white" }}>{data.companyName}</Text>
+          <Text style={{ color: "red" }}>
+            {data.people == 1 ? (
+              <Text>1 person here</Text>
+            ) : (
+              <Text>{data.people} people here</Text>
+            )}
+          </Text>
+          <Text style={{ color: "red" }}>
+            {data.distance.toFixed(2)} Miles away
+          </Text>
+          <Text style={{ fontSize: 12, fontWeight: "bold" }}>
+            {data.line} People in line here
+          </Text>
+        </MarkerView>
       ))}
+
       {friendsLocations !== null && (
         <>
           {friendsLocations.map((friend) => (
@@ -644,22 +645,20 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
               <Image
                 source={require("../assets/MyNightMale.png")}
                 style={{ width: 60, height: 60 }}
-                anchor={[0, 0]}
               />
             </MarkerView>
           ))}
         </>
       )}
+
       {latestLocation !== null && (
         <MarkerView
           key="currentLocationMarker"
           coordinate={[latestLocation.longitude, latestLocation.latitude]}
-          anchor={{ x: 0.5, y: 1 }}
         >
           <Image
             source={{ uri: "https://i.imgur.com/E1iHHaQ.png" }}
             style={{ width: 60, height: 60 }}
-            anchor={[0, 0]}
           />
         </MarkerView>
       )}
