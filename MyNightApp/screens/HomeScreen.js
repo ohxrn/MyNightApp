@@ -573,6 +573,24 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
       attributionEnabled={false}
       gestureEnabled={true}
     >
+      <SafeAreaView>
+        <TouchableOpacity
+          style={{ backgroundColor: "red", flexDirection: "row" }}
+        ></TouchableOpacity>
+        <Text
+          style={{
+            fontSize: 33,
+            fontWeight: "900",
+            fontStyle: "italic",
+            color: "purple",
+            textAlign: "center",
+            marginTop: 30,
+          }}
+        >
+          My Night
+        </Text>
+      </SafeAreaView>
+
       <MapboxGL.Camera
         zoomLevel={20.5}
         centerCoordinate={
