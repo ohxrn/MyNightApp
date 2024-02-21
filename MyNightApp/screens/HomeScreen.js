@@ -93,9 +93,46 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   const [line, setLine] = useState([]);
   const [friendsLocations, setFriendsLocations] = useState([]);
   const [friendsMapTrigger, setFriendsMapTrigger] = useState(false);
+  const [userData, setUserData] = useState([]);
+  const [mapDetails, setMapDetails] = useState([]);
 
   //----------------------------------------------------------------------------------------
   // THE MYNIGHTMAPPED ALGORITHM SCALED
+  const mergeData = (userData, friendsData) => {
+    const mergedData = [];
+
+    for (const userId in userData) {
+      const user = userData[userId];
+      const friend = friendsData.find((friend) => friend.id === userId);
+
+      if (friend) {
+        // Merge user and friend data
+        const mergedObject = { id: userId, ...user, ...friend };
+        mergedData.push(mergedObject);
+      }
+    }
+
+    return mergedData;
+  };
+
+  const retrieveUserData = (array) => {
+    const userRef = ref(db, "User Data");
+    onValue(userRef, (snapshot) => {
+      const data = snapshot.val();
+      setUserData(data);
+    });
+  };
+
+  useEffect(() => {
+    if (userData && friendsLocations.length > 0) {
+      const mergedResult = mergeData(userData, friendsLocations);
+      // console.log("HERE IS DATA", mergedResult);
+      setMapDetails(mergedResult);
+    }
+  }, [userData, friendsLocations]);
+  //
+
+  //
 
   const fetchData = () => {
     const myNightMapReference = ref(db, "userLocation");
@@ -108,6 +145,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
           ...data[userId],
         }));
         setFriendsLocations(usersArray);
+        retrieveUserData();
       }
     });
   };
@@ -128,7 +166,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   //  //------------------------------******************************************------------------------------------------------
   const pingData = (data) => {
     // console.log("This is what we see", data);
-    const socket = io("https://368da10281cd.ngrok.app");
+    const socket = io("https://5ee7e614a54b.ngrok.app");
     setTimeout(() => {
       socket.emit("joinRoom", { room: data.companyName });
       // Your code to be executed after the delay
@@ -576,7 +614,10 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
       <SafeAreaView>
         <TouchableOpacity
           style={{ backgroundColor: "red", flexDirection: "row" }}
-        ></TouchableOpacity>
+          onPress={signOut}
+        >
+          <Text>Sign Out</Text>
+        </TouchableOpacity>
         <Text
           style={{
             fontSize: 33,
@@ -638,13 +679,14 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
         </MarkerView>
       ))}
 
-      {friendsLocations !== null && (
+      {mapDetails.length > 0 && (
         <>
-          {friendsLocations.map((friend) => (
+          {mapDetails.map((friend) => (
             <MarkerView
               key={friend.id}
               coordinate={[friend.location.longitude, friend.location.latitude]}
             >
+              <Text>{friend.username}</Text>
               <Image
                 source={require("../assets/MyNightMale.png")}
                 style={{ width: 60, height: 60 }}
