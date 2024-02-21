@@ -157,19 +157,6 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
     });
   };
 
-  //
-  //----------------------------------------------------------------------------------------
-
-  //
-
-  //
-  async function registerBackgroundFetchAsync() {
-    return BackgroundFetch.registerTaskAsync(BACKGROUND_FETCH_TASK, {
-      minimumInterval: 60 * 15, // 15 minutes
-      stopOnTerminate: false, // android only,
-      startOnBoot: true, // android only
-    });
-  }
   //  //------------------------------******************************************------------------------------------------------
   const pingData = (data) => {
     // console.log("This is what we see", data);
@@ -184,7 +171,6 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
       clearTimeout(timeoutId);
     };
   };
-  //  //------------------------------******************************************------------------------------------------------
 
   //------------------------------[[[[[[[[SOCKET ROOM]]]]]]]]]]]--------------------------------------------------
 
@@ -233,7 +219,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
             console.error("Error updating location data: ", error);
           });
         clearTimeout(timeoutId);
-      }, 6000); // 1 second (adjust as needed)
+      }, 6000);
       return () => {
         clearTimeout(timeoutId);
       };
@@ -246,11 +232,11 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
       const postsData = snapshot.val();
       const newDataArray = [];
       snapshot.forEach((childSnapshot) => {
-        const companyId = childSnapshot.key; // Get the unique key (companyId)
+        const companyId = childSnapshot.key;
         const companyData = childSnapshot.val();
-        newDataArray.push({ companyId, ...companyData }); // Include the key along with the data
+        newDataArray.push({ companyId, ...companyData });
       });
-      setDataArr(newDataArray); // Update state after processing all posts
+      setDataArr(newDataArray);
     });
     return () => {
       unsubscribe();
@@ -272,7 +258,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
 
           calculatedObject.push({ ...item, distance });
 
-          handleUpdate(item.companyId, distance); // Check if this line gets executed
+          handleUpdate(item.companyId, distance);
         }
       }
 
@@ -638,11 +624,25 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
               key={friend.id}
               coordinate={[friend.location.longitude, friend.location.latitude]}
             >
-              <Text>{friend.username}</Text>
               <Image
                 source={require("../assets/MyNightMale.png")}
                 style={{ width: 60, height: 60 }}
               />
+              <Text
+                style={{
+                  fontWeight: "700",
+                  fontSize: 18,
+                  position: "absolute",
+                  top: 55,
+                  textAlign: "center",
+                  left: 10,
+                  backgroundColor: "pink",
+
+                  padding: 4,
+                }}
+              >
+                {friend.username}
+              </Text>
             </MarkerView>
           ))}
         </>
