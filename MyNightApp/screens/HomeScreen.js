@@ -648,7 +648,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
         </>
       )}
 
-      {latestLocation !== null && (
+      {/* {latestLocation !== null && (
         <MarkerView
           key="currentLocationMarker"
           coordinate={[latestLocation.longitude, latestLocation.latitude]}
@@ -658,7 +658,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
             style={{ width: 60, height: 60 }}
           />
         </MarkerView>
-      )}
+      )} */}
     </MapboxGL.MapView>
   );
 };
