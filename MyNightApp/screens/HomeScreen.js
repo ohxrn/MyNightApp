@@ -129,12 +129,12 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
         const mergedResult = mergeData(userData, friendsLocations);
         // console.log("HERE IS DATA", mergedResult);
         setMapDetails(mergedResult);
-        console.log(
-          "DATA HAS BEEN UPDATED------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------"
-        );
-      }, 5000); // Adjust the delay time (in milliseconds) as needed
+        // console.log(
+        //   "DATA HAS BEEN UPDATED------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------"
+        // );
+      }, 5000);
 
-      return () => clearTimeout(timerId); // Clear the timer on component unmount or when the dependencies change
+      return () => clearTimeout(timerId);
     }
   }, [userData, friendsLocations]);
   //
@@ -216,34 +216,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
       clearTimeout(timeoutId);
     };
   }, [latestLocation]);
-  //
-  // useEffect(() => {
-  //   // const userFolderRef = ref(storage, "PhotoBase/" + auth?.currentUser.uid);
-  //   const avatarRef = ref(db, "userLocation/" + auth?.currentUser.uid);
 
-  //   listAll(userFolderRef)
-  //     .then((result) => {
-  //       // result.items is an array of references to each photo
-  //       const downloadPromises = result.items.map((itemRef) => {
-  //         return getDownloadURL(itemRef);
-  //       });
-
-  //       // Promise.all resolves when all downloadURL promises are resolved
-  //       return Promise.all(downloadPromises);
-  //     })
-  //     .then((downloadURLs) => {
-  //       // downloadURLs is an array of URLs for each photo
-  //       // You can handle these URLs as needed, for example, displaying them in your UI
-  //       console.log(downloadURLs);
-  //       setImageLinks(downloadURLs);
-  //     })
-  //     .catch((error) => {
-  //       console.error("Error fetching photos:", error);
-  //     });
-  //   //
-  // }, []);
-  //
-  //
   useEffect(() => {
     if (dbLocationID !== null && fsLocation === true) {
       let timeoutId;
@@ -363,34 +336,6 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
       console.log("Error fetching geolocation:", error);
     }
   };
-
-  // //send to Mapbox---------------------------------------------------------------------
-  // const viewDataset = async () => {
-  //   const datasetID = "clloddi6500xe2cp0m7oal19b"; // Replace with your dataset ID
-  //   const accessToken =
-  //     "sk.eyJ1Ijoib2h4cm4iLCJhIjoiY2xscG51YjJkMDZndTNkbzJvZmd3MmpmNSJ9.1yj9ewdvaGBxVPF_cdlLIQ"; // Replace with your Mapbox access token
-
-  //   try {
-  //     const response = await fetch(
-  //       "https://api.mapbox.com/datasets/v1/ohxrn/clloddi6500xe2cp0m7oal19b/features/fad29966a10b68d7a7937fd54b033fb1?access_token=sk.eyJ1Ijoib2h4cm4iLCJhIjoiY2xscG51YjJkMDZndTNkbzJvZmd3MmpmNSJ9.1yj9ewdvaGBxVPF_cdlLIQ"
-  //     );
-
-  //     if (!response.ok) {
-  //       throw new Error(
-  //         `Network response was not ok. Status: ${response.status}`
-  //       );
-  //     }
-
-  //     const data = await response.json();
-  //     // console.log("Dataset:", data);
-  //   } catch (error) {
-  //     console.error("Error fetching dataset:", error);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   viewDataset();
-  // }, [geoJSON]);
 
   const lineCalulcation = async (data, id) => {
     // console.log(data.length);
