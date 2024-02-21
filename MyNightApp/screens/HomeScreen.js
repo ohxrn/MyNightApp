@@ -125,9 +125,16 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
 
   useEffect(() => {
     if (userData && friendsLocations.length > 0) {
-      const mergedResult = mergeData(userData, friendsLocations);
-      // console.log("HERE IS DATA", mergedResult);
-      setMapDetails(mergedResult);
+      const timerId = setTimeout(() => {
+        const mergedResult = mergeData(userData, friendsLocations);
+        // console.log("HERE IS DATA", mergedResult);
+        setMapDetails(mergedResult);
+        console.log(
+          "DATA HAS BEEN UPDATED------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------"
+        );
+      }, 5000); // Adjust the delay time (in milliseconds) as needed
+
+      return () => clearTimeout(timerId); // Clear the timer on component unmount or when the dependencies change
     }
   }, [userData, friendsLocations]);
   //
