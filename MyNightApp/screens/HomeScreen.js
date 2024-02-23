@@ -7,7 +7,7 @@ import * as BackgroundFetch from "expo-background-fetch";
 import * as TaskManager from "expo-task-manager";
 import { useFocusEffect } from "@react-navigation/native";
 import io from "socket.io-client";
-import { HeatmapLayer, ModelLayer } from "@rnmapbox/maps";
+import { FillExtrusionLayer, HeatmapLayer, ModelLayer } from "@rnmapbox/maps";
 import uuid from "react-native-uuid";
 import {
   uploadBytesResumable,
@@ -55,7 +55,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   MapboxGL.setAccessToken(
     "sk.eyJ1Ijoib2h4cm4iLCJhIjoiY2xscG51YjJkMDZndTNkbzJvZmd3MmpmNSJ9.1yj9ewdvaGBxVPF_cdlLIQ"
   );
-
+  const [buildingHeights, setBuildingHeights] = useState({});
   const [temporaryDecrease, setTemporaryDecrease] = useState(false);
   const [lineUpdated, setLineUpdated] = useState(false);
   const [temporaryMarker, setTemporaryMarker] = useState(false);
@@ -96,7 +96,10 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   const [userData, setUserData] = useState([]);
   const [mapDetails, setMapDetails] = useState([]);
 
-  //----------------------------------------------------------------------------------------
+  // useEffect(() => {
+  //   map.getSource("your_source_id").setData(newData);
+  // }, []);
+
   // THE MYNIGHTMAPPED ALGORITHM SCALED
   const mergeData = (userData, friendsData) => {
     const mergedData = [];
@@ -113,6 +116,23 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
     }
 
     return mergedData;
+  };
+
+  const renderBuildingLayer = () => {
+    if (geoJSON) {
+      return (
+        <FillExtrusionLayer
+          id="building-layer"
+          sourceLayerID="building"
+          minZoomLevel={15}
+          style={{
+            fillExtrusionColor: "#aaa",
+            fillExtrusionHeight: ["get", "height"],
+            fillExtrusionOpacity: 0.6,
+          }}
+        />
+      );
+    }
   };
 
   const retrieveUserData = (array) => {
@@ -160,7 +180,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   //  //------------------------------******************************************------------------------------------------------
   const pingData = (data) => {
     // console.log("This is what we see", data);
-    const socket = io("https://5ee7e614a54b.ngrok.app");
+    const socket = io("https://0c97fbaf7591.ngrok.app");
     setTimeout(() => {
       socket.emit("joinRoom", { room: data.companyName });
       // Your code to be executed after the delay
@@ -542,6 +562,22 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
     };
   }, []);
   //----------------------------------------------------------------------------------------------------
+  const yourObject = {
+    type: "FeatureCollection",
+    features: [
+      {
+        type: "Feature",
+        properties: {
+          mapbox_id: "240259389",
+          height: 790,
+        },
+      },
+
+      // Add more buildings as needed
+    ],
+  };
+
+  //
   return (
     <MapboxGL.MapView
       style={{ flex: 1 }}
@@ -568,6 +604,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
         >
           My Night
         </Text>
+        {renderBuildingLayer()}
       </SafeAreaView>
 
       <MapboxGL.Camera
@@ -616,7 +653,21 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
           </Text>
         </MarkerView>
       ))}
-
+      <FillExtrusionLayer
+        id="fill-extrusion-height"
+        filter={["==", "extrude", "true"]}
+        minZoom={15}
+        paint={{
+          "fill-extrusion-color": "#aaa",
+          "fill-extrusion-height": [
+            "*",
+            ["get", "height"], // Replace with your property containing building height
+            400,
+          ],
+          "fill-extrusion-base": 0,
+          "fill-extrusion-opacity": 0.9,
+        }}
+      />
       {mapDetails.length > 0 && (
         <>
           {mapDetails.map((friend) => (
