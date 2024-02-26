@@ -8,6 +8,8 @@ import * as TaskManager from "expo-task-manager";
 import { useFocusEffect } from "@react-navigation/native";
 import io from "socket.io-client";
 import { FillExtrusionLayer, HeatmapLayer, ModelLayer } from "@rnmapbox/maps";
+
+import { useRef } from "react";
 import uuid from "react-native-uuid";
 import {
   uploadBytesResumable,
@@ -52,9 +54,6 @@ import MapboxGL, {
 } from "@rnmapbox/maps";
 
 const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
-  MapboxGL.setAccessToken(
-    "sk.eyJ1Ijoib2h4cm4iLCJhIjoiY2xscG51YjJkMDZndTNkbzJvZmd3MmpmNSJ9.1yj9ewdvaGBxVPF_cdlLIQ"
-  );
   const [buildingHeights, setBuildingHeights] = useState({});
   const [temporaryDecrease, setTemporaryDecrease] = useState(false);
   const [lineUpdated, setLineUpdated] = useState(false);
@@ -95,11 +94,37 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   const [friendsMapTrigger, setFriendsMapTrigger] = useState(false);
   const [userData, setUserData] = useState([]);
   const [mapDetails, setMapDetails] = useState([]);
-
+  const mapRef = useRef(null);
   // useEffect(() => {
   //   map.getSource("your_source_id").setData(newData);
   // }, []);
+  useEffect(() => {
+    MapboxGL.setAccessToken(
+      "sk.eyJ1Ijoib2h4cm4iLCJhIjoiY2xscG51YjJkMDZndTNkbzJvZmd3MmpmNSJ9.1yj9ewdvaGBxVPF_cdlLIQ"
+    );
+    return () => {
+      if (mapRef.current) {
+        mapRef.current = null;
+      }
+    };
+  }, []);
+  //
+  useEffect(() => {
+    // Perform actions after the component has been mounted
 
+    // Example: Access the map instance and getSource
+    if (mapRef.current) {
+      // const sourceId = "buildings"; // Replace with your actual source ID
+      // const source = mapRef.current.querySourceFeatures(sourceId);
+      // if (source) {
+      //   // Perform actions with the source
+      //   console.log("Source:", source);
+      // } else {
+      //   console.error("Source not found");
+      // }
+    }
+  }, [mapRef]); // Run this effect when mapRef changes
+  //
   // THE MYNIGHTMAPPED ALGORITHM SCALED
   const mergeData = (userData, friendsData) => {
     const mergedData = [];
@@ -180,7 +205,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   //  //------------------------------******************************************------------------------------------------------
   const pingData = (data) => {
     // console.log("This is what we see", data);
-    const socket = io("https://0c97fbaf7591.ngrok.app");
+    const socket = io("https://2811f4bf4b4f.ngrok.app");
     setTimeout(() => {
       socket.emit("joinRoom", { room: data.companyName });
       // Your code to be executed after the delay
@@ -580,6 +605,11 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   //
   return (
     <MapboxGL.MapView
+      ref={(map) => {
+        if (map) {
+          mapRef.current = map;
+        }
+      }}
       style={{ flex: 1 }}
       styleURL={styleURL}
       attributionEnabled={false}

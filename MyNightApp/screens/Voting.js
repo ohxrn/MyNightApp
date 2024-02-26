@@ -73,7 +73,7 @@ function Voting(props) {
 
   // Establishing the socket connection
   useEffect(() => {
-    const newSocket = io("https://0c97fbaf7591.ngrok.app");
+    const newSocket = io("https://2811f4bf4b4f.ngrok.app");
 
     // Handle socket connection errors
     newSocket.on("connect_error", (error) => {
