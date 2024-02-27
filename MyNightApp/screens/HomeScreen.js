@@ -7,7 +7,12 @@ import * as BackgroundFetch from "expo-background-fetch";
 import * as TaskManager from "expo-task-manager";
 import { useFocusEffect } from "@react-navigation/native";
 import io from "socket.io-client";
-import { FillExtrusionLayer, HeatmapLayer, ModelLayer } from "@rnmapbox/maps";
+import {
+  FillExtrusionLayer,
+  ShapeSource,
+  HeatmapLayer,
+  ModelLayer,
+} from "@rnmapbox/maps";
 
 import { useRef } from "react";
 import uuid from "react-native-uuid";
@@ -54,7 +59,6 @@ import MapboxGL, {
 } from "@rnmapbox/maps";
 
 const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
-  const [buildingHeights, setBuildingHeights] = useState({});
   const [temporaryDecrease, setTemporaryDecrease] = useState(false);
   const [lineUpdated, setLineUpdated] = useState(false);
   const [temporaryMarker, setTemporaryMarker] = useState(false);
@@ -74,7 +78,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   const [notiName, setNotiName] = useState([]);
   const [oGName, setOGName] = useState();
   const [finalJSON, setFinalJSON] = useState(false);
-  const [geoJSON, setGeoJSON] = useState();
+
   const [ulData, setUlData] = useState([]);
   const [dbLocationID, setFireBaseLocationID] = useState("");
   const [fsLocation, setFSLocation] = useState(false);
@@ -94,37 +98,127 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   const [friendsMapTrigger, setFriendsMapTrigger] = useState(false);
   const [userData, setUserData] = useState([]);
   const [mapDetails, setMapDetails] = useState([]);
+  MapboxGL.setAccessToken(
+    "sk.eyJ1Ijoib2h4cm4iLCJhIjoiY2xscG51YjJkMDZndTNkbzJvZmd3MmpmNSJ9.1yj9ewdvaGBxVPF_cdlLIQ"
+  );
+  const [isMapLoaded, setIsMapLoaded] = useState(false);
   const mapRef = useRef(null);
+  const onMapLoad = () => {
+    setIsMapLoaded(true);
+  };
   // useEffect(() => {
-  //   map.getSource("your_source_id").setData(newData);
-  // }, []);
-  useEffect(() => {
-    MapboxGL.setAccessToken(
-      "sk.eyJ1Ijoib2h4cm4iLCJhIjoiY2xscG51YjJkMDZndTNkbzJvZmd3MmpmNSJ9.1yj9ewdvaGBxVPF_cdlLIQ"
-    );
-    return () => {
-      if (mapRef.current) {
-        mapRef.current = null;
-      }
-    };
-  }, []);
-  //
-  useEffect(() => {
-    // Perform actions after the component has been mounted
+  //   const addBuildingSource = async () => {
+  //     try {
+  //       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    // Example: Access the map instance and getSource
-    if (mapRef.current) {
-      // const sourceId = "buildings"; // Replace with your actual source ID
-      // const source = mapRef.current.querySourceFeatures(sourceId);
-      // if (source) {
-      //   // Perform actions with the source
-      //   console.log("Source:", source);
-      // } else {
-      //   console.error("Source not found");
-      // }
-    }
-  }, [mapRef]); // Run this effect when mapRef changes
-  //
+  //       if (isMapLoaded && mapRef.current) {
+  //         const geoJSONData = generateGeoJSON();
+
+  //         // Check if mapRef.current has the addSource method
+  //         if (
+  //           mapRef.current.addSource &&
+  //           typeof mapRef.current.addSource === "function"
+  //         ) {
+  //           mapRef.current.addSource("building", {
+  //             type: "geojson",
+  //             data: geoJSONData,
+  //           });
+
+  //           mapRef.current.addLayer({
+  //             id: "building-layer",
+  //             type: "fill-extrusion",
+  //             source: "building",
+  //             paint: layerStyles,
+  //           });
+
+  //           // Query features after adding the source
+  //           const source = mapRef.current.queryRenderedFeatures({
+  //             layers: ["building-layer"],
+  //           });
+  //           console.log("Rendered features data:", source);
+  //         } else {
+  //           console.warn(
+  //             "Unable to add source: addSource method is not available."
+  //           );
+  //         }
+  //       } else {
+  //         console.warn("Map is not yet loaded.");
+  //       }
+  //     } catch (error) {
+  //       console.error("Error logging GeoJSON:", error);
+  //     }
+  //   };
+
+  //   addBuildingSource();
+  // }, [isMapLoaded, mapRef.current]);
+  // useEffect(() => {
+  //   if (isMapLoaded && mapRef.current) {
+  //     // console.log("Map is loaded!", mapRef.current);
+  //   }
+  // }, [isMapLoaded, mapRef.current]);
+
+  // const generateGeoJSON = () => {
+  //   const features = Object.keys(buildingHeights).map((buildingName) => {
+  //     return {
+  //       type: "Feature",
+  //       properties: {
+  //         height: buildingHeights[buildingName],
+  //       },
+  //       geometry: {
+  //         type: "Polygon",
+  //         coordinates: [
+  //           [
+  //             [-71.0589, 42.3601],
+  //             // Add more coordinates as needed for the building's footprint
+  //           ],
+  //         ],
+  //       },
+  //     };
+  //   });
+
+  //   return {
+  //     type: "FeatureCollection",
+  //     features: features,
+  //   };
+  // };
+  // const [buildingHeights, setBuildingHeights] = useState({
+  //   building1: 100,
+  //   building2: 150,
+  //   // Add more buildings and their heights as needed
+  // });
+  // const layerStyles = {
+  //   fillExtrusionColor: "#aaa",
+  //   fillExtrusionHeight: ["get", "height"],
+  //   fillExtrusionOpacity: 0.6,
+  // };
+
+  // const [buildingData, setBuildingData] = useState({
+  //   building1: { height: 900 },
+  //   // Add more buildings and their heights as needed
+  // });
+
+  //   // ...
+  // useEffect(() => {
+  //   const logGeoJSON = async () => {
+  //     try {
+  //       await new Promise((resolve) => setTimeout(resolve, 1000));
+
+  //       // Check if the source is loaded before querying
+  //       const map = mapRef.current;
+  //       if (map) {
+  //         const source = await map.querySourceFeatures("building");
+  //         console.log("GeoJSON data:", source);
+  //       } else {
+  //         console.warn("Building source is not yet loaded.");
+  //       }
+  //     } catch (error) {
+  //       console.error("Error logging GeoJSON:", error);
+  //     }
+  //   };
+  //   logGeoJSON();
+  // }, [isMapLoaded, buildingData]);
+  // //   //
+
   // THE MYNIGHTMAPPED ALGORITHM SCALED
   const mergeData = (userData, friendsData) => {
     const mergedData = [];
@@ -141,23 +235,6 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
     }
 
     return mergedData;
-  };
-
-  const renderBuildingLayer = () => {
-    if (geoJSON) {
-      return (
-        <FillExtrusionLayer
-          id="building-layer"
-          sourceLayerID="building"
-          minZoomLevel={15}
-          style={{
-            fillExtrusionColor: "#aaa",
-            fillExtrusionHeight: ["get", "height"],
-            fillExtrusionOpacity: 0.6,
-          }}
-        />
-      );
-    }
   };
 
   const retrieveUserData = (array) => {
@@ -587,33 +664,19 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
     };
   }, []);
   //----------------------------------------------------------------------------------------------------
-  const yourObject = {
-    type: "FeatureCollection",
-    features: [
-      {
-        type: "Feature",
-        properties: {
-          mapbox_id: "240259389",
-          height: 790,
-        },
-      },
-
-      // Add more buildings as needed
-    ],
-  };
 
   //
   return (
     <MapboxGL.MapView
-      ref={(map) => {
-        if (map) {
-          mapRef.current = map;
-        }
+      onDidFinishLoadingMap={onMapLoad}
+      ref={(ref) => {
+        mapRef.current = ref;
       }}
       style={{ flex: 1 }}
       styleURL={styleURL}
       attributionEnabled={false}
       gestureEnabled={true}
+      // onDidFinishLoadingMap={onMapLoad}
     >
       <SafeAreaView>
         <TouchableOpacity
@@ -634,7 +697,14 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
         >
           My Night
         </Text>
-        {renderBuildingLayer()}
+        {/* <ShapeSource id="buildingSource" shape={generateGeoJSON()}>
+          <FillExtrusionLayer
+            id="building-layer"
+            sourceLayerID="building"
+            minZoomLevel={15}
+            style={layerStyles}
+          />
+        </ShapeSource> */}
       </SafeAreaView>
 
       <MapboxGL.Camera
@@ -683,21 +753,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
           </Text>
         </MarkerView>
       ))}
-      <FillExtrusionLayer
-        id="fill-extrusion-height"
-        filter={["==", "extrude", "true"]}
-        minZoom={15}
-        paint={{
-          "fill-extrusion-color": "#aaa",
-          "fill-extrusion-height": [
-            "*",
-            ["get", "height"], // Replace with your property containing building height
-            400,
-          ],
-          "fill-extrusion-base": 0,
-          "fill-extrusion-opacity": 0.9,
-        }}
-      />
+
       {mapDetails.length > 0 && (
         <>
           {mapDetails.map((friend) => (
