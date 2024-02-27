@@ -59,6 +59,7 @@ import MapboxGL, {
 } from "@rnmapbox/maps";
 
 const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
+  const [zoomLevel, setZoomLevel] = useState(20.5); // Initial zoom level
   const [temporaryDecrease, setTemporaryDecrease] = useState(false);
   const [lineUpdated, setLineUpdated] = useState(false);
   const [temporaryMarker, setTemporaryMarker] = useState(false);
@@ -74,7 +75,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   const [age, setAge] = useState();
   const [bio, setBio] = useState();
   const [add, setAdd] = useState(0);
-  const styleURL = "mapbox://styles/ohxrn/cllmlwayv02jj01p88z3a6nv4";
+  const styleURL = "mapbox://styles/ohxrn/clt4zw51q02j401p6gwi8bm55";
   const [notiName, setNotiName] = useState([]);
   const [oGName, setOGName] = useState();
   const [finalJSON, setFinalJSON] = useState(false);
@@ -106,6 +107,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   const onMapLoad = () => {
     setIsMapLoaded(true);
   };
+
   // useEffect(() => {
   //   const addBuildingSource = async () => {
   //     try {
@@ -151,11 +153,13 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
 
   //   addBuildingSource();
   // }, [isMapLoaded, mapRef.current]);
-  // useEffect(() => {
-  //   if (isMapLoaded && mapRef.current) {
-  //     // console.log("Map is loaded!", mapRef.current);
-  //   }
-  // }, [isMapLoaded, mapRef.current]);
+  useEffect(() => {
+    if (isMapLoaded && mapRef.current) {
+      // console.log("Map is loaded!", mapRef.current);
+      // const zoomLevel = mapRef.current.getZoom;
+      // console.log("THIS IS ZOOM LEVEL", zoomLevel);
+    }
+  }, [isMapLoaded, mapRef.current]);
 
   // const generateGeoJSON = () => {
   //   const features = Object.keys(buildingHeights).map((buildingName) => {
@@ -282,7 +286,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   //  //------------------------------******************************************------------------------------------------------
   const pingData = (data) => {
     // console.log("This is what we see", data);
-    const socket = io("https://2811f4bf4b4f.ngrok.app");
+    const socket = io("https://7aab78ff3e85.ngrok.app");
     setTimeout(() => {
       socket.emit("joinRoom", { room: data.companyName });
       // Your code to be executed after the delay
@@ -676,7 +680,6 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
       styleURL={styleURL}
       attributionEnabled={false}
       gestureEnabled={true}
-      // onDidFinishLoadingMap={onMapLoad}
     >
       <SafeAreaView>
         <TouchableOpacity
@@ -723,41 +726,14 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
         style={styles.animate}
         animating={showAnimate}
         size={"large"}
-        color={"blue"}
+        color={"pink"}
       />
-      {finalRender.map((data) => (
-        <MarkerView
-          key={`marker-${data.companyId}`}
-          coordinate={[data.address.longitude, data.address.latitude]}
-        >
-          <TouchableOpacity
-            onPress={() => {
-              alert(data.description);
-            }}
-          >
-            <Image source={theLogo} style={{ width: 60, height: 60 }} />
-          </TouchableOpacity>
-          <Text style={{ color: "white" }}>{data.companyName}</Text>
-          <Text style={{ color: "red" }}>
-            {data.people == 1 ? (
-              <Text>1 person here</Text>
-            ) : (
-              <Text>{data.people} people here</Text>
-            )}
-          </Text>
-          <Text style={{ color: "red" }}>
-            {data.distance.toFixed(2)} Miles away
-          </Text>
-          <Text style={{ fontSize: 12, fontWeight: "bold" }}>
-            {data.line} People in line here
-          </Text>
-        </MarkerView>
-      ))}
 
       {mapDetails.length > 0 && (
         <>
           {mapDetails.map((friend) => (
             <MarkerView
+              allowOverlap={true}
               key={friend.id}
               coordinate={[friend.location.longitude, friend.location.latitude]}
             >
@@ -779,6 +755,31 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
                 }}
               >
                 {friend.username}
+              </Text>
+            </MarkerView>
+          ))}
+          {finalRender.map((data) => (
+            <MarkerView
+              key={`marker-${data.companyId}`}
+              coordinate={[data.address.longitude, data.address.latitude]}
+            >
+              <Image source={theLogo} style={{ width: 60, height: 60 }} />
+
+              <Text style={{ color: "white", fontSize: 40 }}>
+                {data.companyName}
+              </Text>
+              <Text style={{ color: "red" }}>
+                {data.people == 1 ? (
+                  <Text>1 person here</Text>
+                ) : (
+                  <Text>{data.people} people here</Text>
+                )}
+              </Text>
+              <Text style={{ color: "red" }}>
+                {data.distance.toFixed(2)} Miles away
+              </Text>
+              <Text style={{ fontSize: 12, fontWeight: "bold" }}>
+                {data.line} People in line here
               </Text>
             </MarkerView>
           ))}
