@@ -98,6 +98,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   const [friendsMapTrigger, setFriendsMapTrigger] = useState(false);
   const [userData, setUserData] = useState([]);
   const [mapDetails, setMapDetails] = useState([]);
+  const [lineStatus, setLineStatus] = useState(false);
   MapboxGL.setAccessToken(
     "sk.eyJ1Ijoib2h4cm4iLCJhIjoiY2xscG51YjJkMDZndTNkbzJvZmd3MmpmNSJ9.1yj9ewdvaGBxVPF_cdlLIQ"
   );
@@ -370,6 +371,10 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
     });
     return () => {
       unsubscribe();
+      return () => {
+        // Call the function to update the line count on app exit
+        handleLogoutOrExit(companyId);
+      };
     };
   }, []);
 
@@ -490,7 +495,8 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
         //callback to increment the trigger where after the fourth consecutive ping, you're entered into queue.
         setAdd((prevAdd) => prevAdd + 1);
 
-        if (add >= 4 && !lineUpdated) {
+        if (add >= 4 && !lineUpdated && lineStatus == false) {
+          setLineStatus(true);
           setAdd(0);
           console.log("You have been in the same spot for 2 minutes.");
           const lineRef = ref(db, `company/${id}/line`);
@@ -502,19 +508,61 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
             const updated = currentLine + 1;
             await set(lineRef, updated);
 
-            console.log("Line updated successfully", updated);
+            console.log(
+              "Line updated successfully ++++++++++++++++++++",
+              updated
+            );
           } catch (error) {
             console.log("Error updating line:", error);
             alert(error);
           }
         }
       } else {
-        console.log("NOT IN LINE ANYMORE. DIstance is:", finalDistance);
+        const lineRef = ref(db, `company/${id}/line`);
+
+        try {
+          const snapshot = await get(lineRef);
+          const currentLine = snapshot.val();
+
+          if (currentLine > 0 && lineStatus == true) {
+            const updated = currentLine - 1;
+            await set(lineRef, updated);
+
+            console.log("Line subracted successfully ________ ", updated);
+            setLineStatus(false);
+          } else {
+            console.log("Line count is still being initialized");
+          }
+        } catch (error) {
+          console.log("Error updating line:", error);
+          alert(error);
+        }
+
         setAdd(1);
       }
     }
   };
+  const handleLogoutOrExit = async (id) => {
+    const lineRef = ref(db, `company/${id}/line`);
 
+    try {
+      const snapshot = await get(lineRef);
+      const currentLine = snapshot.val();
+
+      if (currentLine > 0) {
+        // Subtract the appropriate number, e.g., 1 for a single user
+        const updated = currentLine - 1;
+        await set(lineRef, updated);
+
+        console.log("Line subtracted successfully on logout or exit:", updated);
+      } else {
+        console.log("Line count is already zero");
+      }
+    } catch (error) {
+      console.log("Error updating line on logout or exit:", error);
+      alert(error);
+    }
+  };
   //----------------------------------------------------------------------------------------------------
   useEffect(() => {
     getLocation();
