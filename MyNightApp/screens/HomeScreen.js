@@ -700,10 +700,22 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
             fontStyle: "italic",
             color: "purple",
             textAlign: "center",
-            marginTop: 30,
+            marginTop: 10,
           }}
         >
           My Night
+        </Text>
+        <Text
+          style={{
+            fontSize: 23,
+            fontWeight: "900",
+            fontStyle: "italic",
+            color: "purple",
+            textAlign: "center",
+            fontStyle: "italic",
+          }}
+        >
+          The Boston Buzz
         </Text>
         {/* <ShapeSource id="buildingSource" shape={generateGeoJSON()}>
           <FillExtrusionLayer
@@ -773,9 +785,17 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
               key={`marker-${data.companyId}`}
               coordinate={[data.address.longitude, data.address.latitude]}
             >
-              <View style={{ backgroundColor: "blue" }}>
+              <View
+                style={{
+                  backgroundColor: "rgba(0, 0, 255, 0.5)", // Blue color with 50% opacity
+                  padding: 9,
+                  borderRadius: 30, // Half of your width and height for a perfect circle
+                  borderWidth: 2, // Border width
+                  borderColor: "white",
+                }}
+              >
                 <Image source={theLogo} style={{ width: 60, height: 60 }} />
-                <Text style={{ color: "white", fontSize: 40 }}>
+                <Text style={{ color: "white", fontSize: 20 }}>
                   {data.companyName}
                 </Text>
                 <Text style={{ color: "red" }}>
