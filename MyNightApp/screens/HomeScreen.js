@@ -255,16 +255,9 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
 
   useEffect(() => {
     if (userData && friendsLocations.length > 0) {
-      const timerId = setTimeout(() => {
-        const mergedResult = mergeData(userData, friendsLocations);
-        // console.log("HERE IS DATA", mergedResult);
-        setMapDetails(mergedResult);
-        // console.log(
-        //   "DATA HAS BEEN UPDATED------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------"
-        // );
-      }, 5000);
+      const mergedResult = mergeData(userData, friendsLocations);
 
-      return () => clearTimeout(timerId);
+      setMapDetails(mergedResult);
     }
   }, [userData, friendsLocations]);
   //
@@ -700,23 +693,12 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
             fontStyle: "italic",
             color: "purple",
             textAlign: "center",
-            marginTop: 10,
+            marginTop: 30,
           }}
         >
           My Night
         </Text>
-        <Text
-          style={{
-            fontSize: 23,
-            fontWeight: "900",
-            fontStyle: "italic",
-            color: "purple",
-            textAlign: "center",
-            fontStyle: "italic",
-          }}
-        >
-          The Boston Buzz
-        </Text>
+
         {/* <ShapeSource id="buildingSource" shape={generateGeoJSON()}>
           <FillExtrusionLayer
             id="building-layer"
@@ -750,8 +732,6 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
         <>
           {mapDetails.map((friend) => (
             <MarkerView
-              style={{}}
-              zIndex={2}
               allowOverlap={true}
               key={friend.id}
               coordinate={[friend.location.longitude, friend.location.latitude]}
