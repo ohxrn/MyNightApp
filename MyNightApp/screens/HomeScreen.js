@@ -59,7 +59,6 @@ import MapboxGL, {
 } from "@rnmapbox/maps";
 
 const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
-  const [zoomLevel, setZoomLevel] = useState(20.5); // Initial zoom level
   const [temporaryDecrease, setTemporaryDecrease] = useState(false);
   const [lineUpdated, setLineUpdated] = useState(false);
   const [temporaryMarker, setTemporaryMarker] = useState(false);
@@ -104,6 +103,11 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   );
   const [isMapLoaded, setIsMapLoaded] = useState(false);
   const mapRef = useRef(null);
+  const [zoomLevel, setZoomLevel] = useState(0);
+  const onRegionDidChange = async (event) => {
+    const currentZoom = await event.target.getZoom();
+    setZoomLevel(currentZoom);
+  };
   const onMapLoad = () => {
     setIsMapLoaded(true);
   };
@@ -433,9 +437,9 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
     if (!granted) return;
 
     const options = {
-      accuracy: Location.Accuracy.High,
+      accuracy: Location.Accuracy.Highest,
       maximumAge: 10,
-      timeout: 1000,
+      timeout: 600,
     };
 
     try {
@@ -517,7 +521,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
     const intervalId = setInterval(() => {
       getLocation();
       fetchData();
-    }, 8000);
+    }, 5000);
 
     return () => clearInterval(intervalId);
   }, []);
@@ -672,6 +676,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   //
   return (
     <MapboxGL.MapView
+      // onRegionDidChange={onRegionDidChange}
       onDidFinishLoadingMap={onMapLoad}
       ref={(ref) => {
         mapRef.current = ref;
@@ -733,6 +738,8 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
         <>
           {mapDetails.map((friend) => (
             <MarkerView
+              style={{}}
+              zIndex={2}
               allowOverlap={true}
               key={friend.id}
               coordinate={[friend.location.longitude, friend.location.latitude]}
@@ -760,27 +767,31 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
           ))}
           {finalRender.map((data) => (
             <MarkerView
+              allowOverlap={true}
+              style={{}}
+              zIndex={1}
               key={`marker-${data.companyId}`}
               coordinate={[data.address.longitude, data.address.latitude]}
             >
-              <Image source={theLogo} style={{ width: 60, height: 60 }} />
-
-              <Text style={{ color: "white", fontSize: 40 }}>
-                {data.companyName}
-              </Text>
-              <Text style={{ color: "red" }}>
-                {data.people == 1 ? (
-                  <Text>1 person here</Text>
-                ) : (
-                  <Text>{data.people} people here</Text>
-                )}
-              </Text>
-              <Text style={{ color: "red" }}>
-                {data.distance.toFixed(2)} Miles away
-              </Text>
-              <Text style={{ fontSize: 12, fontWeight: "bold" }}>
-                {data.line} People in line here
-              </Text>
+              <View style={{ backgroundColor: "blue" }}>
+                <Image source={theLogo} style={{ width: 60, height: 60 }} />
+                <Text style={{ color: "white", fontSize: 40 }}>
+                  {data.companyName}
+                </Text>
+                <Text style={{ color: "red" }}>
+                  {data.people == 1 ? (
+                    <Text>1 person here</Text>
+                  ) : (
+                    <Text>{data.people} people here</Text>
+                  )}
+                </Text>
+                <Text style={{ color: "red" }}>
+                  {data.distance.toFixed(2)} Miles away
+                </Text>
+                <Text style={{ fontSize: 12, fontWeight: "bold" }}>
+                  {data.line} People in line here
+                </Text>
+              </View>
             </MarkerView>
           ))}
         </>
