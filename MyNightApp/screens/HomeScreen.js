@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from "react";
+
+import { Threebox } from "threebox";
+import * as THREE from "three";
 import {
   scheduleNotificationAsync,
   getPermissionsAsync,
