@@ -770,7 +770,15 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
               key={`marker-${data.companyId}`}
               coordinate={[data.address.longitude, data.address.latitude]}
             >
-              <View style={{ backgroundColor: "blue" }}>
+              <View
+                style={{
+                  backgroundColor: "rgba(0, 0, 255, 0.5)", // Blue color with 50% opacity
+                  padding: 10,
+                  borderRadius: 30, // Half of your width and height for a perfect circle
+                  borderWidth: 2, // Border width
+                  borderColor: "white",
+                }}
+              >
                 <Image source={theLogo} style={{ width: 60, height: 60 }} />
                 <Text style={{ color: "white", fontSize: 40 }}>
                   {data.companyName}
@@ -785,7 +793,9 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
                 <Text style={{ color: "red" }}>
                   {data.distance.toFixed(2)} Miles away
                 </Text>
-                <Text style={{ fontSize: 12, fontWeight: "bold" }}>
+                <Text
+                  style={{ fontSize: 12, fontWeight: "bold", color: "lime" }}
+                >
                   {data.line} People in line here
                 </Text>
               </View>
