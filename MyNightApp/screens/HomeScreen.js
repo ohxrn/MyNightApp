@@ -98,7 +98,6 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   const [friendsMapTrigger, setFriendsMapTrigger] = useState(false);
   const [userData, setUserData] = useState([]);
   const [mapDetails, setMapDetails] = useState([]);
-  const [lineStatus, setLineStatus] = useState(false);
   MapboxGL.setAccessToken(
     "sk.eyJ1Ijoib2h4cm4iLCJhIjoiY2xscG51YjJkMDZndTNkbzJvZmd3MmpmNSJ9.1yj9ewdvaGBxVPF_cdlLIQ"
   );
@@ -227,7 +226,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   //   logGeoJSON();
   // }, [isMapLoaded, buildingData]);
   // //   //
-
+  //----------------------------------------------------------------------------------------
   // THE MYNIGHTMAPPED ALGORITHM SCALED
   const mergeData = (userData, friendsData) => {
     const mergedData = [];
@@ -263,7 +262,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
         // console.log(
         //   "DATA HAS BEEN UPDATED------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------"
         // );
-      }, 1000);
+      }, 5000);
 
       return () => clearTimeout(timerId);
     }
@@ -291,7 +290,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   //  //------------------------------******************************************------------------------------------------------
   const pingData = (data) => {
     // console.log("This is what we see", data);
-    const socket = io("https://7aab78ff3e85.ngrok.app");
+    const socket = io("https://5ee7e614a54b.ngrok.app");
     setTimeout(() => {
       socket.emit("joinRoom", { room: data.companyName });
       // Your code to be executed after the delay
@@ -371,10 +370,6 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
     });
     return () => {
       unsubscribe();
-      return () => {
-        // Call the function to update the line count on app exit
-        handleLogoutOrExit(companyId);
-      };
     };
   }, []);
 
@@ -444,7 +439,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
     const options = {
       accuracy: Location.Accuracy.Highest,
       maximumAge: 10,
-      timeout: 600,
+      timeout: 1000,
     };
 
     try {
@@ -495,8 +490,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
         //callback to increment the trigger where after the fourth consecutive ping, you're entered into queue.
         setAdd((prevAdd) => prevAdd + 1);
 
-        if (add >= 4 && !lineUpdated && lineStatus == false) {
-          setLineStatus(true);
+        if (add >= 4 && !lineUpdated) {
           setAdd(0);
           console.log("You have been in the same spot for 2 minutes.");
           const lineRef = ref(db, `company/${id}/line`);
@@ -508,59 +502,16 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
             const updated = currentLine + 1;
             await set(lineRef, updated);
 
-            console.log(
-              "Line updated successfully ++++++++++++++++++++",
-              updated
-            );
+            console.log("Line updated successfully", updated);
           } catch (error) {
             console.log("Error updating line:", error);
             alert(error);
           }
         }
       } else {
-        const lineRef = ref(db, `company/${id}/line`);
-
-        try {
-          const snapshot = await get(lineRef);
-          const currentLine = snapshot.val();
-
-          if (currentLine > 0 && lineStatus == true) {
-            const updated = currentLine - 1;
-            await set(lineRef, updated);
-
-            console.log("Line subracted successfully ________ ", updated);
-            setLineStatus(false);
-          } else {
-            console.log("Line count is still being initialized");
-          }
-        } catch (error) {
-          console.log("Error updating line:", error);
-          alert(error);
-        }
-
+        console.log("NOT IN LINE ANYMORE. DIstance is:", finalDistance);
         setAdd(1);
       }
-    }
-  };
-  const handleLogoutOrExit = async (id) => {
-    const lineRef = ref(db, `company/${id}/line`);
-
-    try {
-      const snapshot = await get(lineRef);
-      const currentLine = snapshot.val();
-
-      if (currentLine > 0) {
-        // Subtract the appropriate number, e.g., 1 for a single user
-        const updated = currentLine - 1;
-        await set(lineRef, updated);
-
-        console.log("Line subtracted successfully on logout or exit:", updated);
-      } else {
-        console.log("Line count is already zero");
-      }
-    } catch (error) {
-      console.log("Error updating line on logout or exit:", error);
-      alert(error);
     }
   };
   //----------------------------------------------------------------------------------------------------
@@ -569,7 +520,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
     const intervalId = setInterval(() => {
       getLocation();
       fetchData();
-    }, 5000);
+    }, 8000);
 
     return () => clearInterval(intervalId);
   }, []);
@@ -720,8 +671,6 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
     };
   }, []);
   //----------------------------------------------------------------------------------------------------
-
-  //
   return (
     <MapboxGL.MapView
       // onRegionDidChange={onRegionDidChange}
@@ -753,7 +702,6 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
         >
           My Night
         </Text>
-
         {/* <ShapeSource id="buildingSource" shape={generateGeoJSON()}>
           <FillExtrusionLayer
             id="building-layer"
@@ -787,6 +735,8 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
         <>
           {mapDetails.map((friend) => (
             <MarkerView
+              style={{}}
+              zIndex={2}
               allowOverlap={true}
               key={friend.id}
               coordinate={[friend.location.longitude, friend.location.latitude]}
@@ -820,17 +770,9 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
               key={`marker-${data.companyId}`}
               coordinate={[data.address.longitude, data.address.latitude]}
             >
-              <View
-                style={{
-                  backgroundColor: "rgba(0, 0, 255, 0.5)", // Blue color with 50% opacity
-                  padding: 9,
-                  borderRadius: 30, // Half of your width and height for a perfect circle
-                  borderWidth: 2, // Border width
-                  borderColor: "white",
-                }}
-              >
+              <View style={{ backgroundColor: "blue" }}>
                 <Image source={theLogo} style={{ width: 60, height: 60 }} />
-                <Text style={{ color: "white", fontSize: 20 }}>
+                <Text style={{ color: "white", fontSize: 40 }}>
                   {data.companyName}
                 </Text>
                 <Text style={{ color: "red" }}>
