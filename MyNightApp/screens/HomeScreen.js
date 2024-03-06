@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 
 import { Threebox } from "threebox";
 import * as THREE from "three";
+
 import {
   scheduleNotificationAsync,
   getPermissionsAsync,
@@ -25,6 +26,7 @@ import {
   listAll,
 } from "firebase/storage";
 import {
+  Animated,
   StyleSheet,
   Text,
   View,
@@ -114,6 +116,16 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   const onMapLoad = () => {
     setIsMapLoaded(true);
   };
+
+  const fadeAnim = useRef(new Animated.Value(0)).current; // Initial value for opacity: 0
+
+  useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 10000,
+      useNativeDriver: true,
+    }).start();
+  }, [fadeAnim]);
 
   // useEffect(() => {
   //   const addBuildingSource = async () => {
