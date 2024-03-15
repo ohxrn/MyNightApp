@@ -3,6 +3,17 @@ import React, { useState, useEffect } from "react";
 import { Threebox } from "threebox";
 import * as THREE from "three";
 
+import { ModelLayer } from "@rnmapbox/maps";
+
+import { GLView } from "expo-gl";
+import {
+  PerspectiveCamera,
+  Scene,
+  WebGLRenderer,
+  BoxGeometry,
+  MeshBasicMaterial,
+  Mesh,
+} from "three";
 import {
   scheduleNotificationAsync,
   getPermissionsAsync,
@@ -11,15 +22,11 @@ import * as BackgroundFetch from "expo-background-fetch";
 import * as TaskManager from "expo-task-manager";
 import { useFocusEffect } from "@react-navigation/native";
 import io from "socket.io-client";
-import {
-  FillExtrusionLayer,
-  ShapeSource,
-  HeatmapLayer,
-  ModelLayer,
-} from "@rnmapbox/maps";
+import { FillExtrusionLayer, ShapeSource, HeatmapLayer } from "@rnmapbox/maps";
 
 import { useRef } from "react";
 import uuid from "react-native-uuid";
+
 import {
   uploadBytesResumable,
   getDownloadURL,
@@ -103,6 +110,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   const [friendsMapTrigger, setFriendsMapTrigger] = useState(false);
   const [userData, setUserData] = useState([]);
   const [mapDetails, setMapDetails] = useState([]);
+
   MapboxGL.setAccessToken(
     "sk.eyJ1Ijoib2h4cm4iLCJhIjoiY2xscG51YjJkMDZndTNkbzJvZmd3MmpmNSJ9.1yj9ewdvaGBxVPF_cdlLIQ"
   );
@@ -118,7 +126,14 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   };
 
   const fadeAnim = useRef(new Animated.Value(0)).current; // Initial value for opacity: 0
+  const create3DObject = () => {
+    const geometry = new BoxGeometry(1, 1, 1);
+    const material = new MeshBasicMaterial({ color: 0x00ff00 });
+    const cube = new Mesh(geometry, material);
 
+    return cube;
+  };
+  const cubeRef = useRef();
   useEffect(() => {
     Animated.timing(fadeAnim, {
       toValue: 1,
@@ -305,7 +320,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   //  //------------------------------******************************************------------------------------------------------
   const pingData = (data) => {
     // console.log("This is what we see", data);
-    const socket = io("https://5ee7e614a54b.ngrok.app");
+    const socket = io("https://e03a908aa9a1.ngrok.app");
     setTimeout(() => {
       socket.emit("joinRoom", { room: data.companyName });
       // Your code to be executed after the delay
@@ -738,7 +753,22 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
         animationMode={"flyTo"}
         animationDuration={7000}
       />
-
+      {latestLocation !== null && (
+        <MarkerView
+          coordinate={[latestLocation.longitude, latestLocation.latitude]}
+        >
+          <ModelLayer
+            tintColor={{ r: 1, g: 0, b: 0, a: 1 }}
+            source={{ uri: "../assets/GLman.glb" }}
+            layerIndex={1}
+            scale={9.1}
+            onDidUpdateModel={() => {
+              // Handle model update if necessary
+            }}
+            ref={(ref) => (cubeRef.current = ref)}
+          />
+        </MarkerView>
+      )}
       <ActivityIndicator
         style={styles.animate}
         animating={showAnimate}
@@ -818,18 +848,6 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
           ))}
         </>
       )}
-
-      {/* {latestLocation !== null && (
-        <MarkerView
-          key="currentLocationMarker"
-          coordinate={[latestLocation.longitude, latestLocation.latitude]}
-        >
-          <Image
-            source={{ uri: "https://i.imgur.com/E1iHHaQ.png" }}
-            style={{ width: 60, height: 60 }}
-          />
-        </MarkerView>
-      )} */}
     </MapboxGL.MapView>
   );
 };
