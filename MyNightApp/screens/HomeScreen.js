@@ -71,6 +71,7 @@ import MapboxGL, {
 } from "@rnmapbox/maps";
 
 const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
+  const [temporaryLineTrigger, setTemporaryLineTrigger] = useState(false);
   const [temporaryDecrease, setTemporaryDecrease] = useState(false);
   const [lineUpdated, setLineUpdated] = useState(false);
   const [temporaryMarker, setTemporaryMarker] = useState(false);
@@ -520,9 +521,12 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
         //callback to increment the trigger where after the fourth consecutive ping, you're entered into queue.
         setAdd((prevAdd) => prevAdd + 1);
 
-        if (add >= 4 && !lineUpdated) {
+        if (add >= 4 && !lineUpdated && temporaryLineTrigger == false) {
           setAdd(0);
-          console.log("You have been in the same spot for 2 minutes.");
+          setTemporaryLineTrigger(true);
+          console.log(
+            "You have been in the same spot for 2 minutes, lineTrigger has been set to true."
+          );
           const lineRef = ref(db, `company/${id}/line`);
 
           try {
@@ -541,6 +545,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
       } else {
         console.log("NOT IN LINE ANYMORE. DIstance is:", finalDistance);
         setAdd(1);
+        setTemporaryLineTrigger(false);
       }
     }
   };
