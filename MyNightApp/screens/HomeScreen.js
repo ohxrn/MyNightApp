@@ -125,20 +125,13 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   const onMapLoad = () => {
     setIsMapLoaded(true);
   };
+  const [fadeAnim] = useState(new Animated.Value(0));
 
-  const fadeAnim = useRef(new Animated.Value(0)).current; // Initial value for opacity: 0
-  const create3DObject = () => {
-    const geometry = new BoxGeometry(1, 1, 1);
-    const material = new MeshBasicMaterial({ color: 0x00ff00 });
-    const cube = new Mesh(geometry, material);
-
-    return cube;
-  };
   const cubeRef = useRef();
   useEffect(() => {
     Animated.timing(fadeAnim, {
       toValue: 1,
-      duration: 10000,
+      duration: 19000,
       useNativeDriver: true,
     }).start();
   }, [fadeAnim]);
@@ -705,6 +698,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
       theRun();
     };
   }, []);
+
   //----------------------------------------------------------------------------------------------------
   return (
     <MapboxGL.MapView
@@ -820,14 +814,13 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
               key={`marker-${data.companyId}`}
               coordinate={[data.address.longitude, data.address.latitude]}
             >
-              <View
-                style={{
-                  backgroundColor: "rgba(0, 0, 255, 0.5)", // Blue color with 50% opacity
-                  padding: 10,
-                  borderRadius: 30, // Half of your width and height for a perfect circle
-                  borderWidth: 2, // Border width
-                  borderColor: "white",
-                }}
+              <Animated.View
+                style={[
+                  styles.animatedView,
+                  {
+                    opacity: fadeAnim, // Bind opacity to fadeAnim value
+                  },
+                ]}
               >
                 <Image source={theLogo} style={{ width: 60, height: 60 }} />
                 <Text style={{ color: "white", fontSize: 40 }}>
@@ -848,11 +841,12 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
                 >
                   {data.line} People in line here
                 </Text>
-              </View>
+              </Animated.View>
             </MarkerView>
           ))}
         </>
       )}
+      <Animated.View style={{}}></Animated.View>
     </MapboxGL.MapView>
   );
 };
@@ -872,5 +866,12 @@ const styles = StyleSheet.create({
   mapContainer: {
     flex: 1,
     width: "100%",
+  },
+  animatedView: {
+    backgroundColor: "rgba(0, 0, 255, 0.5)", // Blue color with 50% opacity
+    padding: 10,
+    borderRadius: 30, // Half of your width and height for a perfect circle
+    borderWidth: 2, // Border width
+    borderColor: "white",
   },
 });
