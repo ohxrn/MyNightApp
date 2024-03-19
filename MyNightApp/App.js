@@ -19,6 +19,7 @@ import * as TaskManager from "expo-task-manager";
 import theLogo from "./assets/MNLOGO.png";
 import Intro from "./screens/Intro";
 import Profile from "./screens/Profile";
+import AddFriend from "./screens/AddFriend";
 //
 import { Image } from "react-native";
 
@@ -219,6 +220,24 @@ function TabNavigator() {
                   : require("./assets/chat.png")
               }
               style={{ width: 24, height: 24, resizeMode: "contain" }}
+            />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="AddFriend"
+        component={AddFriend}
+        options={{
+          tabBarLabel: "Add friends",
+          headerShown: false,
+          tabBarIcon: ({ focused }) => (
+            <Image
+              source={
+                focused
+                  ? require("./assets/addFriend.png")
+                  : require("./assets/addFriend.png")
+              }
+              style={{ width: 55, height: 55, resizeMode: "contain" }}
             />
           ),
         }}

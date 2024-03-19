@@ -177,6 +177,7 @@ export default function Profile() {
       <TouchableOpacity onPress={submitTheData}>
         <Text>Submit data</Text>
       </TouchableOpacity>
+      <Text>Your friends:</Text>
     </View>
   );
 }
