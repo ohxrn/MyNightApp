@@ -15,14 +15,7 @@ function AddFriend(props) {
   const database = getDatabase();
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
-  const [friendStatus, setFriendStatus] = useState("Add Friend");
-
-  //
-  const addFriendFunc = (data) => {
-    console.log("friend added", data);
-    setFriendStatus("Request Sent");
-  };
-  //
+  const [friendStatus, setFriendStatus] = useState({});
 
   useEffect(() => {
     fetchUsernames();
@@ -40,6 +33,12 @@ function AddFriend(props) {
           const usernames = Object.keys(userData).map(
             (key) => userData[key].username
           );
+          // Initialize friend status for each user
+          const initialFriendStatus = {};
+          usernames.forEach((username) => {
+            initialFriendStatus[username] = "Add Friend";
+          });
+          setFriendStatus(initialFriendStatus);
           setSearchResults(usernames);
         }
       })
@@ -48,16 +47,13 @@ function AddFriend(props) {
       });
   };
 
-  const handleSearch = (query) => {
-    setSearchQuery(query);
-    if (query === "") {
-      fetchUsernames();
-    } else {
-      const filteredUsernames = searchResults.filter((username) =>
-        username.toLowerCase().includes(query.toLowerCase())
-      );
-      setSearchResults(filteredUsernames);
-    }
+  const addFriendFunc = (item) => {
+    console.log("friend added", item);
+    // Update friend status for the specific user
+    setFriendStatus((prevStatus) => ({
+      ...prevStatus,
+      [item]: "Request Sent",
+    }));
   };
 
   return (
@@ -68,7 +64,7 @@ function AddFriend(props) {
           placeholder="Search for friends..."
           placeholderTextColor={"pink"}
           value={searchQuery}
-          onChangeText={handleSearch}
+          onChangeText={setSearchQuery}
         />
         <FlatList
           data={searchResults}
@@ -79,7 +75,7 @@ function AddFriend(props) {
                 style={styles.addFriendButton}
                 onPress={() => addFriendFunc(item)}
               >
-                <Text>{friendStatus}</Text>
+                <Text>{friendStatus[item]}</Text>
               </TouchableOpacity>
             </View>
           )}
