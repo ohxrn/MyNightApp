@@ -33,7 +33,6 @@ function AddFriend(props) {
           const usernames = Object.keys(userData).map(
             (key) => userData[key].username
           );
-          // Initialize friend status for each user
           const initialFriendStatus = {};
           usernames.forEach((username) => {
             initialFriendStatus[username] = "Add Friend";
@@ -49,7 +48,6 @@ function AddFriend(props) {
 
   const addFriendFunc = (item) => {
     console.log("friend added", item);
-    // Update friend status for the specific user
     setFriendStatus((prevStatus) => ({
       ...prevStatus,
       [item]: "Request Sent",
@@ -107,9 +105,9 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   itemContainer: {
-    flexDirection: "row", // Arrange children horizontally
-    alignItems: "center", // Align children vertically at the center
-    justifyContent: "space-between", // Distribute children evenly along the row
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     borderRadius: 20,
     backgroundColor: "white",
     padding: 20,
