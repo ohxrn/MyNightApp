@@ -18,6 +18,43 @@ function AddFriend(props) {
   const [allUsernames, setAllUsernames] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
   const [friendStatus, setFriendStatus] = useState({});
+  const [friendRequests, setFriendRequests] = useState([]);
+
+  //--------------------Friend Requests Portion----------------------//
+  useEffect(() => {
+    const friendRetrieval = ref(database, `User Data/${auth.currentUser?.uid}`);
+    get(friendRetrieval)
+      .then((data) => {
+        const requestData = data.val();
+
+        const filteredData = requestData.friendRequests;
+        const uniqueRequests = [...new Set(filteredData)];
+
+        const promises = uniqueRequests.map((userId) => {
+          // Retrieve the username for each user ID
+          const userRef = ref(database, `User Data/${userId}`);
+          return get(userRef).then((snapshot) => {
+            const userData = snapshot.val();
+            if (userData) {
+              return userData.username;
+            }
+            return null; // Return null if user data not found
+          });
+        });
+
+        Promise.all(promises).then((usernames) => {
+          // Filter out null values and set the usernames in state
+          const filteredUsernames = usernames.filter(
+            (username) => username !== null
+          );
+          setFriendRequests(filteredUsernames);
+        });
+      })
+      .catch((error) => {
+        console.error("Error fetching friend requests:", error);
+      });
+  }, []);
+  //------------------------------------------------------------------
 
   useEffect(() => {
     fetchUsernames();
@@ -36,7 +73,7 @@ function AddFriend(props) {
         const userData = snapshot.val();
 
         if (userData) {
-          console.log("USER DATA", userData);
+          // console.log("USER DATA", userData);
           setUserData(userData);
           const usernames = Object.keys(userData).map(
             (key) => userData[key].username
@@ -110,6 +147,26 @@ function AddFriend(props) {
   return (
     <View style={styles.container}>
       <SafeAreaView>
+        <View style={styles.friendStatusSection}>
+          <Text style={styles.friendRequestTitle}>Friend requests</Text>
+          <FlatList
+            data={friendRequests}
+            renderItem={({ item }) => (
+              <View style={styles.friendRequestItem}>
+                <Text style={styles.friendRequestText}>{item}</Text>
+                <View style={{ flexDirection: "row" }}>
+                  <TouchableOpacity style={styles.acceptButton}>
+                    <Text style={{ color: "white" }}>Accept</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.denyButton}>
+                    <Text style={{ color: "white" }}>Deny</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            )}
+            keyExtractor={(item, index) => index.toString()}
+          />
+        </View>
         <TextInput
           style={styles.searchInput}
           placeholder="Search for friends..."
@@ -144,16 +201,42 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "black",
   },
+  friendStatusSection: {
+    flex: 1,
+    marginBottom: 20,
+  },
+  friendRequestItem: {
+    backgroundColor: "lightgray",
+    padding: 20,
+    marginBottom: 10,
+    borderRadius: 10,
+  },
+  friendRequestText: {
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  acceptButton: {
+    backgroundColor: "green",
+    padding: 15,
+    borderRadius: 8,
+    marginRight: 10, // Added margin to separate accept and deny buttons
+  },
+  denyButton: {
+    backgroundColor: "red",
+    padding: 15,
+    borderRadius: 8,
+  },
   addFriendButton: {
     backgroundColor: "lightblue",
     padding: 20,
     borderRadius: 10,
   },
   searchInput: {
+    width: "80%",
     borderWidth: 2,
     borderColor: "#ccc",
     borderRadius: 22,
-    paddingHorizontal: 50,
+    paddingHorizontal: 20,
     paddingVertical: 15,
     marginBottom: 10,
   },
@@ -165,6 +248,7 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     padding: 20,
     marginBottom: 10,
+    width: "80%",
   },
 });
 
