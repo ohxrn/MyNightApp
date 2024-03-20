@@ -31,6 +31,7 @@ export default function Profile() {
       age: age,
       bio: bio,
       entered: 0,
+      friends: {},
     });
     const userData = {
       first_name: fName,
@@ -40,6 +41,7 @@ export default function Profile() {
       gender: gender,
       bio: bio,
       entered: 0,
+      friends: {},
     };
     console.log("here is the data", userData);
   };

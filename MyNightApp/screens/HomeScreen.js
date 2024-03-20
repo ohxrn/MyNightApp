@@ -314,7 +314,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   //  //------------------------------******************************************------------------------------------------------
   const pingData = (data) => {
     // console.log("This is what we see", data);
-    const socket = io("https://be1030f92e76.ngrok.app");
+    const socket = io("https://4835f2cdd5be.ngrok.app");
     setTimeout(() => {
       socket.emit("joinRoom", { room: data.companyName });
       // Your code to be executed after the delay
@@ -742,7 +742,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
       </SafeAreaView>
 
       <MapboxGL.Camera
-        zoomLevel={20.5}
+        zoomLevel={18.8}
         centerCoordinate={
           latestLocation !== null
             ? [latestLocation.longitude, latestLocation.latitude]
