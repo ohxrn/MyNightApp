@@ -314,7 +314,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   //  //------------------------------******************************************------------------------------------------------
   const pingData = (data) => {
     // console.log("This is what we see", data);
-    const socket = io("https://4835f2cdd5be.ngrok.app");
+    const socket = io("https://8eebae2d90fe.ngrok.app");
     setTimeout(() => {
       socket.emit("joinRoom", { room: data.companyName });
       // Your code to be executed after the delay
@@ -502,15 +502,15 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
       let finalDistance = (differenceLat + differenceLong) / 2;
       //conditional that is triggered if distance between weighted pings is small enough, you're added to firebase in the line queue.
       if (finalDistance < 0.00002 && finalDistance > -0.00002) {
-        console.log(
-          "You are still in line",
-          "DISTANCE:",
-          finalDistance,
-          "--------------------",
-          "ping number",
-          add,
-          "------------------------------------------------------------------------------------------------------"
-        );
+        // console.log(
+        //   "You are still in line",
+        //   "DISTANCE:",
+        //   finalDistance,
+        //   "--------------------",
+        //   "ping number",
+        //   add,
+        //   "------------------------------------------------------------------------------------------------------"
+        // );
         //callback to increment the trigger where after the fourth consecutive ping, you're entered into queue.
         setAdd((prevAdd) => prevAdd + 1);
 
@@ -529,7 +529,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
             const updated = currentLine + 1;
             await set(lineRef, updated);
 
-            console.log("Line updated successfully", updated);
+            // console.log("Line updated successfully", updated);
           } catch (error) {
             console.log("Error updating line:", error);
             alert(error);
@@ -580,7 +580,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
             // Check if entered is 0
 
             const companyRef = ref(db, "company/" + companyId);
-            console.log(companyRef);
+            // console.log(companyRef);
             runTransaction(companyRef, (currentData) => {
               if (currentData !== null) {
                 const isWithinRange = distance < 0.02;

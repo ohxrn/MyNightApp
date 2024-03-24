@@ -8,6 +8,7 @@ import {
   TextInput,
   FlatList,
   TouchableOpacity,
+  ScrollView,
 } from "react-native";
 import { getDatabase, ref, set, get } from "firebase/database";
 
@@ -19,7 +20,43 @@ function AddFriend(props) {
   const [searchResults, setSearchResults] = useState([]);
   const [friendStatus, setFriendStatus] = useState({});
   const [friendRequests, setFriendRequests] = useState([]);
+  const [friendUsernames, setFriendUsernames] = useState([]);
 
+  //-----------------[[retrieve friends to display section]]-----------------------------------------------
+  useEffect(() => {
+    const friendRef = ref(
+      database,
+      `User Data/${auth.currentUser?.uid}/friends`
+    );
+    get(friendRef)
+      .then((snapshot) => {
+        const friendIds = snapshot.val() || [];
+        const promises = friendIds.map((friendId) => {
+          // Retrieve the username for each friend ID
+          const userRef = ref(database, `User Data/${friendId}`);
+          return get(userRef).then((snapshot) => {
+            const userData = snapshot.val();
+            if (userData) {
+              return userData.username;
+            }
+            return null; // Return null if user data not found
+          });
+        });
+
+        Promise.all(promises).then((usernames) => {
+          // Filter out null values and set the usernames in state
+          const filteredUsernames = usernames.filter(
+            (username) => username !== null
+          );
+          // Set the filtered usernames as a new state
+          setFriendUsernames(filteredUsernames);
+        });
+      })
+      .catch((error) => {
+        console.error("Error fetching friends:", error);
+      });
+  }, []);
+  //----------------------------------------------------------------
   //--------------------Friend Requests Portion----------------------//
   useEffect(() => {
     const friendRetrieval = ref(database, `User Data/${auth.currentUser?.uid}`);
@@ -55,6 +92,43 @@ function AddFriend(props) {
       });
   }, []);
   //------------------------------------------------------------------
+  const invitationDecision = (item) => {
+    console.log("Pressed accept for", item);
+    const userId = Object.keys(userData).find(
+      (userId) => userData[userId].username === item
+    );
+
+    if (userId) {
+      console.log("User ID:", userId);
+
+      // Add friend data to the user's data
+      const userRef = ref(
+        database,
+        `User Data/${auth.currentUser.uid}/friends`
+      );
+      get(userRef)
+        .then((snapshot) => {
+          const existingFriends = snapshot.val() || [];
+          if (!existingFriends.includes(userId)) {
+            const newFriends = [...existingFriends, userId];
+            set(userRef, newFriends)
+              .then(() => {
+                console.log("Friend added successfully");
+                setFriendUsernames(existingFriends);
+              })
+              .catch((error) => console.error("Error adding friend:", error));
+          } else {
+            console.log("User is already a friend");
+          }
+        })
+        .catch((error) =>
+          console.error("Error fetching current friends:", error)
+        );
+    } else {
+      console.log("User not found in userData");
+    }
+  };
+  //-------------------------------------------------------------------
 
   useEffect(() => {
     fetchUsernames();
@@ -73,7 +147,6 @@ function AddFriend(props) {
         const userData = snapshot.val();
 
         if (userData) {
-          // console.log("USER DATA", userData);
           setUserData(userData);
           const usernames = Object.keys(userData).map(
             (key) => userData[key].username
@@ -107,18 +180,14 @@ function AddFriend(props) {
 
       // Add friend data to the user's data
       const userRef = ref(database, `User Data/${userId}`);
-      // Assuming you have a field in the user's data to store friend IDs or mark them as friends
-      // For example, you can have a "friends" array
       const newFriendData = {
         ...userData[userId],
         friendRequests: userData[userId].friends
           ? [...userData[userId].friends, auth.currentUser.uid]
           : [auth.currentUser.uid],
       };
-      console.log("THIS IS MY USER ID", auth.currentUser?.uid);
       set(userRef, newFriendData)
         .then(() => {
-          // Update friend status for the specific user
           setFriendStatus((prevStatus) => ({
             ...prevStatus,
             [item]: "Request Sent",
@@ -134,32 +203,34 @@ function AddFriend(props) {
   const handleSearch = (query) => {
     setSearchQuery(query);
     if (query.trim() === "") {
-      // If the search query is empty, reset search results to all usernames
       setSearchResults(allUsernames);
     } else {
-      // If the search query is not empty, filter usernames based on the query
       const filteredUsernames = allUsernames.filter((username) =>
         username.toLowerCase().includes(query.toLowerCase())
       );
       setSearchResults(filteredUsernames);
     }
   };
+
   return (
     <View style={styles.container}>
       <SafeAreaView>
         <View style={styles.friendStatusSection}>
-          <Text style={styles.friendRequestTitle}>Friend requests</Text>
+          <Text style={styles.friendRequestTitle}>Friend Requests</Text>
           <FlatList
             data={friendRequests}
             renderItem={({ item }) => (
               <View style={styles.friendRequestItem}>
                 <Text style={styles.friendRequestText}>{item}</Text>
-                <View style={{ flexDirection: "row" }}>
-                  <TouchableOpacity style={styles.acceptButton}>
-                    <Text style={{ color: "white" }}>Accept</Text>
+                <View style={styles.buttonContainer}>
+                  <TouchableOpacity
+                    onPress={() => invitationDecision(item)}
+                    style={[styles.button, styles.acceptButton]}
+                  >
+                    <Text style={styles.buttonText}>Accept</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity style={styles.denyButton}>
-                    <Text style={{ color: "white" }}>Deny</Text>
+                  <TouchableOpacity style={[styles.button, styles.denyButton]}>
+                    <Text style={styles.buttonText}>Deny</Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -180,33 +251,93 @@ function AddFriend(props) {
             <View style={styles.itemContainer}>
               <Text>{item}</Text>
               <TouchableOpacity
-                style={styles.addFriendButton}
+                style={[styles.button, styles.addFriendButton]}
                 onPress={() => addFriendFunc(item)}
               >
-                <Text>{friendStatus[item]}</Text>
+                <Text style={styles.buttonText}>{friendStatus[item]}</Text>
               </TouchableOpacity>
             </View>
           )}
           keyExtractor={(item, index) => index.toString()}
         />
+        <View style={styles.friendsContainer}>
+          <Text style={styles.friendsTitle}>My Friends</Text>
+          <ScrollView>
+            {friendUsernames.length > 0 ? (
+              friendUsernames.map((username, index) => (
+                <View key={index} style={styles.friendItem}>
+                  <Text style={styles.friendName}>{username}</Text>
+                  <TouchableOpacity style={styles.removeButton}>
+                    <Text style={styles.removeButtonText}>Remove</Text>
+                  </TouchableOpacity>
+                </View>
+              ))
+            ) : (
+              <Text style={styles.noFriendsText}>No friends yet</Text>
+            )}
+          </ScrollView>
+        </View>
       </SafeAreaView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  friendsContainer: {
+    marginTop: 20,
+    paddingHorizontal: 20,
+  },
+  friendsTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
+    color: "#fff",
+  },
+  friendItem: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    backgroundColor: "#333",
+    padding: 10,
+    marginBottom: 10,
+    borderRadius: 5,
+  },
+  friendName: {
+    color: "#fff",
+    fontSize: 16,
+  },
+  removeButton: {
+    backgroundColor: "#dc3545",
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 5,
+  },
+  removeButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
+  noFriendsText: {
+    color: "#fff",
+    textAlign: "center",
+  },
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "black",
+    backgroundColor: "#fff",
+    padding: 10,
+    backgroundColor: "#0a0a0a",
   },
   friendStatusSection: {
-    flex: 1,
     marginBottom: 20,
   },
+  friendRequestTitle: {
+    color: "white",
+    marginTop: 15,
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
   friendRequestItem: {
-    backgroundColor: "lightgray",
+    backgroundColor: "#f0f0f0",
     padding: 20,
     marginBottom: 10,
     borderRadius: 10,
@@ -215,40 +346,49 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
   },
+  buttonContainer: {
+    flexDirection: "row",
+    marginTop: 10,
+  },
+  button: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   acceptButton: {
-    backgroundColor: "green",
-    padding: 15,
-    borderRadius: 8,
-    marginRight: 10, // Added margin to separate accept and deny buttons
+    backgroundColor: "#28a745",
+    marginRight: 10,
   },
   denyButton: {
-    backgroundColor: "red",
-    padding: 15,
-    borderRadius: 8,
+    backgroundColor: "#dc3545",
+  },
+  buttonText: {
+    color: "white",
+    fontWeight: "bold",
   },
   addFriendButton: {
-    backgroundColor: "lightblue",
-    padding: 20,
-    borderRadius: 10,
+    backgroundColor: "#007bff",
+    padding: 10,
+    borderRadius: 5,
   },
   searchInput: {
-    width: "80%",
-    borderWidth: 2,
+    borderWidth: 1,
     borderColor: "#ccc",
-    borderRadius: 22,
-    paddingHorizontal: 20,
-    paddingVertical: 15,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
     marginBottom: 10,
   },
   itemContainer: {
     flexDirection: "row",
-    alignItems: "center",
     justifyContent: "space-between",
-    borderRadius: 20,
-    backgroundColor: "white",
-    padding: 20,
+    alignItems: "center",
+    padding: 10,
+    backgroundColor: "#f0f0f0",
+    borderRadius: 5,
     marginBottom: 10,
-    width: "80%",
   },
 });
 
