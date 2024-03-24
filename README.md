@@ -1,4 +1,4 @@
-# MyNightApp
+# MyNight (BETA)
 
 Welcome to MyNight (Beta)!
 MyNight is a cutting-edge application that revolutionizes how you experience nightlife and social experiences. Powered by the latest technologies, including React Native, Mapbox, Firebase, Socket.io, and more, MyNight is your ultimate companion for navigating the vibrant nightlife scene.
