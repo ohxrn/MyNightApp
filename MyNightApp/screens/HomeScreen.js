@@ -26,7 +26,6 @@ import { FillExtrusionLayer, ShapeSource, HeatmapLayer } from "@rnmapbox/maps";
 
 import { useRef } from "react";
 import uuid from "react-native-uuid";
-
 import {
   uploadBytesResumable,
   getDownloadURL,
@@ -51,6 +50,7 @@ import * as Location from "expo-location";
 import {
   ref,
   onValue,
+  remove,
   runTransaction,
   push,
   set,
@@ -314,7 +314,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   //  //------------------------------******************************************------------------------------------------------
   const pingData = (data) => {
     // console.log("This is what we see", data);
-    const socket = io("https://8eebae2d90fe.ngrok.app");
+    const socket = io("https://bc4355372674.ngrok.app");
     setTimeout(() => {
       socket.emit("joinRoom", { room: data.companyName });
       // Your code to be executed after the delay

@@ -10,7 +10,7 @@ import {
   TouchableOpacity,
   ScrollView,
 } from "react-native";
-import { getDatabase, ref, set, get } from "firebase/database";
+import { getDatabase, ref, set, get, remove, update } from "firebase/database";
 
 function AddFriend(props) {
   const database = getDatabase();
@@ -101,29 +101,49 @@ function AddFriend(props) {
     if (userId) {
       console.log("User ID:", userId);
 
-      // Add friend data to the user's data
-      const userRef = ref(
+      // Construct the reference to the specific friend request object
+      const friendRequestRef = ref(
         database,
-        `User Data/${auth.currentUser.uid}/friends`
+        `User Data/${auth.currentUser?.uid}/friendRequests/${userId}`
       );
-      get(userRef)
-        .then((snapshot) => {
-          const existingFriends = snapshot.val() || [];
-          if (!existingFriends.includes(userId)) {
-            const newFriends = [...existingFriends, userId];
-            set(userRef, newFriends)
-              .then(() => {
-                console.log("Friend added successfully");
-                setFriendUsernames(existingFriends);
-              })
-              .catch((error) => console.error("Error adding friend:", error));
-          } else {
-            console.log("User is already a friend");
-          }
+
+      // Update the status of the friend request to an empty object
+      const updateData = {};
+      updateData[userId] = {};
+
+      update(friendRequestRef, updateData)
+        .then(() => {
+          console.log("Friend request status updated successfully");
+
+          // Add friend data to the user's data (assuming this part of the code works fine)
+          const userRef = ref(
+            database,
+            `User Data/${auth.currentUser.uid}/friends`
+          );
+          get(userRef)
+            .then((snapshot) => {
+              const existingFriends = snapshot.val() || [];
+              if (!existingFriends.includes(userId)) {
+                const newFriends = [...existingFriends, userId];
+                set(userRef, newFriends)
+                  .then(() => {
+                    console.log("Friend added successfully");
+                    setFriendUsernames(existingFriends);
+                  })
+                  .catch((error) => {
+                    console.error("Error adding friend:", error);
+                  });
+              } else {
+                console.log("User is already a friend");
+              }
+            })
+            .catch((error) => {
+              console.error("Error fetching current friends:", error);
+            });
         })
-        .catch((error) =>
-          console.error("Error fetching current friends:", error)
-        );
+        .catch((error) => {
+          console.log("Error updating friend request status:", error);
+        });
     } else {
       console.log("User not found in userData");
     }
@@ -281,7 +301,7 @@ function AddFriend(props) {
     </View>
   );
 }
-
+//------------------------------------------------------------------------------------------------------------------------
 const styles = StyleSheet.create({
   friendsContainer: {
     marginTop: 20,
