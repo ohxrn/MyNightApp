@@ -126,7 +126,21 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
     setIsMapLoaded(true);
   };
   const [fadeAnim] = useState(new Animated.Value(0));
-
+  //------------------------------------------------------------------------------------------------------------------------------------
+  useEffect(() => {
+    const retrieveFriendData = ref(
+      db,
+      `User Data/${auth.currentUser?.uid}/friends`
+    );
+    get(retrieveFriendData)
+      .then((data) => {
+        console.log("HERE IS WHATS RETRIRVED FROM DATA", data);
+        const friendLocations = data;
+        const friendLocation = ref(db, `User Data/${friendLocations}`);
+      })
+      .catch(() => {});
+  }, []);
+  //-------------------------------------------------------------------------------------------------------------------------
   const cubeRef = useRef();
   useEffect(() => {
     Animated.timing(fadeAnim, {

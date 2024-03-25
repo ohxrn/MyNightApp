@@ -104,12 +104,12 @@ function AddFriend(props) {
       // Construct the reference to the specific friend request object
       const friendRequestRef = ref(
         database,
-        `User Data/${auth.currentUser?.uid}/friendRequests/${userId}`
+        `User Data/${auth.currentUser?.uid}/friendRequests/`
       );
 
-      // Update the status of the friend request to an empty object
+      // Update the status of the friend request to null
       const updateData = {};
-      updateData[userId] = {};
+      updateData[userId] = null;
 
       update(friendRequestRef, updateData)
         .then(() => {
@@ -130,16 +130,16 @@ function AddFriend(props) {
                     console.log("Friend added successfully");
                     setFriendUsernames(existingFriends);
                   })
-                  .catch((error) => {
-                    console.error("Error adding friend:", error);
-                  });
+                  .catch((error) =>
+                    console.error("Error adding friend:", error)
+                  );
               } else {
                 console.log("User is already a friend");
               }
             })
-            .catch((error) => {
-              console.error("Error fetching current friends:", error);
-            });
+            .catch((error) =>
+              console.error("Error fetching current friends:", error)
+            );
         })
         .catch((error) => {
           console.log("Error updating friend request status:", error);
