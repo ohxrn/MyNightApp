@@ -100,6 +100,26 @@ function AddFriend(props) {
 
     if (userId) {
       console.log("User ID:", userId);
+      //
+      const otherFriendRef = ref(database, `User Data/${userId}/friends`);
+      get(otherFriendRef)
+        .then((data) => {
+          console.log("this is data from other friend", data);
+          const existingFriends = data.val() || [];
+          if (!existingFriends.includes(auth.currentUser?.uid)) {
+            const newFriends = [...existingFriends, auth.currentUser?.uid];
+            set(otherFriendRef, newFriends)
+              .then(() => {
+                console.log("Friend added successfully");
+                setFriendUsernames(existingFriends);
+              })
+              .catch((error) => console.error("Error adding friend:", error));
+          } else {
+            console.log("User is already a friend");
+          }
+        })
+        .catch((data) => {});
+      //
 
       // Construct the reference to the specific friend request object
       const friendRequestRef = ref(
@@ -114,8 +134,6 @@ function AddFriend(props) {
       update(friendRequestRef, updateData)
         .then(() => {
           console.log("Friend request status updated successfully");
-
-          // Add friend data to the user's data (assuming this part of the code works fine)
           const userRef = ref(
             database,
             `User Data/${auth.currentUser.uid}/friends`

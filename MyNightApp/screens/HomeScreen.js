@@ -4,7 +4,7 @@ import { Threebox } from "threebox";
 import * as THREE from "three";
 
 import { ModelLayer } from "@rnmapbox/maps";
-
+import { serverTimestamp } from "firebase/database";
 import { GLView } from "expo-gl";
 import {
   PerspectiveCamera,
@@ -265,9 +265,11 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
         const locoID = ref(db, "userLocation"); // Reference to the "company" location
         const newLocoRef = push(locoID); // Generate a new child location with a unique key
         const newCompanyId = newLocoRef.key;
+        const timeStamp = serverTimestamp();
 
         set(newLocoRef, {
           location: latestLocation,
+          timeStamp: timeStamp,
         })
           .then(() => {
             console.log("original location sent to Firestone", latestLocation);
@@ -290,9 +292,10 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
       let timeoutId;
       timeoutId = setTimeout(() => {
         const locationRef = ref(db, "userLocation/" + auth.currentUser?.uid);
-
+        const timeStamp = serverTimestamp();
         set(locationRef, {
           location: latestLocation,
+          timeStamp: timeStamp,
         })
           .then(() => {
             // console.log("Location data updated successfully");
@@ -405,68 +408,62 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
     }
   };
 
-  const lineCalulcation = async (data, id) => {
-    // console.log(data.length);
-    let latSum = 0;
-    let longSum = 0;
-    const last5Pings = data.slice(-5);
+  const lineCalulcation = async (data, id, userData) => {
+    const latSum = data.slice(-5).reduce((sum, ping) => sum + ping[0], 0);
+    const longSum = data.slice(-5).reduce((sum, ping) => sum + ping[1], 0);
 
-    if (last5Pings.length > 0) {
-      const weights = Array.from(
-        { length: last5Pings.length },
-        (_, i) => i + 1
-      );
+    const latAverage = latSum / 5;
+    const longAverage = longSum / 5;
 
-      const weightSum = weights.reduce((sum, w) => sum + w, 0);
+    const differenceLat = latestLocation.latitude - latAverage;
+    const differenceLong = latestLocation.longitude - longAverage;
+    const finalDistance = Math.sqrt(
+      Math.pow(differenceLat, 2) + Math.pow(differenceLong, 2)
+    ); // Euclidean distance
 
-      for (let i = 0; i < last5Pings.length; i++) {
-        const weight = weights[i] / weightSum;
-        latSum += last5Pings[i][0] * weight;
-        longSum += last5Pings[i][1] * weight;
-      }
+    if (finalDistance < 0.00002 && finalDistance > -0.00002) {
+      console.log("PINGED---here is proxy", proxy);
+      console.log(finalDistance);
+      setAdd((prevAdd) => prevAdd + 1);
+      if (add >= 2 && temporaryLineTrigger === false) {
+        setAdd(0);
+        setTemporaryLineTrigger(true);
+        console.log(
+          "You have been in the same spot for 2 minutes, lineTrigger has been set to true."
+        );
+        const lineRef = ref(db, `company/${id}/line`);
 
-      let differenceLat = latestLocation.latitude - latSum;
-      let differenceLong = latestLocation.longitude - longSum;
-      let finalDistance = (differenceLat + differenceLong) / 2;
-      //conditional that is triggered if distance between weighted pings is small enough, you're added to firebase in the line queue.
-      if (finalDistance < 0.00002 && finalDistance > -0.00002) {
-        // console.log(
-        //   "You are still in line",
-        //   "DISTANCE:",
-        //   finalDistance,
-        //   "--------------------",
-        //   "ping number",
-        //   add,
-        //   "------------------------------------------------------------------------------------------------------"
-        // );
-        //callback to increment the trigger where after the fourth consecutive ping, you're entered into queue.
-        setAdd((prevAdd) => prevAdd + 1);
+        try {
+          const snapshot = await get(lineRef);
+          const currentLine = snapshot.val();
 
-        if (add >= 4 && !lineUpdated && temporaryLineTrigger == false) {
-          setAdd(0);
-          setTemporaryLineTrigger(true);
-          console.log(
-            "You have been in the same spot for 2 minutes, lineTrigger has been set to true."
-          );
-          const lineRef = ref(db, `company/${id}/line`);
+          const updated = currentLine + 1;
+          await set(lineRef, updated);
 
-          try {
-            const snapshot = await get(lineRef);
-            const currentLine = snapshot.val();
-
-            const updated = currentLine + 1;
-            await set(lineRef, updated);
-
-            // console.log("Line updated successfully", updated);
-          } catch (error) {
-            console.log("Error updating line:", error);
-            alert(error);
-          }
+          // console.log("Line updated successfully", updated);
+        } catch (error) {
+          console.log("Error updating line:", error);
+          alert(error);
         }
-      } else {
-        console.log("NOT IN LINE ANYMORE. DIstance is:", finalDistance);
-        setAdd(1);
-        setTemporaryLineTrigger(false);
+      }
+    } else {
+      console.log("NOT IN LINE ANYMORE. Distance is:", finalDistance);
+      setAdd(1);
+      setTemporaryLineTrigger(false);
+      const lineRef = ref(db, `company/${id}/line`);
+
+      try {
+        if (temporaryLineTrigger == true) {
+          const snapshot = await get(lineRef);
+          const currentLine = snapshot.val();
+
+          const updated = currentLine - 1;
+          await set(lineRef, updated);
+          setTemporaryLineTrigger(false);
+        }
+      } catch (error) {
+        console.log("Error updating line:", error);
+        alert(error);
       }
     }
   };
