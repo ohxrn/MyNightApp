@@ -71,13 +71,14 @@ import MapboxGL, {
 } from "@rnmapbox/maps";
 
 const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
+  const [friendLocations, setFriendLocations] = useState({});
   const [temporaryLineTrigger, setTemporaryLineTrigger] = useState(false);
   const [temporaryDecrease, setTemporaryDecrease] = useState(false);
   const [lineUpdated, setLineUpdated] = useState(false);
   const [temporaryMarker, setTemporaryMarker] = useState(false);
   const [groupName, setGroupName] = useState();
   const [groupTrigger, setGroupTrigger] = useState(false);
-
+  const [friendData, setFriendData] = useState({});
   const [currentGroup, setCurrentGroup] = useState();
   const [proxyPersonal, setProxyPersonal] = useState(false);
   const [proxy, setProxy] = useState();
@@ -128,17 +129,81 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   const [fadeAnim] = useState(new Animated.Value(0));
   //------------------------------------------------------------------------------------------------------------------------------------
   useEffect(() => {
-    const retrieveFriendData = ref(
-      db,
-      `User Data/${auth.currentUser?.uid}/friends`
-    );
-    get(retrieveFriendData)
-      .then((data) => {
-        console.log("HERE IS WHATS RETRIRVED FROM DATA", data);
-        const friendLocations = data;
-        const friendLocation = ref(db, `User Data/${friendLocations}`);
-      })
-      .catch(() => {});
+    const fetchFriendData = async () => {
+      try {
+        const retrieveFriendData = ref(
+          db,
+          `User Data/${auth.currentUser?.uid}/friends`
+        );
+
+        const snapshot = await get(retrieveFriendData);
+        const data = snapshot.val();
+
+        if (data) {
+          const friendIds = Object.values(data);
+
+          const locationPromises = friendIds.map((friendId) =>
+            get(ref(db, `userLocation/${friendId}/location`))
+              .then((locationSnapshot) => ({
+                friendId,
+                locationData: locationSnapshot.val(),
+              }))
+              .catch((error) => {
+                console.error(
+                  "Error retrieving locations for friend ID",
+                  friendId,
+                  ":",
+                  error
+                );
+                return { friendId, locationData: null };
+              })
+          );
+
+          const usernamePromises = friendIds.map((friendId) =>
+            get(ref(db, `User Data/${friendId}`))
+              .then((snapshot) => ({
+                friendId,
+                userData: snapshot.val(),
+              }))
+              .catch((error) => {
+                console.error(
+                  "Error retrieving user data for friend ID",
+                  friendId,
+                  ":",
+                  error
+                );
+                return { friendId, userData: null };
+              })
+          );
+
+          const locationResults = await Promise.all(locationPromises);
+          const usernameResults = await Promise.all(usernamePromises);
+
+          const mergedData = [];
+          locationResults.forEach(({ friendId, locationData }) => {
+            const { username, ...userData } = usernameResults.find(
+              (result) => result.friendId === friendId
+            )?.userData;
+            if (username) {
+              mergedData.push({
+                ...userData,
+                username,
+                location: locationData,
+              });
+            }
+          });
+
+          setFriendData(mergedData);
+        }
+      } catch (error) {
+        console.error("Error retrieving friend data:", error);
+      }
+    };
+
+    const intervalId = setInterval(fetchFriendData, 6000); // Call fetchFriendData every 6 seconds
+
+    // Cleanup function to clear the interval when the component unmounts or when the useEffect runs again
+    return () => clearInterval(intervalId);
   }, []);
   //-------------------------------------------------------------------------------------------------------------------------
   const cubeRef = useRef();
@@ -150,139 +215,6 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
     }).start();
   }, [fadeAnim]);
 
-  // useEffect(() => {
-  //   const addBuildingSource = async () => {
-  //     try {
-  //       await new Promise((resolve) => setTimeout(resolve, 1000));
-
-  //       if (isMapLoaded && mapRef.current) {
-  //         const geoJSONData = generateGeoJSON();
-
-  //         // Check if mapRef.current has the addSource method
-  //         if (
-  //           mapRef.current.addSource &&
-  //           typeof mapRef.current.addSource === "function"
-  //         ) {
-  //           mapRef.current.addSource("building", {
-  //             type: "geojson",
-  //             data: geoJSONData,
-  //           });
-
-  //           mapRef.current.addLayer({
-  //             id: "building-layer",
-  //             type: "fill-extrusion",
-  //             source: "building",
-  //             paint: layerStyles,
-  //           });
-
-  //           // Query features after adding the source
-  //           const source = mapRef.current.queryRenderedFeatures({
-  //             layers: ["building-layer"],
-  //           });
-  //           console.log("Rendered features data:", source);
-  //         } else {
-  //           console.warn(
-  //             "Unable to add source: addSource method is not available."
-  //           );
-  //         }
-  //       } else {
-  //         console.warn("Map is not yet loaded.");
-  //       }
-  //     } catch (error) {
-  //       console.error("Error logging GeoJSON:", error);
-  //     }
-  //   };
-
-  //   addBuildingSource();
-  // }, [isMapLoaded, mapRef.current]);
-  useEffect(() => {
-    if (isMapLoaded && mapRef.current) {
-      // console.log("Map is loaded!", mapRef.current);
-      // const zoomLevel = mapRef.current.getZoom;
-      // console.log("THIS IS ZOOM LEVEL", zoomLevel);
-    }
-  }, [isMapLoaded, mapRef.current]);
-
-  // const generateGeoJSON = () => {
-  //   const features = Object.keys(buildingHeights).map((buildingName) => {
-  //     return {
-  //       type: "Feature",
-  //       properties: {
-  //         height: buildingHeights[buildingName],
-  //       },
-  //       geometry: {
-  //         type: "Polygon",
-  //         coordinates: [
-  //           [
-  //             [-71.0589, 42.3601],
-  //             // Add more coordinates as needed for the building's footprint
-  //           ],
-  //         ],
-  //       },
-  //     };
-  //   });
-
-  //   return {
-  //     type: "FeatureCollection",
-  //     features: features,
-  //   };
-  // };
-  // const [buildingHeights, setBuildingHeights] = useState({
-  //   building1: 100,
-  //   building2: 150,
-  //   // Add more buildings and their heights as needed
-  // });
-  // const layerStyles = {
-  //   fillExtrusionColor: "#aaa",
-  //   fillExtrusionHeight: ["get", "height"],
-  //   fillExtrusionOpacity: 0.6,
-  // };
-
-  // const [buildingData, setBuildingData] = useState({
-  //   building1: { height: 900 },
-  //   // Add more buildings and their heights as needed
-  // });
-
-  //   // ...
-  // useEffect(() => {
-  //   const logGeoJSON = async () => {
-  //     try {
-  //       await new Promise((resolve) => setTimeout(resolve, 1000));
-
-  //       // Check if the source is loaded before querying
-  //       const map = mapRef.current;
-  //       if (map) {
-  //         const source = await map.querySourceFeatures("building");
-  //         console.log("GeoJSON data:", source);
-  //       } else {
-  //         console.warn("Building source is not yet loaded.");
-  //       }
-  //     } catch (error) {
-  //       console.error("Error logging GeoJSON:", error);
-  //     }
-  //   };
-  //   logGeoJSON();
-  // }, [isMapLoaded, buildingData]);
-  // //   //
-  //----------------------------------------------------------------------------------------
-  // THE MYNIGHTMAPPED ALGORITHM SCALED
-  const mergeData = (userData, friendsData) => {
-    const mergedData = [];
-
-    for (const userId in userData) {
-      const user = userData[userId];
-      const friend = friendsData.find((friend) => friend.id === userId);
-
-      if (friend) {
-        // Merge user and friend data
-        const mergedObject = { id: userId, ...user, ...friend };
-        mergedData.push(mergedObject);
-      }
-    }
-
-    return mergedData;
-  };
-
   const retrieveUserData = (array) => {
     const userRef = ref(db, "User Data");
     onValue(userRef, (snapshot) => {
@@ -290,24 +222,6 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
       setUserData(data);
     });
   };
-
-  useEffect(() => {
-    if (userData && friendsLocations.length > 0) {
-      const timerId = setTimeout(() => {
-        const mergedResult = mergeData(userData, friendsLocations);
-        // console.log("HERE IS DATA", mergedResult);
-        setMapDetails(mergedResult);
-        // console.log(
-        //   "DATA HAS BEEN UPDATED------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------"
-        // );
-      }, 5000);
-
-      return () => clearTimeout(timerId);
-    }
-  }, [userData, friendsLocations]);
-  //
-
-  //
 
   const fetchData = () => {
     const myNightMapReference = ref(db, "userLocation");
@@ -328,7 +242,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   //  //------------------------------******************************************------------------------------------------------
   const pingData = (data) => {
     // console.log("This is what we see", data);
-    const socket = io("https://bc4355372674.ngrok.app");
+    const socket = io("https://57a7fca78867.ngrok.app");
     setTimeout(() => {
       socket.emit("joinRoom", { room: data.companyName });
       // Your code to be executed after the delay
@@ -789,14 +703,14 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
         color={"pink"}
       />
 
-      {mapDetails.length > 0 && (
+      {friendData.length > 0 && (
         <>
-          {mapDetails.map((friend) => (
+          {friendData.map((friend) => (
             <MarkerView
+              key={friend.id} // Use a unique identifier as the key
               style={{}}
               zIndex={2}
               allowOverlap={true}
-              key={friend.id}
               coordinate={[friend.location.longitude, friend.location.latitude]}
             >
               <Image
@@ -812,7 +726,6 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
                   textAlign: "center",
                   left: 10,
                   backgroundColor: "pink",
-
                   padding: 4,
                 }}
               >
@@ -822,10 +735,10 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
           ))}
           {finalRender.map((data) => (
             <MarkerView
+              key={`marker-${data.companyId}`} // Use a unique identifier as the key
               allowOverlap={true}
               style={{}}
               zIndex={1}
-              key={`marker-${data.companyId}`}
               coordinate={[data.address.longitude, data.address.latitude]}
             >
               <Animated.View
