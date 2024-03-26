@@ -448,7 +448,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
       }
     } else {
       console.log("NOT IN LINE ANYMORE. Distance is:", finalDistance);
-      setAdd(1);
+      setAdd(0);
       setTemporaryLineTrigger(false);
       const lineRef = ref(db, `company/${id}/line`);
 
@@ -656,15 +656,31 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
         >
           My Night
         </Text>
-        {/* <ShapeSource id="buildingSource" shape={generateGeoJSON()}>
-          <FillExtrusionLayer
-            id="building-layer"
-            sourceLayerID="building"
-            minZoomLevel={15}
-            style={layerStyles}
-          />
-        </ShapeSource> */}
       </SafeAreaView>
+      <View
+        style={{
+          alignItems: "flex-end",
+          position: "absolute",
+          right: 10,
+          top: "8%",
+        }}
+      >
+        <Text>Friends:</Text>
+        {friendData.length > 0 &&
+          friendData.map((data, index) => (
+            <View
+              key={index}
+              style={{
+                backgroundColor: "lightblue",
+                padding: 8,
+                marginBottom: 8,
+                borderRadius: 10,
+              }}
+            >
+              <Text>{data.username}</Text>
+            </View>
+          ))}
+      </View>
 
       <MapboxGL.Camera
         zoomLevel={18.8}
