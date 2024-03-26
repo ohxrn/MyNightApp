@@ -128,6 +128,15 @@ function App() {
               opacity: current.progress,
             },
           }),
+          headerStyle: {
+            backgroundColor: "black",
+            borderBottomColor: "purple",
+            borderBottomWidth: 3,
+            elevation: 0, // Remove shadow on Android
+          },
+          headerTitleStyle: {
+            color: "white", // Set the color of the header title
+          },
         }}
       >
         <Stack.Screen

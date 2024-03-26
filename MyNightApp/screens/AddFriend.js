@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   ScrollView,
 } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import { getDatabase, ref, set, get, remove, update } from "firebase/database";
 
 function AddFriend(props) {
@@ -57,6 +58,18 @@ function AddFriend(props) {
       });
   }, []);
   //----------------------------------------------------------------
+
+  const navigation = useNavigation();
+  const signOut = () => {
+    auth
+      .signOut()
+      .then((auth) => {
+        navigation.replace("Login");
+      })
+      .catch((error) => {
+        alert(error.message);
+      });
+  };
   //--------------------Friend Requests Portion----------------------//
   useEffect(() => {
     const friendRetrieval = ref(database, `User Data/${auth.currentUser?.uid}`);
@@ -254,6 +267,9 @@ function AddFriend(props) {
     <View style={styles.container}>
       <SafeAreaView>
         <View style={styles.friendStatusSection}>
+          <TouchableOpacity onPress={signOut}>
+            <Text style={{ color: "white" }}>Sign Out</Text>
+          </TouchableOpacity>
           <Text style={styles.friendRequestTitle}>Friend Requests</Text>
           <FlatList
             data={friendRequests}

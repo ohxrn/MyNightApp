@@ -41,6 +41,7 @@ import {
   ActivityIndicator,
   Image,
   TouchableOpacity,
+  FlatList,
 } from "react-native";
 
 import theLogo from "../assets/MNLOGO.png";
@@ -115,6 +116,13 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
 
   MapboxGL.setAccessToken(
     "sk.eyJ1Ijoib2h4cm4iLCJhIjoiY2xscG51YjJkMDZndTNkbzJvZmd3MmpmNSJ9.1yj9ewdvaGBxVPF_cdlLIQ"
+  );
+  const renderItem = ({ item }) => (
+    <View style={{ marginBottom: 7 }}>
+      <Text style={{ backgroundColor: "white", padding: 10 }}>
+        {item.username}
+      </Text>
+    </View>
   );
   const [isMapLoaded, setIsMapLoaded] = useState(false);
   const mapRef = useRef(null);
@@ -637,49 +645,49 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
       attributionEnabled={false}
       gestureEnabled={true}
     >
-      <SafeAreaView>
-        <TouchableOpacity
-          style={{ backgroundColor: "red", flexDirection: "row" }}
-          onPress={signOut}
-        >
-          <Text>Sign Out</Text>
-        </TouchableOpacity>
-        <Text
-          style={{
-            fontSize: 33,
-            fontWeight: "900",
-            fontStyle: "italic",
-            color: "purple",
-            textAlign: "center",
-            marginTop: 30,
-          }}
-        >
-          My Night
-        </Text>
-      </SafeAreaView>
       <View
         style={{
-          alignItems: "flex-end",
-          position: "absolute",
-          right: 10,
-          top: "8%",
+          backgroundColor: "rgba(0, 0, 0, 0.7)",
+          borderRadius: 20,
+          borderWidth: 3,
+          borderTopColor: "black",
+          borderColor: "purple",
+
+          height: "20%",
+          justifyContent: "center", // Center the inner content vertically
+          padding: 8, // Add padding to create space for the inner content
         }}
       >
-        <Text>Friends:</Text>
-        {friendData.length > 0 &&
-          friendData.map((data, index) => (
-            <View
-              key={index}
-              style={{
-                backgroundColor: "lightblue",
-                padding: 8,
-                marginBottom: 8,
-                borderRadius: 10,
-              }}
-            >
-              <Text>{data.username}</Text>
-            </View>
-          ))}
+        <View
+          style={{
+            backgroundColor: "rgba(0, 0, 0, 0)",
+            borderRadius: 20,
+            borderTopColor: "black", // Match the outer border radius
+            flex: 1, // Take up all available space inside the outer View
+          }}
+        >
+          {/* Add your inner content here */}
+        </View>
+      </View>
+
+      <View
+        style={{
+          position: "absolute",
+          backgroundColor: "rgba(128, 0, 128, 0.7)",
+          right: 16,
+          top: "25%",
+          padding: 8,
+          borderRadius: 10,
+        }}
+      >
+        <Text style={{ fontWeight: "bold", color: "white", marginBottom: 8 }}>
+          Friends:
+        </Text>
+        <FlatList
+          data={friendData}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id} // Assuming each friend object has a unique id
+        />
       </View>
 
       <MapboxGL.Camera
@@ -721,8 +729,6 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
           {friendData.map((friend) => (
             <MarkerView
               key={friend.id} // Use a unique identifier as the key
-              style={{}}
-              zIndex={2}
               allowOverlap={true}
               coordinate={[friend.location.longitude, friend.location.latitude]}
             >
