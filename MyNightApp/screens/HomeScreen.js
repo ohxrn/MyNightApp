@@ -134,12 +134,11 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
     </View>
   );
   const [isMapLoaded, setIsMapLoaded] = useState(false);
+
+  const [zoomLevel, setZoomLevel] = useState();
+
   const mapRef = useRef(null);
-  const [zoomLevel, setZoomLevel] = useState(0);
-  const onRegionDidChange = async (event) => {
-    const currentZoom = await event.target.getZoom();
-    setZoomLevel(currentZoom);
-  };
+
   const onMapLoad = () => {
     setIsMapLoaded(true);
   };
@@ -151,6 +150,31 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   const toggleExpand1 = () => {
     setExpanded1(!expanded1);
   };
+  const fetchZoomLevel = async () => {
+    if (mapRef && mapRef.current) {
+      // Add a null check for mapRef
+      let zoom = await mapRef.current.getZoom();
+      console.log(zoom); // You can log the zoom level here if needed
+      setZoomLevel(zoom);
+    }
+  };
+  //
+  useEffect(() => {
+    const fetchZoomLevel = async () => {
+      if (mapRef && mapRef.current) {
+        // Add a null check for mapRef
+        let zoom = await mapRef.current.getZoom();
+        console.log(zoom); // You can log the zoom level here if needed
+        // setZoomLevel(zoom);
+      }
+    };
+
+    // Delay the execution of fetchZoomLevel by a small interval
+    const delay = setTimeout(fetchZoomLevel, 100); // Adjust the delay as needed
+
+    return () => clearTimeout(delay); // Clear the timeout when the component unmounts
+  }, [mapRef]);
+  //
   //------------------------------------------------------------------------------------------------------------------------------------
   useEffect(() => {
     const fetchFriendData = async () => {
@@ -660,69 +684,73 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
       styleURL={styleURL}
       attributionEnabled={false}
       gestureEnabled={true}
+      onRegionDidChange={fetchZoomLevel()}
     >
-      <TouchableOpacity
-        onPress={toggleExpand}
+      <View
         style={{
           position: "absolute",
-          backgroundColor: "rgba(128, 0, 128, 0.7)",
           right: 16,
           top: "10%",
-          padding: 8,
-          borderRadius: 10,
+          backgroundColor: "rgba(128, 0, 160, 0.7)",
+          borderRadius: 20,
+          paddingVertical: 15,
+          paddingHorizontal: 10,
         }}
       >
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <Ionicons
-            name={expanded ? "people-outline" : "people-outline"}
-            size={28}
-            color={"white"}
-          />
-          <Ionicons
-            name={expanded ? "arrow-up" : "chevron-down"}
-            size={24}
-            color="white"
-          />
+        <View style={styles.background}>
+          <TouchableOpacity
+            onPress={toggleExpand}
+            style={styles.touchableOpacity}
+          >
+            <View style={styles.iconContainer}>
+              <Ionicons
+                name={expanded ? "people-outline" : "people-outline"}
+                size={28}
+                color={"white"}
+              />
+              <Ionicons
+                name={expanded ? "arrow-up" : "chevron-down"}
+                size={24}
+                color="white"
+              />
+            </View>
+            {expanded && (
+              <FlatList
+                data={friendData}
+                renderItem={renderItem}
+                keyExtractor={(item) => item.id}
+              />
+            )}
+          </TouchableOpacity>
         </View>
-        {expanded && (
-          <FlatList
-            data={friendData}
-            renderItem={renderItem}
-            keyExtractor={(item) => item.id} // Assuming each friend object has a unique id
-          />
-        )}
-      </TouchableOpacity>
-      <TouchableOpacity
-        onPress={toggleExpand1}
-        style={{
-          position: "absolute",
-          backgroundColor: "rgba(128, 0, 128, 0.7)",
-          right: 16,
-          top: "23%",
-          padding: 8,
-          borderRadius: 10,
-        }}
-      >
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <Ionicons
-            name={expanded ? "business" : "business"}
-            size={28}
-            color={"white"}
-          />
-          <Ionicons
-            name={expanded1 ? "arrow-up" : "chevron-down"}
-            size={24}
-            color="white"
-          />
+
+        <View style={styles.background}>
+          <TouchableOpacity
+            onPress={toggleExpand1}
+            style={styles.touchableOpacity}
+          >
+            <View style={styles.iconContainer}>
+              <Ionicons
+                name={expanded ? "business" : "business"}
+                size={28}
+                color={"white"}
+              />
+              <Ionicons
+                name={expanded1 ? "arrow-up" : "chevron-down"}
+                size={24}
+                color="white"
+              />
+            </View>
+            {expanded1 && (
+              <FlatList
+                data={finalRender}
+                renderItem={renderItem1}
+                keyExtractor={(item) => item.id}
+              />
+            )}
+          </TouchableOpacity>
         </View>
-        {expanded1 && (
-          <FlatList
-            data={finalRender}
-            renderItem={renderItem1}
-            keyExtractor={(item) => item.id} // Assuming each friend object has a unique id
-          />
-        )}
-      </TouchableOpacity>
+      </View>
 
       <MapboxGL.Camera
         zoomLevel={18.8}
@@ -794,13 +822,15 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
               zIndex={1}
               coordinate={[data.address.longitude, data.address.latitude]}
             >
-              <Animated.View
-                style={[
-                  styles.animatedView,
-                  {
-                    opacity: fadeAnim, // Bind opacity to fadeAnim value
-                  },
-                ]}
+              <View
+                style={{
+                  width: zoomLevel * 20,
+                  backgroundColor: "rgba(0, 0, 255, 0.5)", // Blue color with 50% opacity
+                  padding: 10,
+                  borderRadius: 30, // Half of your width and height for a perfect circle
+                  borderWidth: 2, // Border width
+                  borderColor: "white",
+                }}
               >
                 <Image source={theLogo} style={{ width: 60, height: 60 }} />
                 <Text style={{ color: "white", fontSize: 40 }}>
@@ -821,11 +851,12 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
                 >
                   {data.line} People in line here
                 </Text>
-              </Animated.View>
+              </View>
             </MarkerView>
           ))}
         </>
       )}
+
       <Animated.View style={{}}></Animated.View>
     </MapboxGL.MapView>
   );
@@ -838,6 +869,19 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "black",
   },
+  background: {
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    borderRadius: 10,
+    marginBottom: 8,
+  },
+  touchableOpacity: {
+    padding: 8,
+    borderRadius: 10,
+  },
+  iconContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
   animate: {
     flex: 0,
     margin: 50,
@@ -846,12 +890,5 @@ const styles = StyleSheet.create({
   mapContainer: {
     flex: 1,
     width: "100%",
-  },
-  animatedView: {
-    backgroundColor: "rgba(0, 0, 255, 0.5)", // Blue color with 50% opacity
-    padding: 10,
-    borderRadius: 30, // Half of your width and height for a perfect circle
-    borderWidth: 2, // Border width
-    borderColor: "white",
   },
 });
