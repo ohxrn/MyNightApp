@@ -698,7 +698,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
           position: "absolute",
           backgroundColor: "rgba(128, 0, 128, 0.7)",
           right: 16,
-          top: "19%",
+          top: "23%",
           padding: 8,
           borderRadius: 10,
         }}
