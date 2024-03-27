@@ -710,7 +710,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
             color={"white"}
           />
           <Ionicons
-            name={expanded ? "arrow-up" : "chevron-down"}
+            name={expanded1 ? "arrow-up" : "chevron-down"}
             size={24}
             color="white"
           />
