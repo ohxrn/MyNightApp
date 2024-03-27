@@ -23,7 +23,7 @@ import * as TaskManager from "expo-task-manager";
 import { useFocusEffect } from "@react-navigation/native";
 import io from "socket.io-client";
 import { FillExtrusionLayer, ShapeSource, HeatmapLayer } from "@rnmapbox/maps";
-
+import { Ionicons } from "@expo/vector-icons";
 import { useRef } from "react";
 import uuid from "react-native-uuid";
 import {
@@ -72,6 +72,8 @@ import MapboxGL, {
 } from "@rnmapbox/maps";
 
 const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
+  const [expanded, setExpanded] = useState(false);
+  const [expanded1, setExpanded1] = useState(false);
   const [friendLocations, setFriendLocations] = useState({});
   const [temporaryLineTrigger, setTemporaryLineTrigger] = useState(false);
   const [temporaryDecrease, setTemporaryDecrease] = useState(false);
@@ -124,6 +126,13 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
       </Text>
     </View>
   );
+  const renderItem1 = ({ item }) => (
+    <View style={{ marginBottom: 7 }}>
+      <Text style={{ backgroundColor: "white", padding: 10 }}>
+        {item.companyName}
+      </Text>
+    </View>
+  );
   const [isMapLoaded, setIsMapLoaded] = useState(false);
   const mapRef = useRef(null);
   const [zoomLevel, setZoomLevel] = useState(0);
@@ -135,6 +144,13 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
     setIsMapLoaded(true);
   };
   const [fadeAnim] = useState(new Animated.Value(0));
+
+  const toggleExpand = () => {
+    setExpanded(!expanded);
+  };
+  const toggleExpand1 = () => {
+    setExpanded1(!expanded1);
+  };
   //------------------------------------------------------------------------------------------------------------------------------------
   useEffect(() => {
     const fetchFriendData = async () => {
@@ -645,50 +661,68 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
       attributionEnabled={false}
       gestureEnabled={true}
     >
-      <View
-        style={{
-          backgroundColor: "rgba(0, 0, 0, 0.7)",
-          borderRadius: 20,
-          borderWidth: 3,
-          borderTopColor: "black",
-          borderColor: "purple",
-
-          height: "20%",
-          justifyContent: "center", // Center the inner content vertically
-          padding: 8, // Add padding to create space for the inner content
-        }}
-      >
-        <View
-          style={{
-            backgroundColor: "rgba(0, 0, 0, 0)",
-            borderRadius: 20,
-            borderTopColor: "black", // Match the outer border radius
-            flex: 1, // Take up all available space inside the outer View
-          }}
-        >
-          {/* Add your inner content here */}
-        </View>
-      </View>
-
-      <View
+      <TouchableOpacity
+        onPress={toggleExpand}
         style={{
           position: "absolute",
           backgroundColor: "rgba(128, 0, 128, 0.7)",
           right: 16,
-          top: "25%",
+          top: "10%",
           padding: 8,
           borderRadius: 10,
         }}
       >
-        <Text style={{ fontWeight: "bold", color: "white", marginBottom: 8 }}>
-          Friends:
-        </Text>
-        <FlatList
-          data={friendData}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id} // Assuming each friend object has a unique id
-        />
-      </View>
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <Ionicons
+            name={expanded ? "people-outline" : "people-outline"}
+            size={28}
+            color={"white"}
+          />
+          <Ionicons
+            name={expanded ? "arrow-up" : "chevron-down"}
+            size={24}
+            color="white"
+          />
+        </View>
+        {expanded && (
+          <FlatList
+            data={friendData}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.id} // Assuming each friend object has a unique id
+          />
+        )}
+      </TouchableOpacity>
+      <TouchableOpacity
+        onPress={toggleExpand1}
+        style={{
+          position: "absolute",
+          backgroundColor: "rgba(128, 0, 128, 0.7)",
+          right: 16,
+          top: "19%",
+          padding: 8,
+          borderRadius: 10,
+        }}
+      >
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <Ionicons
+            name={expanded ? "business" : "business"}
+            size={28}
+            color={"white"}
+          />
+          <Ionicons
+            name={expanded ? "arrow-up" : "chevron-down"}
+            size={24}
+            color="white"
+          />
+        </View>
+        {expanded1 && (
+          <FlatList
+            data={finalRender}
+            renderItem={renderItem1}
+            keyExtractor={(item) => item.id} // Assuming each friend object has a unique id
+          />
+        )}
+      </TouchableOpacity>
 
       <MapboxGL.Camera
         zoomLevel={18.8}
