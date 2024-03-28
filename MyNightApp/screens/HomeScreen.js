@@ -157,15 +157,14 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
       let zoom = await mapRef.current.getZoom();
       console.log(zoom); // You can log the zoom level here if needed
       if (zoom > 18.2) {
-        setTrim(210);
+        setTrim(170);
       } else if (zoom < 18.19 && zoom > 16) {
-        setTrim(130);
+        setTrim(85);
       } else if (zoom < 15.99 && zoom > 12) {
-        setTrim(60);
+        setTrim(50);
       } else {
         setTrim(30);
       }
-      setZoomLevel(zoom * 20);
     }
   };
   //
@@ -845,26 +844,41 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
               >
                 <Image
                   source={theLogo}
-                  style={{ width: zoomLevel / 5, height: zoomLevel / 9 }}
+                  style={{
+                    position: trim < 55 ? "absolute" : null,
+                    top: trim < 55 ? 8 : null,
+                    right: trim < 55 ? -7 : null,
+                    width: trim < 55 ? trim / 0.78 : trim / 3,
+                    height: trim < 55 ? trim / 2 : trim / 3,
+                  }}
                 />
-                <Text style={{ color: "white", fontSize: zoomLevel / 17 }}>
-                  {data.companyName}
-                </Text>
-                <Text style={{ color: "red", fontSize: zoomLevel / 20 }}>
-                  {data.people == 1 ? (
-                    <Text>1 person here</Text>
-                  ) : (
-                    <Text>{data.people} people here</Text>
-                  )}
-                </Text>
-                <Text style={{ color: "red" }}>
-                  {data.distance.toFixed(2)} Miles away
-                </Text>
-                <Text
-                  style={{ fontSize: 12, fontWeight: "bold", color: "lime" }}
-                >
-                  {data.line} People in line here
-                </Text>
+                {trim > 55 ? (
+                  <View>
+                    <Text style={{ color: "white", fontSize: trim / 6 }}>
+                      {data.companyName}
+                    </Text>
+                    <Text style={{ color: "red", fontSize: trim / 8 }}>
+                      {data.people == 1 ? (
+                        <Text>1 person here</Text>
+                      ) : (
+                        <Text>{data.people} people here</Text>
+                      )}
+                    </Text>
+                  </View>
+                ) : null}
+
+                {trim > 55 ? (
+                  <Text style={{ color: "red" }}>
+                    {data.distance.toFixed(2)} Miles away
+                  </Text>
+                ) : null}
+                {trim > 55 ? (
+                  <Text
+                    style={{ fontSize: 12, fontWeight: "bold", color: "lime" }}
+                  >
+                    {data.line} People in line here
+                  </Text>
+                ) : null}
               </View>
             </MarkerView>
           ))}
