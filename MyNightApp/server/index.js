@@ -12,7 +12,7 @@ app.use(cors());
 
 const socketIO = require("socket.io")(http, {
   cors: {
-    origin: "https://f7db25a8021a.ngrok.app",
+    origin: "https://c7edc5cabc29.ngrok.app",
   },
 });
 //-----------------------------------------------------------

@@ -72,6 +72,7 @@ import MapboxGL, {
 } from "@rnmapbox/maps";
 
 const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
+  const [trim, setTrim] = useState();
   const [expanded, setExpanded] = useState(false);
   const [expanded1, setExpanded1] = useState(false);
   const [friendLocations, setFriendLocations] = useState({});
@@ -155,7 +156,16 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
       // Add a null check for mapRef
       let zoom = await mapRef.current.getZoom();
       console.log(zoom); // You can log the zoom level here if needed
-      setZoomLevel(zoom);
+      if (zoom > 18.2) {
+        setTrim(210);
+      } else if (zoom < 18.19 && zoom > 16) {
+        setTrim(130);
+      } else if (zoom < 15.99 && zoom > 12) {
+        setTrim(60);
+      } else {
+        setTrim(30);
+      }
+      setZoomLevel(zoom * 20);
     }
   };
   //
@@ -290,7 +300,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   //  //------------------------------******************************************------------------------------------------------
   const pingData = (data) => {
     // console.log("This is what we see", data);
-    const socket = io("https://f7db25a8021a.ngrok.app");
+    const socket = io("https://c7edc5cabc29.ngrok.app");
     setTimeout(() => {
       socket.emit("joinRoom", { room: data.companyName });
       // Your code to be executed after the delay
@@ -824,7 +834,8 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
             >
               <View
                 style={{
-                  width: zoomLevel * 20,
+                  width: trim,
+                  height: trim,
                   backgroundColor: "rgba(0, 0, 255, 0.5)", // Blue color with 50% opacity
                   padding: 10,
                   borderRadius: 30, // Half of your width and height for a perfect circle
@@ -832,11 +843,14 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
                   borderColor: "white",
                 }}
               >
-                <Image source={theLogo} style={{ width: 60, height: 60 }} />
-                <Text style={{ color: "white", fontSize: 40 }}>
+                <Image
+                  source={theLogo}
+                  style={{ width: zoomLevel / 5, height: zoomLevel / 9 }}
+                />
+                <Text style={{ color: "white", fontSize: zoomLevel / 17 }}>
                   {data.companyName}
                 </Text>
-                <Text style={{ color: "red" }}>
+                <Text style={{ color: "red", fontSize: zoomLevel / 20 }}>
                   {data.people == 1 ? (
                     <Text>1 person here</Text>
                   ) : (
