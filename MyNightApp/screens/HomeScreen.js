@@ -861,22 +861,39 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
                       {data.people == 1 ? (
                         <Text>1 person here</Text>
                       ) : (
-                        <Text>{data.people} people here</Text>
+                        <View
+                          style={{
+                            flexDirection: "row", // Display children components horizontally
+                            alignItems: "center", // Align children components vertically at the center
+                          }}
+                        >
+                          <Ionicons name={"person"} size={17} color="white" />
+                          <Text
+                            style={{
+                              fontSize: trim > 85 ? 18 : 11,
+                              marginLeft: 5,
+                              color: "white",
+                              fontWeight: "bold",
+                            }}
+                          >
+                            {data.people}
+                          </Text>
+                        </View>
                       )}
                     </Text>
                   </View>
                 ) : null}
 
-                {trim > 55 ? (
+                {trim > 85 ? (
                   <Text style={{ color: "red" }}>
                     {data.distance.toFixed(2)} Miles away
                   </Text>
                 ) : null}
-                {trim > 55 ? (
+                {trim > 85 ? (
                   <Text
                     style={{ fontSize: 12, fontWeight: "bold", color: "lime" }}
                   >
-                    {data.line} People in line here
+                    {data.line} In Line
                   </Text>
                 ) : null}
               </View>
