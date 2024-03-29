@@ -142,6 +142,35 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
 
   const onMapLoad = () => {
     setIsMapLoaded(true);
+    if (mapRef.current) {
+      console.log(mapRef.current.addLayer);
+      // Accessing mapRef.current to get the Mapbox map instance
+      // mapRef.current.addLayer({
+      //   id: "custom-threebox-model",
+      //   type: "custom",
+      //   renderingMode: "3d",
+      //   onAdd: function () {
+      //     const scale = 9.2;
+      //     const options = {
+      //       obj: url("../assets/bin.glb"), // Corrected asset path
+      //       type: "glb",
+      //       scale: { x: scale, y: scale, z: 2.7 },
+      //       units: "meters",
+      //       rotation: { x: 90, y: -90, z: 0 },
+      //     };
+      //     // Load the 3D model
+      //     tb.loadObj(options, (model) => {
+      //       // Assuming `tb` is correctly defined elsewhere in your code
+      //       model.setCoords([42.36126003970163, -71.12827807740813]);
+      //       model.setRotation({ x: 0, y: 0, z: 241 });
+      //       tb.add(model);
+      //     });
+      //   },
+      //   render: function () {
+      //     tb.update();
+      //   },
+      // });
+    }
   };
   const [fadeAnim] = useState(new Animated.Value(0));
 
@@ -900,6 +929,18 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
             </MarkerView>
           ))}
         </>
+      )}
+      {latestLocation != null ? (
+        <ModelLayer
+          id="mvl"
+          source={{ uri: "../assets/McLaren.glb" }} // Replace with the path to your 3D model file
+          layerIndex={5} // Set the layer index appropriately
+          scale={10} // Adjust the scale of your model if necessary
+          coordinate={[latestLocation.longitude, latestLocation.latitude]}
+          // Other props like rotation, position, etc., can also be provided
+        />
+      ) : (
+        <></>
       )}
 
       <Animated.View style={{}}></Animated.View>
