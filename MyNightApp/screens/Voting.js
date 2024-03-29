@@ -6,6 +6,8 @@ import {
   Image,
   TouchableOpacity,
   TextInput,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import io from "socket.io-client";
 import { auth, storage } from "../Components/Config";
@@ -19,7 +21,7 @@ import {
 } from "firebase/storage";
 import { addDoc, collection, onSnapshot } from "firebase/firestore";
 import { getDatabase } from "firebase/database";
-
+import { Ionicons } from "@expo/vector-icons";
 //
 
 function Voting(props) {
@@ -122,13 +124,20 @@ function Voting(props) {
   // JSX for the component
   return (
     <SafeAreaView
-      style={{ backgroundColor: "purple", flex: 1, justifyContent: "flex-end" }}
+      style={{
+        backgroundColor: "#1f1f1f",
+        flex: 1,
+      }}
     >
-      <View style={{ backgroundColor: "darkblue", flex: 3 }}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : null}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 10 : 0} // Adjust this value as needed
+      >
         <Image
           style={{
-            width: 150,
-            height: 150,
+            width: 70,
+            height: 70,
             justifyContent: "center",
             alignSelf: "center",
           }}
@@ -157,69 +166,86 @@ function Voting(props) {
           (You can now chat with other people in the {groupName.room} area.)
         </Text>
 
-        <TextInput
-          style={{
-            backgroundColor: "white",
-            width: "80%",
-            height: 40,
-            borderRadius: 7,
-            borderWidth: 0.2,
-            alignSelf: "center",
-          }}
-          placeholder="Talk to people at XX"
-          value={theText}
-          onChangeText={(text) => {
-            setTheText(text);
-          }}
-        />
-        <TouchableOpacity
-          style={{
-            backgroundColor: "white",
-            width: "30%",
-            height: 30,
-            justifyContent: "center",
-            alignItems: "center",
-            alignSelf: "center",
-            marginTop: 20,
-            marginBottom: 20,
-          }}
-          onPress={sendContext}
-        >
-          <Text style={{ fontSize: 20 }}>Send</Text>
-        </TouchableOpacity>
-      </View>
-      <View style={{ textAlign: "center" }}>
-        {roomGroupChat.map((message, key) => {
-          return (
-            <View
-              style={{ backgroundColor: "white", borderRadius: 20, margin: 2 }}
-              key={key}
-            >
-              <Text
-                style={{ textAlign: "center", fontSize: 16, fontWeight: "700" }}
+        <View style={{ alignItems: "center" }}>
+          {roomGroupChat.map((message, key) => {
+            return (
+              <View
+                style={{
+                  flexDirection: "row", // Arrange items horizontally
+                  alignItems: "center", // Align items vertically
+                  backgroundColor: "white",
+                  borderRadius: 20,
+                  margin: 10,
+                  padding: 10,
+                  maxWidth: "70%", // Limiting width for better appearance
+                  alignSelf:
+                    message.ID === auth.currentUser.uid
+                      ? "flex-end"
+                      : "flex-start", // Aligning based on sender
+                }}
+                key={key}
               >
-                {message.text}
-              </Text>
-              {message.images && message.images.length > 0 && (
-                <View style={{ display: "flex" }}>
-                  <Image
-                    style={{
-                      width: 50,
-                      height: 50,
-                      margin: 5,
-                      borderRadius: 49,
-                    }}
-                    source={{ uri: message.images }}
-                  />
-                </View>
-              )}
-            </View>
-          );
-        })}
-      </View>
-      <Text style={{ color: "red", fontSize: 22, textAlign: "center" }}>
-        {user}
-      </Text>
+                {message.images && message.images.length > 0 && (
+                  <View style={{ marginRight: 10 }}>
+                    <Image
+                      style={{
+                        width: 50,
+                        height: 50,
+                        borderRadius: 25, // Making it round
+                      }}
+                      source={{ uri: message.images }}
+                    />
+                  </View>
+                )}
+                <Text
+                  style={{
+                    fontSize: 16,
+                    fontWeight: "700",
+                    color:
+                      message.ID === auth.currentUser.uid ? "white" : "black", // Changing text color based on sender
+                  }}
+                >
+                  {message.text}
+                </Text>
+              </View>
+            );
+          })}
+        </View>
+        <Text style={{ color: "red", fontSize: 22, textAlign: "center" }}>
+          {user}
+        </Text>
+        <View
+          style={{ flex: 1, justifyContent: "flex-end", alignItems: "center" }}
+        >
+          <TextInput
+            style={{
+              backgroundColor: "white",
+              width: "90%",
+              height: 40,
+              borderRadius: 7,
+              borderWidth: 0.2,
+              alignSelf: "center",
+              marginBottom: 10,
+            }}
+            placeholder="Chat it up"
+            value={theText}
+            onChangeText={setTheText}
+          />
+          <TouchableOpacity
+            style={{
+              backgroundColor: "white",
+              width: "30%",
+              height: 30,
+              justifyContent: "center",
+              alignItems: "center",
+              marginBottom: "15%",
+            }}
+            onPress={sendContext}
+          >
+            <Text style={{ fontSize: 20 }}>Send</Text>
+          </TouchableOpacity>
+        </View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }

@@ -155,7 +155,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
     if (mapRef && mapRef.current) {
       // Add a null check for mapRef
       let zoom = await mapRef.current.getZoom();
-      console.log(zoom); // You can log the zoom level here if needed
+      // console.log(zoom); // You can log the zoom level here if needed
       if (zoom > 18.2) {
         setTrim(170);
       } else if (zoom < 18.19 && zoom > 16) {
