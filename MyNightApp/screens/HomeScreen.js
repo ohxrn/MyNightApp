@@ -140,38 +140,6 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
 
   const mapRef = useRef(null);
 
-  const onMapLoad = () => {
-    setIsMapLoaded(true);
-    if (mapRef.current) {
-      console.log(mapRef.current.addLayer);
-      // Accessing mapRef.current to get the Mapbox map instance
-      // mapRef.current.addLayer({
-      //   id: "custom-threebox-model",
-      //   type: "custom",
-      //   renderingMode: "3d",
-      //   onAdd: function () {
-      //     const scale = 9.2;
-      //     const options = {
-      //       obj: url("../assets/bin.glb"), // Corrected asset path
-      //       type: "glb",
-      //       scale: { x: scale, y: scale, z: 2.7 },
-      //       units: "meters",
-      //       rotation: { x: 90, y: -90, z: 0 },
-      //     };
-      //     // Load the 3D model
-      //     tb.loadObj(options, (model) => {
-      //       // Assuming `tb` is correctly defined elsewhere in your code
-      //       model.setCoords([42.36126003970163, -71.12827807740813]);
-      //       model.setRotation({ x: 0, y: 0, z: 241 });
-      //       tb.add(model);
-      //     });
-      //   },
-      //   render: function () {
-      //     tb.update();
-      //   },
-      // });
-    }
-  };
   const [fadeAnim] = useState(new Animated.Value(0));
 
   const toggleExpand = () => {
@@ -328,7 +296,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   //  //------------------------------******************************************------------------------------------------------
   const pingData = (data) => {
     // console.log("This is what we see", data);
-    const socket = io("https://c7edc5cabc29.ngrok.app");
+    const socket = io("https://1ab25d6d273f.ngrok.app");
     setTimeout(() => {
       socket.emit("joinRoom", { room: data.companyName });
       // Your code to be executed after the delay
@@ -413,31 +381,37 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
       unsubscribe();
     };
   }, []);
-
   useEffect(() => {
-    if (latestLocation && dataArr.length > 0) {
-      const calculatedObject = [];
+    const intervalId = setInterval(() => {
+      // Fetch and update location
+      getLocation();
 
-      for (const item of dataArr) {
-        if (item.address) {
-          const distance = calculateDistance(
-            latestLocation.latitude,
-            latestLocation.longitude,
-            item.address.latitude,
-            item.address.longitude
-          );
+      // Fetch new data and calculate distances if location and data are available
+      if (latestLocation && dataArr.length > 0) {
+        const calculatedObject = [];
 
-          calculatedObject.push({ ...item, distance });
+        for (const item of dataArr) {
+          if (item.address) {
+            const distance = calculateDistance(
+              latestLocation.latitude,
+              latestLocation.longitude,
+              item.address.latitude,
+              item.address.longitude
+            );
 
-          handleUpdate(item.companyId, distance);
+            calculatedObject.push({ ...item, distance });
+            // console.log("THIS IS BEING SENT", distance);
+            handleUpdate(item.companyId, distance);
+          }
         }
-      }
 
-      setFinalRender(calculatedObject);
-      setShowAnimate(false);
-      // setTheLoader("0")
-      // setTheHeight(0)
-    }
+        setFinalRender(calculatedObject);
+        setShowAnimate(false);
+      }
+    }, 5000); // Fetch location and data every 5 seconds
+
+    // Clean up the interval when the component unmounts or when dependencies change
+    return () => clearInterval(intervalId);
   }, [latestLocation, dataArr]);
 
   const calculateDistance = (lat1, lon1, lat2, lon2) => {
@@ -563,13 +537,14 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
 
     return () => clearInterval(intervalId);
   }, []);
-  let updateTimeout;
+  const updateTimeout = {};
   //----------------------------------------------------------------------------------------------------
 
   const handleUpdate = (companyId, distance) => {
-    clearTimeout(updateTimeout);
+    clearTimeout(updateTimeout[companyId]);
 
-    updateTimeout = setTimeout(() => {
+    // Set a new timeout for this specific call
+    updateTimeout[companyId] = setTimeout(() => {
       const uid = auth.currentUser?.uid;
       const database = getDatabase();
       const userRef = ref(database, `User Data/${uid}`);
@@ -714,7 +689,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   return (
     <MapboxGL.MapView
       // onRegionDidChange={onRegionDidChange}
-      onDidFinishLoadingMap={onMapLoad}
+
       ref={(ref) => {
         mapRef.current = ref;
       }}
