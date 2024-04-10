@@ -72,10 +72,11 @@ import MapboxGL, {
 } from "@rnmapbox/maps";
 
 const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
+  const [inLine, setInLine] = useState(false);
   const [trim, setTrim] = useState();
   const [expanded, setExpanded] = useState(false);
   const [expanded1, setExpanded1] = useState(false);
-  const [friendLocations, setFriendLocations] = useState({});
+  const [companyVerification, setCompanyVerification] = useState();
   const [temporaryLineTrigger, setTemporaryLineTrigger] = useState(false);
   const [temporaryDecrease, setTemporaryDecrease] = useState(false);
   const [lineUpdated, setLineUpdated] = useState(false);
@@ -96,7 +97,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   const [notiName, setNotiName] = useState([]);
   const [oGName, setOGName] = useState();
   const [finalJSON, setFinalJSON] = useState(false);
-
+  const [virtualProxy, setVirtualProxy] = useState(false);
   const [ulData, setUlData] = useState([]);
   const [dbLocationID, setFireBaseLocationID] = useState("");
   const [fsLocation, setFSLocation] = useState(false);
@@ -296,7 +297,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   //  //------------------------------******************************************------------------------------------------------
   const pingData = (data) => {
     // console.log("This is what we see", data);
-    const socket = io("https://1ab25d6d273f.ngrok.app");
+    const socket = io("https://e747755d2664.ngrok.app");
     setTimeout(() => {
       socket.emit("joinRoom", { room: data.companyName });
       // Your code to be executed after the delay
@@ -408,7 +409,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
         setFinalRender(calculatedObject);
         setShowAnimate(false);
       }
-    }, 5000); // Fetch location and data every 5 seconds
+    }, 2000); // Fetch location and data every 5 seconds
 
     // Clean up the interval when the component unmounts or when dependencies change
     return () => clearInterval(intervalId);
@@ -585,22 +586,25 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
                   lineCalulcation(line, companyId);
                 }
 
-                // console.log(isWithinRange);
-                const shouldUpdate = isWithinRange;
-                const shouldDecrement = !isWithinRange && proxy === 1;
-
-                if (shouldUpdate && proxy === 0 && temporaryMarker == false) {
-                  setTemporaryMarker(true);
-                  setTemporaryDecrease(false);
-
+                const shouldUpdate =
+                  isWithinRange && proxy == 0 && virtualProxy == false;
+                // console.log(
+                //   "TEST IF SHOULD UPDATE",
+                //   shouldUpdate,
+                //   isWithinRange
+                // );
+                if (shouldUpdate) {
                   sendPushNotification(currentData);
+                  setCompanyVerification(companyId);
                   const newEnteredValue = 1;
                   update(userRef, { entered: newEnteredValue })
                     .then(() => {
+                      setVirtualProxy(true);
                       console.log(
-                        "User has been added to the database for location"
+                        `${auth.currentUser?.uid} is in ${companyRef}`
                       );
-                      setProxy(newEnteredValue); // Update state if the database update is successful
+                      setProxy(newEnteredValue);
+                      setInLine(true); // Update state if the database update is successful
                     })
                     .catch((error) => {
                       console.error("Error updating entered value:", error);
@@ -611,12 +615,21 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
                     people: currentData.people + 1,
                   };
                 }
-
-                if (shouldDecrement && temporaryDecrease == false) {
-                  setTemporaryDecrease(true);
-                  setTemporaryMarker(false);
+                const shouldDecrement =
+                  !isWithinRange &&
+                  proxy === 1 &&
+                  companyVerification == companyId;
+                console.log(
+                  "SHOUD DECREASE?",
+                  shouldDecrement,
+                  companyId,
+                  companyVerification
+                );
+                console.log(isWithinRange);
+                if (shouldDecrement) {
+                  setVirtualProxy(false);
                   const newEnteredValue = 0;
-                  console.log("Setting entered to 0...");
+                  // console.log("Setting entered to 0...");
                   update(userRef, { entered: newEnteredValue })
                     .then(() => {
                       console.log("Entered value updated in the database.");
@@ -799,7 +812,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
         color={"pink"}
       />
 
-      {friendData.length > 0 && (
+      {friendData.length > 0 && friendData.location !== null && (
         <>
           {friendData.map((friend) => (
             <MarkerView
