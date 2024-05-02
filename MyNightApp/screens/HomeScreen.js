@@ -681,22 +681,22 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
       trigger: null,
     });
   };
-  //----------------------------------------------------------------------------------------------------
-  useEffect(() => {
-    const uLRef = ref(db, "userLocation");
-    const theRun = onValue(uLRef, (snapshot) => {
-      const newDataArray = [];
-      snapshot.forEach((childSnapshot) => {
-        const ulData = childSnapshot.val();
-        newDataArray.push(ulData);
-      });
-      setUlData(newDataArray);
-    });
+  // //----------------------------------------------------------------------------------------------------
+  // useEffect(() => {
+  //   const uLRef = ref(db, "userLocation");
+  //   const theRun = onValue(uLRef, (snapshot) => {
+  //     const newDataArray = [];
+  //     snapshot.forEach((childSnapshot) => {
+  //       const ulData = childSnapshot.val();
+  //       newDataArray.push(ulData);
+  //     });
+  //     setUlData(newDataArray);
+  //   });
 
-    return () => {
-      theRun();
-    };
-  }, []);
+  //   return () => {
+  //     theRun();
+  //   };
+  // }, []);
 
   //----------------------------------------------------------------------------------------------------
   return (
