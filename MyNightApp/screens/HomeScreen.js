@@ -297,7 +297,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   //  //------------------------------******************************************------------------------------------------------
   const pingData = (data) => {
     // console.log("This is what we see", data);
-    const socket = io("https://e747755d2664.ngrok.app");
+    const socket = io("https://0aeea413d699.ngrok.app");
     setTimeout(() => {
       socket.emit("joinRoom", { room: data.companyName });
       // Your code to be executed after the delay
