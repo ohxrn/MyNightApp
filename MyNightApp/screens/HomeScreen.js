@@ -297,7 +297,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   //  //------------------------------******************************************------------------------------------------------
   const pingData = (data) => {
     // console.log("This is what we see", data);
-    const socket = io("https://0aeea413d699.ngrok.app");
+    const socket = io("https://f0ba4ce9158a.ngrok.app");
     setTimeout(() => {
       socket.emit("joinRoom", { room: data.companyName });
       // Your code to be executed after the delay
@@ -930,8 +930,6 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
       ) : (
         <></>
       )}
-
-      <Animated.View style={{}}></Animated.View>
     </MapboxGL.MapView>
   );
 };
