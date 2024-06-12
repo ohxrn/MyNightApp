@@ -369,7 +369,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   useEffect(() => {
     const postsRef = ref(db, "company");
     const unsubscribe = onValue(postsRef, (snapshot) => {
-      const postsData = snapshot.val();
+      // const postsData = snapshot.val();
       const newDataArray = [];
       snapshot.forEach((childSnapshot) => {
         const companyId = childSnapshot.key;
