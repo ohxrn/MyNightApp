@@ -171,7 +171,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
       if (mapRef && mapRef.current) {
         // Add a null check for mapRef
         let zoom = await mapRef.current.getZoom();
-        console.log(zoom); // You can log the zoom level here if needed
+        // console.log(zoom); // You can log the zoom level here if needed
         // setZoomLevel(zoom);
       }
     };
@@ -297,7 +297,7 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   //  //------------------------------******************************************------------------------------------------------
   const pingData = (data) => {
     // console.log("This is what we see", data);
-    const socket = io("https://f0ba4ce9158a.ngrok.app");
+    const socket = io("https://854e67011fe3.ngrok.app");
     setTimeout(() => {
       socket.emit("joinRoom", { room: data.companyName });
       // Your code to be executed after the delay
@@ -315,8 +315,14 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
     // console.log("THIS IS THE JSON", JSON.stringify(geoJSON));
     let timeoutId;
     clearTimeout(timeoutId);
+    console.log(fsLocation);
     timeoutId = setTimeout(() => {
       if (fsLocation == false) {
+        console.log(
+          "THIS IS LOCATION COMING IN:--------------------------------->" +
+            latestLocation.longitude,
+          latestLocation.latitude
+        );
         const locoID = ref(db, "userLocation"); // Reference to the "company" location
         const newLocoRef = push(locoID); // Generate a new child location with a unique key
         const newCompanyId = newLocoRef.key;
@@ -329,11 +335,11 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
           .then(() => {
             console.log("original location sent to Firestone", latestLocation);
             setFireBaseLocationID(newCompanyId);
+            setFSLocation(true);
           })
           .catch((error) => {
             alert(error);
           });
-        setFSLocation(true);
       }
     }, 1000);
 
@@ -343,28 +349,22 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   }, [latestLocation]);
 
   useEffect(() => {
-    if (dbLocationID !== null && fsLocation === true) {
-      let timeoutId;
-      timeoutId = setTimeout(() => {
-        const locationRef = ref(db, "userLocation/" + auth.currentUser?.uid);
-        const timeStamp = serverTimestamp();
-        set(locationRef, {
-          location: latestLocation,
-          timeStamp: timeStamp,
-        })
-          .then(() => {
-            // console.log("Location data updated successfully");
-          })
-          .catch((error) => {
-            console.error("Error updating location data: ", error);
-          });
-        clearTimeout(timeoutId);
-      }, 6000);
-      return () => {
-        clearTimeout(timeoutId);
-      };
-    }
-  }, [latestLocation]);
+    if (dbLocationID === null || fsLocation !== true) return;
+    console.log(latestLocation);
+    const locationRef = ref(db, "userLocation/" + auth.currentUser?.uid);
+    const timeStamp = serverTimestamp();
+
+    set(locationRef, {
+      location: latestLocation,
+      timeStamp: timeStamp,
+    })
+      .then(() => {
+        console.log("Location data updated successfully");
+      })
+      .catch((error) => {
+        console.error("Error updating location data: ", error);
+      });
+  }, [latestLocation, fsLocation]);
 
   useEffect(() => {
     const postsRef = ref(db, "company");
@@ -483,8 +483,8 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
     ); // Euclidean distance
 
     if (finalDistance < 0.00002 && finalDistance > -0.00002) {
-      console.log("PINGED---here is proxy", proxy);
-      console.log(finalDistance);
+      // console.log("PINGED---here is proxy", proxy);
+      // console.log(finalDistance);
       setAdd((prevAdd) => prevAdd + 1);
       if (add >= 2 && temporaryLineTrigger === false) {
         setAdd(0);
@@ -619,13 +619,13 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
                   !isWithinRange &&
                   proxy === 1 &&
                   companyVerification == companyId;
-                console.log(
-                  "SHOUD DECREASE?",
-                  shouldDecrement,
-                  companyId,
-                  companyVerification
-                );
-                console.log(isWithinRange);
+                // console.log(
+                //   "SHOUD DECREASE?",
+                //   shouldDecrement,
+                //   companyId,
+                //   companyVerification
+                // );
+                // console.log(isWithinRange);
                 if (shouldDecrement) {
                   setVirtualProxy(false);
                   const newEnteredValue = 0;
@@ -701,8 +701,6 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
   //----------------------------------------------------------------------------------------------------
   return (
     <MapboxGL.MapView
-      // onRegionDidChange={onRegionDidChange}
-
       ref={(ref) => {
         mapRef.current = ref;
       }}
@@ -812,124 +810,135 @@ const HomeScreen = ({ BACKGROUND_FETCH_TASK }) => {
         color={"pink"}
       />
 
-      {friendData.length > 0 && friendData.location !== null && (
-        <>
-          {friendData.map((friend) => (
-            <MarkerView
-              key={friend.id} // Use a unique identifier as the key
-              allowOverlap={true}
-              coordinate={[friend.location.longitude, friend.location.latitude]}
-            >
-              <Image
-                source={require("../assets/MyNightMale.png")}
-                style={{ width: 60, height: 60 }}
-              />
-              <Text
-                style={{
-                  fontWeight: "700",
-                  fontSize: 18,
-                  position: "absolute",
-                  top: 55,
-                  textAlign: "center",
-                  left: 10,
-                  backgroundColor: "pink",
-                  padding: 4,
-                }}
-              >
-                {friend.username}
-              </Text>
-            </MarkerView>
-          ))}
-          {finalRender.map((data) => (
-            <MarkerView
-              key={`marker-${data.companyId}`} // Use a unique identifier as the key
-              allowOverlap={true}
-              style={{}}
-              zIndex={1}
-              coordinate={[data.address.longitude, data.address.latitude]}
-            >
-              <View
-                style={{
-                  width: trim,
-                  height: trim,
-                  backgroundColor: "rgba(0, 0, 255, 0.5)", // Blue color with 50% opacity
-                  padding: 10,
-                  borderRadius: 30, // Half of your width and height for a perfect circle
-                  borderWidth: 2, // Border width
-                  borderColor: "white",
-                }}
+      {friendData.length > 0 &&
+        friendData.every(
+          (friend) =>
+            friend.location &&
+            friend.location.longitude !== undefined &&
+            friend.location.latitude !== undefined
+        ) && (
+          <>
+            {friendData.map((friend) => (
+              <MarkerView
+                key={friend.id} // Use a unique identifier as the key
+                allowOverlap={true}
+                coordinate={[
+                  friend.location.longitude,
+                  friend.location.latitude,
+                ]}
               >
                 <Image
-                  source={theLogo}
-                  style={{
-                    position: trim < 55 ? "absolute" : null,
-                    top: trim < 55 ? 8 : null,
-                    right: trim < 55 ? -7 : null,
-                    width: trim < 55 ? trim / 0.78 : trim / 3,
-                    height: trim < 55 ? trim / 2 : trim / 3,
-                  }}
+                  source={require("../assets/MyNightMale.png")}
+                  style={{ width: 60, height: 60 }}
                 />
-                {trim > 55 ? (
-                  <View>
-                    <Text style={{ color: "white", fontSize: trim / 6 }}>
-                      {data.companyName}
-                    </Text>
-                    <Text style={{ color: "red", fontSize: trim / 8 }}>
-                      {data.people == 1 ? (
-                        <Text>1 person here</Text>
-                      ) : (
-                        <View
-                          style={{
-                            flexDirection: "row", // Display children components horizontally
-                            alignItems: "center", // Align children components vertically at the center
-                          }}
-                        >
-                          <Ionicons name={"person"} size={17} color="white" />
-                          <Text
-                            style={{
-                              fontSize: trim > 85 ? 18 : 11,
-                              marginLeft: 5,
-                              color: "white",
-                              fontWeight: "bold",
-                            }}
-                          >
-                            {data.people}
-                          </Text>
-                        </View>
-                      )}
-                    </Text>
-                  </View>
-                ) : null}
-
-                {trim > 85 ? (
-                  <Text style={{ color: "red" }}>
-                    {data.distance.toFixed(2)} Miles away
-                  </Text>
-                ) : null}
-                {trim > 85 ? (
-                  <Text
-                    style={{ fontSize: 12, fontWeight: "bold", color: "lime" }}
+                <Text
+                  style={{
+                    fontWeight: "700",
+                    fontSize: 18,
+                    position: "absolute",
+                    top: 55,
+                    textAlign: "center",
+                    left: 10,
+                    backgroundColor: "pink",
+                    padding: 4,
+                  }}
+                >
+                  {friend.username}
+                </Text>
+              </MarkerView>
+            ))}
+            {finalRender
+              .filter(
+                (data) =>
+                  data.address &&
+                  data.address.longitude !== undefined &&
+                  data.address.latitude !== undefined
+              )
+              .map((data) => (
+                <MarkerView
+                  key={`marker-${data.companyId}`} // Use a unique identifier as the key
+                  allowOverlap={true}
+                  zIndex={1}
+                  coordinate={[data.address.longitude, data.address.latitude]}
+                >
+                  <View
+                    style={{
+                      width: trim,
+                      height: trim,
+                      backgroundColor: "rgba(0, 0, 255, 0.5)", // Blue color with 50% opacity
+                      padding: 10,
+                      borderRadius: 30, // Half of your width and height for a perfect circle
+                      borderWidth: 2, // Border width
+                      borderColor: "white",
+                    }}
                   >
-                    {data.line} In Line
-                  </Text>
-                ) : null}
-              </View>
-            </MarkerView>
-          ))}
-        </>
-      )}
-      {latestLocation != null ? (
-        <ModelLayer
-          id="mvl"
-          source={{ uri: "../assets/McLaren.glb" }} // Replace with the path to your 3D model file
-          layerIndex={5} // Set the layer index appropriately
-          scale={10} // Adjust the scale of your model if necessary
-          coordinate={[latestLocation.longitude, latestLocation.latitude]}
-          // Other props like rotation, position, etc., can also be provided
-        />
-      ) : (
-        <></>
-      )}
+                    <Image
+                      source={theLogo}
+                      style={{
+                        position: trim < 55 ? "absolute" : null,
+                        top: trim < 55 ? 8 : null,
+                        right: trim < 55 ? -7 : null,
+                        width: trim < 55 ? trim / 0.78 : trim / 3,
+                        height: trim < 55 ? trim / 2 : trim / 3,
+                      }}
+                    />
+                    {trim > 55 ? (
+                      <View>
+                        <Text style={{ color: "white", fontSize: trim / 6 }}>
+                          {data.companyName}
+                        </Text>
+                        <Text style={{ color: "red", fontSize: trim / 8 }}>
+                          {data.people === 1 ? (
+                            <Text>1 person here</Text>
+                          ) : (
+                            <View
+                              style={{
+                                flexDirection: "row",
+                                alignItems: "center",
+                              }}
+                            >
+                              <Ionicons
+                                name={"person"}
+                                size={17}
+                                color="white"
+                              />
+                              <Text
+                                style={{
+                                  fontSize: trim > 85 ? 18 : 11,
+                                  marginLeft: 5,
+                                  color: "white",
+                                  fontWeight: "bold",
+                                }}
+                              >
+                                {data.people}
+                              </Text>
+                            </View>
+                          )}
+                        </Text>
+                      </View>
+                    ) : null}
+
+                    {trim > 85 ? (
+                      <Text style={{ color: "red" }}>
+                        {data.distance.toFixed(2)} Miles away
+                      </Text>
+                    ) : null}
+                    {trim > 85 ? (
+                      <Text
+                        style={{
+                          fontSize: 12,
+                          fontWeight: "bold",
+                          color: "lime",
+                        }}
+                      >
+                        {data.line} In Line
+                      </Text>
+                    ) : null}
+                  </View>
+                </MarkerView>
+              ))}
+          </>
+        )}
     </MapboxGL.MapView>
   );
 };

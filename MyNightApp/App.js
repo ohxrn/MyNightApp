@@ -46,7 +46,7 @@ function App() {
 
     responseListener.current =
       Notifications.addNotificationResponseReceivedListener((response) => {
-        console.log(response);
+        // console.log(response);
       });
 
     return () => {
@@ -101,7 +101,7 @@ function App() {
       token = await Notifications.getExpoPushTokenAsync({
         projectId: Constants.expoConfig.extra.eas.projectId,
       });
-      console.log(token);
+      // console.log(token);
     } else {
       alert("Must use a physical device for Push Notifications");
     }

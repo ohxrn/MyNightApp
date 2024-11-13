@@ -29,18 +29,22 @@ function AddFriend(props) {
       database,
       `User Data/${auth.currentUser?.uid}/friends`
     );
+
     get(friendRef)
       .then((snapshot) => {
         const friendIds = snapshot.val() || [];
-        const promises = friendIds.map((friendId) => {
+
+        // Filter out the current user's ID
+        const filteredFriendIds = friendIds.filter(
+          (friendId) => friendId !== auth.currentUser?.uid
+        );
+
+        const promises = filteredFriendIds.map((friendId) => {
           // Retrieve the username for each friend ID
           const userRef = ref(database, `User Data/${friendId}`);
           return get(userRef).then((snapshot) => {
             const userData = snapshot.val();
-            if (userData) {
-              return userData.username;
-            }
-            return null; // Return null if user data not found
+            return userData ? userData.username : null; // Return null if user data not found
           });
         });
 
@@ -49,7 +53,6 @@ function AddFriend(props) {
           const filteredUsernames = usernames.filter(
             (username) => username !== null
           );
-          // Set the filtered usernames as a new state
           setFriendUsernames(filteredUsernames);
         });
       })
@@ -112,7 +115,7 @@ function AddFriend(props) {
     );
 
     if (userId) {
-      console.log("User ID:", userId);
+      // console.log("User ID:", userId);
       //
       const otherFriendRef = ref(database, `User Data/${userId}/friends`);
       get(otherFriendRef)

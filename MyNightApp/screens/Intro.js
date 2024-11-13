@@ -9,7 +9,7 @@ const Intro = () => {
   const [initialRoute, setInitialRoute] = useState("Login");
   const navigation = useNavigation();
   const videoRef = useRef(null);
-  console.log("it has ended");
+  // console.log("it has ended");
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {

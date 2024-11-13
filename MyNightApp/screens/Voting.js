@@ -60,7 +60,7 @@ function Voting(props) {
       .then((downloadURLs) => {
         // downloadURLs is an array of URLs for each photo
         // You can handle these URLs as needed, for example, displaying them in your UI
-        console.log(downloadURLs);
+        // console.log(downloadURLs);
         setImageLinks(downloadURLs);
       })
       .catch((error) => {
@@ -75,7 +75,7 @@ function Voting(props) {
 
   // Establishing the socket connection
   useEffect(() => {
-    const newSocket = io("https://f0ba4ce9158a.ngrok.app");
+    const newSocket = io("https://854e67011fe3.ngrok.app");
 
     // Handle socket connection errors
     newSocket.on("connect_error", (error) => {

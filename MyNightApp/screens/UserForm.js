@@ -37,7 +37,7 @@ function UserForm(props) {
   }, []);
 
   const createUser = () => {
-    console.log(auth); // Check the auth object in the console
+    // console.log(auth); // Check the auth object in the console
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         // User successfully created
